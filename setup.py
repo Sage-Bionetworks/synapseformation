@@ -17,4 +17,5 @@ setup(name='synapseformation',
       packages=find_packages(),
       zip_safe=False,
       python_requires='>=3.6',
-      install_requires=['synapseclient'])
+      entry_points={'console_scripts': ['synapseformation = synapseformation.__main__:cli']},
+      install_requires=['click', 'synapseclient'])
