@@ -1,0 +1,11 @@
+sudo: required
+language: python
+python:
+  - "3.6"
+  - "3.7"
+script:
+  - python setup.py install
+  - pytest -vs tests
+
+before_install:
+  - pip install synapseclient
