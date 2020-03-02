@@ -61,7 +61,8 @@ def create_team(syn, team_name, desc, can_public_join=False):
     return team
 
 
-def create_evaluation_queue(syn, name, description, parentid):
+def create_evaluation_queue(syn, name, description, parentid,
+                            quota=None):
     """Creates Evaluation Queues
 
     Args:
@@ -73,6 +74,7 @@ def create_evaluation_queue(syn, name, description, parentid):
     Returns:
         Evalation Queue
     """
+
     queue_ent = synapseclient.Evaluation(name=name,
                                          description=description,
                                          contentSource=parentid)
