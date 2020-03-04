@@ -18,5 +18,6 @@ setup(name='synapseformation',
       zip_safe=False,
       python_requires='>=3.6',
       entry_points={'console_scripts': ['synapseformation = synapseformation.__main__:cli']},
-      install_requires=['click', 'synapseclient==1.9.4',
-                        'challengeutils @ git@github.com:Sage-Bionetworks/challengeutils.git@v1.3#egg=challengeutils'])
+      install_requires=['click',
+                        'synapseclient>=1.9.4',
+                        'challengeutils>=1.3'])
