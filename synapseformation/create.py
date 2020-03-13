@@ -11,6 +11,20 @@ from challengeutils import utils
 logger = logging.getLogger(__name__)
 
 
+class SynapseCreation:
+    def __init__(self, syn: 'Synapse', create_or_update: bool=False):
+        """Creates Synapse Features
+
+        Args:
+            syn: Synapse connection
+            create_or_update: Default is False, which means resources can
+                              only be created and not updated if resource
+                              already exists.
+        """
+        self.syn = syn
+        self.create_or_update = create_or_update
+
+
 def create_project(syn: 'Synapse', project_name: str) -> Project:
     """Creates Synapse Project
 
