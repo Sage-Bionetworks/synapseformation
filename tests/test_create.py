@@ -85,3 +85,21 @@ def test__create_team__raise_error():
     with patch.object(SYN, "store", side_effect=ValueError),\
          pytest.raises(ValueError, match=f"Team {team_name}*"):
         CREATE_CLS.create_team(team_name)
+
+def test_create_team__call():
+    """Tests the correct parameters are passed in"""
+    team_name = str(uuid.uuid1())
+    description = str(uuid.uuid1())
+    can_public_join = True
+    returned = synapseclient.Team(name=team_name,
+                                  description=description,
+                                  id=str(uuid.uuid1()),
+                                  canPublicJoin=can_public_join)
+    with patch.object(CREATE_CLS, "_create_team",
+                      return_value=returned) as patch_create:
+        new_team = CREATE_CLS.create_team(team_name, description=description,
+                                          can_public_join=can_public_join)
+        patch_create.assert_called_once_with(team_name,
+                                             description=description,
+                                             can_public_join=can_public_join)
+        assert new_team == returned

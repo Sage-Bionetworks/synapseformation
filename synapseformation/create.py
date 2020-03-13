@@ -1,7 +1,6 @@
 """Convenience functions to create Synapse entities"""
 import logging
 from logging import Logger
-import sys
 from urllib.parse import quote
 
 from synapseclient import Project, Team, Evaluation, File, Folder, Wiki
