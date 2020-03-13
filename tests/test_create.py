@@ -23,7 +23,8 @@ def test_create_project__call():
     with patch.object(SYN, "store", return_value=returned) as patch_syn_store:
         new_project = create.create_project(SYN, project_name)
         assert new_project == returned
-        patch_syn_store.assert_called_once_with(project)
+        patch_syn_store.assert_called_once_with(project,
+                                                createOrUpdate=False)
 
 
 def test_create_folder__call():
@@ -39,3 +40,18 @@ def test_create_folder__call():
         new_folder = create.create_folder(SYN, folder_name, parentid)
         assert new_folder == returned
         patch_syn_store.assert_called_once_with(folder)
+
+
+def test_create_file__call():
+    """Tests the correct parameters are passed in"""
+    file_path = str(uuid.uuid1())
+    parentid = str(uuid.uuid1())
+    file_ent = synapseclient.File(path=file_path,
+                                  parentId=parentid)
+    returned = synapseclient.File(path=file_path,
+                                  id=str(uuid.uuid1()),
+                                  parentId=parentid)
+    with patch.object(SYN, "store", return_value=returned) as patch_syn_store:
+        new_file = create.create_file(SYN, file_path, parentid)
+        assert new_file == returned
+        patch_syn_store.assert_called_once_with(file_ent)

@@ -22,7 +22,7 @@ def create_project(syn, project_name):
     """
     project = synapseclient.Project(project_name)
     # returns the handle to the project if the user has sufficient priviledge
-    project = syn.store(project)
+    project = syn.store(project, createOrUpdate=False)
     logger.info('Created/Fetched Project {} ({})'.format(project.name,
                                                          project.id))
     return project
