@@ -221,7 +221,7 @@ class SynapseCreation:
         return folder_ent
 
     def create_wiki(self, title: str, markdown: str, projectid: str,
-                    parent_wiki: str) -> Wiki:
+                    parent_wiki: str = None) -> Wiki:
         """Creates wiki page
 
         Args:
@@ -235,9 +235,7 @@ class SynapseCreation:
             Synapse wiki page
 
         """
-        wiki_ent = Wiki(title=title,
-                        markdown=markdown,
-                        owner=projectid,
+        wiki_ent = Wiki(title=title, markdown=markdown, owner=projectid,
                         parent_wiki=parent_wiki)
         wiki_ent = self.syn.store(wiki_ent)
         self.logger.info('{} Wiki {} ({})'.format(self._update_str,
