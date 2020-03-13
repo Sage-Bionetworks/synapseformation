@@ -1,18 +1,19 @@
 """Convenience functions to create Synapse entities"""
 import logging
+from logging import Logger
 import sys
+from urllib.parse import quote
 
 from synapseclient import Project, Team, Evaluation, File, Folder, Wiki
 from synapseclient.exceptions import SynapseHTTPError
 
 from challengeutils import utils
 
-logger = logging.getLogger(__name__)
-
 
 class SynapseCreation:
     """Creates Synapse Features"""
-    def __init__(self, syn: 'Synapse', create_or_update: bool = False):
+    def __init__(self, syn: 'Synapse', create_or_update: bool = False,
+                 logger: Logger = None):
         """
         Args:
             syn: Synapse connection
@@ -22,7 +23,8 @@ class SynapseCreation:
         """
         self.syn = syn
         self.create_or_update = create_or_update
-
+        self.logger = logger or logging.getLogger(__name__)
+        self._update_str = "Fetched existing" if create_or_update else "Created"
 
     def create_project(self, project_name: str) -> Project:
         """Creates Synapse Project
@@ -40,19 +42,45 @@ class SynapseCreation:
         # priviledge
         project = self.syn.store(project,
                                  createOrUpdate=self.create_or_update)
-        logger.info('Created/Fetched Project {} ({})'.format(project.name,
-                                                             project.id))
+        self.logger.info('{} Project {}({})'.format(self._update_str,
+                                                    project.name,
+                                                    project.id))
         return project
 
+    def _create_team(self, team_name: str, description: str = None,
+                     can_public_join: bool = False) -> Team:
+        """Creates Synapse Team (currently synapseclient doens't return
+        informative error when team name exists)
 
-    def create_team(self, team_name: str, desc: str,
+        Args:
+            syn: Synapse connection
+            team_name: Name of team
+            description: Description of team
+            can_public_join: true for teams which members can join without
+                             an invitation or approval. Default to False
+        Returns:
+            Synapse Team
+
+        Raises:
+            ValueError: If team already exists
+        """
+        try:
+            team = Team(name=team_name, description=description,
+                        canPublicJoin=can_public_join)
+            # raises a ValueError if a team with this name already exists
+            team = self.syn.store(team)
+            return team
+        except ValueError:
+            raise ValueError(f"Team {team_name} already exists")
+
+    def create_team(self, team_name: str, description: str = None,
                     can_public_join: bool = False) -> Team:
         """Creates Synapse Team
 
         Args:
             syn: Synapse connection
             team_name: Name of team
-            desc: Description of team
+            description: Description of team
             can_public_join: true for teams which members can join without
                             an invitation or approval. Default to False
 
@@ -60,29 +88,21 @@ class SynapseCreation:
             Synapse Team id
 
         """
-        try:
-            # raises a ValueError if a team does not exist
+        if self.create_or_update:
             team = self.syn.getTeam(team_name)
-            logger.info('The team {} already exists.'.format(team_name))
-            logger.info(team)
-            # If you press enter, this will default to 'y'
-            user_input = input('Do you want to use this team? (Y/n) ') or 'y'
-            if user_input.lower() not in ('y', 'yes'):
-                logger.info('Please specify a new challenge name. Exiting.')
-                sys.exit(1)
-        except ValueError:
-            team = Team(name=team_name,
-                        description=desc,
-                        canPublicJoin=can_public_join)
-            # raises a ValueError if a team with this name already exists
-            team = self.syn.store(team)
-            logger.info('Created Team {} ({})'.format(team.name, team.id))
+        else:
+            self._create_team(team_name, description=description,
+                              can_public_join=can_public_join)
+        self.logger.info('{} Team {} ({})'.format(self._update_str,
+                                                  team.name,
+                                                  team.id))
         return team
 
-
-    def create_evaluation_queue(self, name: str, description: str,
-                                parentid: str, quota: dict = None) -> Evaluation:
-        """Creates Evaluation Queues
+    def _create_evaluation_queue(self, name: str, description: str,
+                                 parentid: str,
+                                 quota: dict = None) -> Evaluation:
+        """Creates Evaluation Queues (currently synapseclient doens't return
+        informative error when queue name exists)
 
         Args:
             syn: Synapse connection
@@ -95,14 +115,44 @@ class SynapseCreation:
             Synapse Evaluation Queue
 
         """
-        queue_ent = Evaluation(name=name,
-                               description=description,
-                               contentSource=parentid,
-                               quota=quota)
-        queue = self.syn.store(queue_ent)
-        logger.info('Created Queue {}({})'.format(queue.name, queue.id))
+        try:
+            queue_ent = Evaluation(name=name,
+                                   description=description,
+                                   contentSource=parentid,
+                                   quota=quota)
+            queue = self.syn.store(queue_ent)
+        except SynapseHTTPError:
+            raise ValueError(f"Queue {name} already exists")
         return queue
 
+    def create_evaluation_queue(self, name: str, parentid: str,
+                                description: str = None,
+                                quota: dict = None) -> Evaluation:
+        """Creates Evaluation Queues
+
+        Args:
+            syn: Synapse connection
+            name: Name of evaluation queue
+            parentid: Synapse project id
+            description: Description of queue
+            quota: Evaluation queue quota
+
+        Returns:
+            Synapse Evaluation Queue
+
+        """
+        if self.create_or_update:
+            url_name = quote(name)
+            queue = self.syn.restGET(f"/evaluation/name/{url_name}")
+            queue = Evaluation(**queue)
+        else:
+            queue = self._create_evaluation_queue(name=name,
+                                                  description=description,
+                                                  parentid=parentid,
+                                                  quota=quota)
+        self.logger.info('{} Queue {}({})'.format(self._update_str,
+                                                  queue.name, queue.id))
+        return queue
 
     def create_challenge_widget(self, project_live: str,
                                 team_part_id: str) -> 'Challenge':
@@ -118,15 +168,14 @@ class SynapseCreation:
             Synapse challenge object
 
         """
-        try:
+        if self.create_or_update:
+            challenge = utils.get_challenge(self.syn, project_live)
+        else:
             challenge = utils.create_challenge(self.syn, project_live,
                                                team_part_id)
-            logger.info("Created Challenge ({})".format(challenge.id))
-        except SynapseHTTPError:
-            challenge = utils.get_challenge(self.syn, project_live)
-            logger.info("Fetched existing Challenge ({})".format(challenge.id))
+        self.logger.info("{} Challenge ({})".format(self._update_str,
+                                                    challenge.id))
         return challenge
-
 
     def create_file(self, path: str, parentid: str) -> File:
         """Creates Synapse File
@@ -144,8 +193,9 @@ class SynapseCreation:
         # returns the handle to the file if the user has sufficient priviledge
         file_ent = self.syn.store(file_ent,
                                   createOrUpdate=self.create_or_update)
-        logger.info('Created/Fetched File {} ({})'.format(file_ent.name,
-                                                          file_ent.id))
+        self.logger.info('{} File {} ({})'.format(self._update_str,
+                                                  file_ent.name,
+                                                  file_ent.id))
         return file_ent
 
 
@@ -165,10 +215,10 @@ class SynapseCreation:
         # priviledge
         folder_ent = self.syn.store(folder_ent,
                                     createOrUpdate=self.create_or_update)
-        logger.info('Created/Fetched Folder {} ({})'.format(folder_ent.name,
-                                                            folder_ent.id))
+        self.logger.info('{} Folder {} ({})'.format(self._update_str,
+                                                    folder_ent.name,
+                                                    folder_ent.id))
         return folder_ent
-
 
     def create_wiki(self, title: str, markdown: str, projectid: str,
                     parent_wiki: str) -> Wiki:
@@ -190,6 +240,7 @@ class SynapseCreation:
                         owner=projectid,
                         parent_wiki=parent_wiki)
         wiki_ent = self.syn.store(wiki_ent)
-        logger.info('Created/Fetched Wiki {} ({})'.format(wiki_ent.name,
-                                                          wiki_ent.id))
+        self.logger.info('{} Wiki {} ({})'.format(self._update_str,
+                                                  wiki_ent.name,
+                                                  wiki_ent.id))
         return wiki_ent
