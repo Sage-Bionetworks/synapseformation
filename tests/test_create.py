@@ -3,10 +3,11 @@ Tests creation module
 Functions are named with the function name in create module along
 with what is tested
 """
-import mock
-from mock import patch
 import uuid
 
+import mock
+from mock import patch
+import pytest
 import synapseclient
 
 from synapseformation.create import SynapseCreation
@@ -57,3 +58,30 @@ def test_create_file__call():
         assert new_file == returned
         patch_syn_store.assert_called_once_with(file_ent,
                                                 createOrUpdate=False)
+
+
+def test__create_team__call():
+    """Tests the correct parameters are passed in"""
+    team_name = str(uuid.uuid1())
+    description = str(uuid.uuid1())
+    can_public_join = True
+    team_ent = synapseclient.Team(name=team_name,
+                                  description=description,
+                                  canPublicJoin=can_public_join)
+    returned = synapseclient.Team(name=team_name,
+                                  description=description,
+                                  id=str(uuid.uuid1()),
+                                  canPublicJoin=can_public_join)
+    with patch.object(SYN, "store", return_value=returned) as patch_syn_store:
+        new_team = CREATE_CLS.create_team(team_name, description=description,
+                                          can_public_join=can_public_join)
+        assert new_team == returned
+        patch_syn_store.assert_called_once_with(team_ent)
+
+
+def test__create_team__raise_error():
+    """Error is raised when team name already exists"""
+    team_name = str(uuid.uuid1())
+    with patch.object(SYN, "store", side_effect=ValueError),\
+         pytest.raises(ValueError, match=f"Team {team_name}*"):
+        CREATE_CLS.create_team(team_name)

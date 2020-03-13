@@ -91,8 +91,8 @@ class SynapseCreation:
         if self.create_or_update:
             team = self.syn.getTeam(team_name)
         else:
-            self._create_team(team_name, description=description,
-                              can_public_join=can_public_join)
+            team = self._create_team(team_name, description=description,
+                                     can_public_join=can_public_join)
         self.logger.info('{} Team {} ({})'.format(self._update_str,
                                                   team.name,
                                                   team.id))
