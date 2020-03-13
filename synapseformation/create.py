@@ -3,7 +3,7 @@ import logging
 import sys
 
 import synapseclient
-from synapseclient import Project, Team
+from synapseclient import Project, Team, Evaluation
 from synapseclient.exceptions import SynapseHTTPError
 
 from challengeutils import utils
@@ -15,7 +15,7 @@ def create_project(syn: 'Synapse', project_name: str) -> Project:
     """Creates Synapse Project
 
     Args:
-        syn: Synapse object
+        syn: Synapse connection
         project_name: Name of project
 
     Returns:
@@ -35,7 +35,7 @@ def create_team(syn: 'Synapse', team_name: str, desc: str,
     """Creates Synapse Team
 
     Args:
-        syn: Synpase object
+        syn: Synapse connection
         team_name: Name of team
         desc: Description of team
         can_public_join: true for teams which members can join without
@@ -65,12 +65,12 @@ def create_team(syn: 'Synapse', team_name: str, desc: str,
     return team
 
 
-def create_evaluation_queue(syn, name, description, parentid,
-                            quota=None):
+def create_evaluation_queue(syn: 'Synapse', name: str, description:str,
+                            parentid: str, quota: bool=None) -> Evaluation:
     """Creates Evaluation Queues
 
     Args:
-        syn: Synpase object
+        syn: Synapse connection
         name: Name of evaluation queue
         description: Description of queue
         parentid: Synapse project id
@@ -80,7 +80,7 @@ def create_evaluation_queue(syn, name, description, parentid,
 
     """
 
-    queue_ent = synapseclient.Evaluation(name=name,
+    queue_ent = Evaluation(name=name,
                                          description=description,
                                          contentSource=parentid)
     queue = syn.store(queue_ent)
@@ -93,7 +93,7 @@ def create_challenge_widget(syn, project_live, team_part_id):
     If challenge object exists, it retrieves existing object
 
     Args:
-        syn: Synpase object
+        syn: Synapse connection
         project_live: Synapse id of live challenge project
         team_part_id: Synapse team id of participant team
 
@@ -114,7 +114,7 @@ def create_file(syn, path, parentid):
     """Creates Synapse File
 
     Args:
-        syn: Synpase object
+        syn: Synapse connection
         path: Path to file
         parentid: Synapse parent id
 
@@ -134,7 +134,7 @@ def create_folder(syn, folder_name, parentid):
     """Creates Synapse Folder
 
     Args:
-        syn: Synpase object
+        syn: Synapse connection
         folder_name: Name of folder
 
     Returns:
@@ -153,7 +153,7 @@ def create_wiki(syn, title, markdown, projectid, parent_wiki):
     """Creates wiki page
 
     Args:
-        syn: Synapse object
+        syn: Synapse connection
         title: Title of wiki
         markdown: markdown formatted string
         projectid: Synapse project id,
