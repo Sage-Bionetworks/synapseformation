@@ -3,7 +3,7 @@ import logging
 import sys
 
 import synapseclient
-from synapseclient import Project, Team, Evaluation
+from synapseclient import Project, Team, Evaluation, File, Folder, Wiki
 from synapseclient.exceptions import SynapseHTTPError
 
 from challengeutils import utils
@@ -66,7 +66,7 @@ def create_team(syn: 'Synapse', team_name: str, desc: str,
 
 
 def create_evaluation_queue(syn: 'Synapse', name: str, description:str,
-                            parentid: str, quota: bool=None) -> Evaluation:
+                            parentid: str, quota: dict=None) -> Evaluation:
     """Creates Evaluation Queues
 
     Args:
@@ -74,21 +74,23 @@ def create_evaluation_queue(syn: 'Synapse', name: str, description:str,
         name: Name of evaluation queue
         description: Description of queue
         parentid: Synapse project id
+        quota: Evaluation queue quota
 
     Returns:
-        Evalation Queue
+        Synapse Evaluation Queue
 
     """
 
     queue_ent = Evaluation(name=name,
-                                         description=description,
-                                         contentSource=parentid)
+                           description=description,
+                           contentSource=parentid)
     queue = syn.store(queue_ent)
     logger.info('Created Queue {}({})'.format(queue.name, queue.id))
     return queue
 
 
-def create_challenge_widget(syn, project_live, team_part_id):
+def create_challenge_widget(syn: 'Synapse', project_live: str,
+                            team_part_id: str) -> 'Challenge':
     """Creates challenge widget - activates a Synapse project
     If challenge object exists, it retrieves existing object
 
@@ -98,7 +100,7 @@ def create_challenge_widget(syn, project_live, team_part_id):
         team_part_id: Synapse team id of participant team
 
     Returns:
-        Challenge object
+        Synapse challenge object
 
     """
     try:
@@ -110,7 +112,7 @@ def create_challenge_widget(syn, project_live, team_part_id):
     return challenge
 
 
-def create_file(syn, path, parentid):
+def create_file(syn: 'Synapse', path: str, parentid: str) -> File:
     """Creates Synapse File
 
     Args:
@@ -119,10 +121,10 @@ def create_file(syn, path, parentid):
         parentid: Synapse parent id
 
     Returns:
-        File Entity
+        Synapse file
 
     """
-    file_ent = synapseclient.File(path, parent=parentid)
+    file_ent = File(path, parent=parentid)
     # returns the handle to the file if the user has sufficient priviledge
     file_ent = syn.store(file_ent)
     logger.info('Created/Fetched File {} ({})'.format(file_ent.name,
@@ -130,7 +132,7 @@ def create_file(syn, path, parentid):
     return file_ent
 
 
-def create_folder(syn, folder_name, parentid):
+def create_folder(syn: 'Synapse', folder_name: str, parentid: str) -> Folder:
     """Creates Synapse Folder
 
     Args:
@@ -138,10 +140,10 @@ def create_folder(syn, folder_name, parentid):
         folder_name: Name of folder
 
     Returns:
-        Folder Entity
+        Synapse folder
 
     """
-    folder_ent = synapseclient.Folder(folder_name, parent=parentid)
+    folder_ent = Folder(folder_name, parent=parentid)
     # returns the handle to the project if the user has sufficient priviledge
     folder_ent = syn.store(folder_ent)
     logger.info('Created/Fetched Folder {} ({})'.format(folder_ent.name,
@@ -149,7 +151,8 @@ def create_folder(syn, folder_name, parentid):
     return folder_ent
 
 
-def create_wiki(syn, title, markdown, projectid, parent_wiki):
+def create_wiki(syn: 'Synapse', title: str, markdown: str, projectid: str,
+                parent_wiki: str) -> Wiki:
     """Creates wiki page
 
     Args:
@@ -160,13 +163,13 @@ def create_wiki(syn, title, markdown, projectid, parent_wiki):
         parent_wiki: Parent wiki id
 
     Returns:
-        Stored wiki page
+        Synapse wiki page
 
     """
-    wiki_ent = synapseclient.Wiki(title=title,
-                                  markdown=markdown,
-                                  owner=projectid,
-                                  parent_wiki=parent_wiki)
+    wiki_ent = Wiki(title=title,
+                    markdown=markdown,
+                    owner=projectid,
+                    parent_wiki=parent_wiki)
     wiki_ent = syn.store(wiki_ent)
     logger.info('Created/Fetched Wiki {} ({})'.format(wiki_ent.name,
                                                       wiki_ent.id))
