@@ -3,7 +3,7 @@ import logging
 import sys
 
 import synapseclient
-from synapseclient import Synapse, Project
+from synapseclient import Project, Team
 from synapseclient.exceptions import SynapseHTTPError
 
 from challengeutils import utils
@@ -11,7 +11,7 @@ from challengeutils import utils
 logger = logging.getLogger(__name__)
 
 
-def create_project(syn: Synapse, project_name: str) -> Project:
+def create_project(syn: 'Synapse', project_name: str) -> Project:
     """Creates Synapse Project
 
     Args:
@@ -22,7 +22,7 @@ def create_project(syn: Synapse, project_name: str) -> Project:
         Project Entity
 
     """
-    project = synapseclient.Project(project_name)
+    project = Project(project_name)
     # returns the handle to the project if the user has sufficient priviledge
     project = syn.store(project, createOrUpdate=False)
     logger.info('Created/Fetched Project {} ({})'.format(project.name,
@@ -30,7 +30,8 @@ def create_project(syn: Synapse, project_name: str) -> Project:
     return project
 
 
-def create_team(syn, team_name, desc, can_public_join=False):
+def create_team(syn: 'Synapse', team_name: str, desc: str,
+                can_public_join: bool=False) -> Team:
     """Creates Synapse Team
 
     Args:
