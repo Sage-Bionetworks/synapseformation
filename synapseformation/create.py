@@ -3,6 +3,7 @@ import logging
 import sys
 
 import synapseclient
+from synapseclient import Synapse, Project
 from synapseclient.exceptions import SynapseHTTPError
 
 from challengeutils import utils
@@ -10,15 +11,16 @@ from challengeutils import utils
 logger = logging.getLogger(__name__)
 
 
-def create_project(syn, project_name):
+def create_project(syn: Synapse, project_name: str) -> Project:
     """Creates Synapse Project
 
     Args:
-        syn: Synpase object
+        syn: Synapse object
         project_name: Name of project
 
     Returns:
         Project Entity
+
     """
     project = synapseclient.Project(project_name)
     # returns the handle to the project if the user has sufficient priviledge
@@ -40,6 +42,7 @@ def create_team(syn, team_name, desc, can_public_join=False):
 
     Returns:
         Synapse Team id
+
     """
     try:
         # raises a ValueError if a team does not exist
@@ -73,6 +76,7 @@ def create_evaluation_queue(syn, name, description, parentid,
 
     Returns:
         Evalation Queue
+
     """
 
     queue_ent = synapseclient.Evaluation(name=name,
@@ -94,6 +98,7 @@ def create_challenge_widget(syn, project_live, team_part_id):
 
     Returns:
         Challenge object
+
     """
     try:
         challenge = utils.create_challenge(syn, project_live, team_part_id)
@@ -114,6 +119,7 @@ def create_file(syn, path, parentid):
 
     Returns:
         File Entity
+
     """
     file_ent = synapseclient.File(path, parent=parentid)
     # returns the handle to the file if the user has sufficient priviledge
@@ -132,6 +138,7 @@ def create_folder(syn, folder_name, parentid):
 
     Returns:
         Folder Entity
+
     """
     folder_ent = synapseclient.Folder(folder_name, parent=parentid)
     # returns the handle to the project if the user has sufficient priviledge
@@ -152,7 +159,8 @@ def create_wiki(syn, title, markdown, projectid, parent_wiki):
         parent_wiki: Parent wiki id
 
     Returns:
-        wiki
+        Stored wiki page
+
     """
     wiki_ent = synapseclient.Wiki(title=title,
                                   markdown=markdown,
