@@ -9,10 +9,10 @@ import uuid
 
 import synapseclient
 
-from synapseformation import create
+from synapseformation.create import SynapseCreation
 
 SYN = mock.create_autospec(synapseclient.Synapse)
-
+CREATE_CLS = SynapseCreation(SYN)
 
 def test_create_project__call():
     """Tests the correct parameters are passed in"""
@@ -21,7 +21,7 @@ def test_create_project__call():
     returned = synapseclient.Project(name=project_name,
                                      id=str(uuid.uuid1()))
     with patch.object(SYN, "store", return_value=returned) as patch_syn_store:
-        new_project = create.create_project(SYN, project_name)
+        new_project = CREATE_CLS.create_project(project_name)
         assert new_project == returned
         patch_syn_store.assert_called_once_with(project,
                                                 createOrUpdate=False)
@@ -37,9 +37,10 @@ def test_create_folder__call():
                                     id=str(uuid.uuid1()),
                                     parentId=parentid)
     with patch.object(SYN, "store", return_value=returned) as patch_syn_store:
-        new_folder = create.create_folder(SYN, folder_name, parentid)
+        new_folder = CREATE_CLS.create_folder(folder_name, parentid)
         assert new_folder == returned
-        patch_syn_store.assert_called_once_with(folder)
+        patch_syn_store.assert_called_once_with(folder,
+                                                createOrUpdate=False)
 
 
 def test_create_file__call():
@@ -52,6 +53,7 @@ def test_create_file__call():
                                   id=str(uuid.uuid1()),
                                   parentId=parentid)
     with patch.object(SYN, "store", return_value=returned) as patch_syn_store:
-        new_file = create.create_file(SYN, file_path, parentid)
+        new_file = CREATE_CLS.create_file(file_path, parentid)
         assert new_file == returned
-        patch_syn_store.assert_called_once_with(file_ent)
+        patch_syn_store.assert_called_once_with(file_ent,
+                                                createOrUpdate=False)
