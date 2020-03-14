@@ -4,7 +4,6 @@ from logging import Logger
 from urllib.parse import quote
 
 from synapseclient import Project, Team, Evaluation, File, Folder, Wiki
-from synapseclient.exceptions import SynapseHTTPError
 
 from challengeutils import utils
 
@@ -172,7 +171,7 @@ class SynapseCreation:
                                                     folder_ent.id))
         return folder_ent
 
-    def create_wiki(self, title: str, markdown: str, projectid: str,
+    def create_wiki(self, title: str, projectid: str, markdown: str = None,
                     parent_wiki: str = None) -> Wiki:
         """Creates wiki page
 
@@ -188,9 +187,12 @@ class SynapseCreation:
 
         """
         wiki_ent = Wiki(title=title, markdown=markdown, owner=projectid,
-                        parent_wiki=parent_wiki)
-        wiki_ent = self.syn.store(wiki_ent)
-        self.logger.info('{} Wiki {} ({})'.format(self._update_str,
-                                                  wiki_ent.name,
-                                                  wiki_ent.id))
+                        parentWikiId=parent_wiki)
+        # Create or update won't make a difference for subwiki pages
+        # because there is no restriction on names.  So you could
+        # have duplicated wiki title names
+        wiki_ent = self.syn.store(wiki_ent,
+                                  createOrUpdate=self.create_or_update)
+        self.logger.info('{} Wiki {}'.format(self._update_str,
+                                             wiki_ent.title))
         return wiki_ent

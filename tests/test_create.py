@@ -5,6 +5,7 @@ with what is tested
 """
 import uuid
 
+from challengeutils import utils
 import mock
 from mock import patch
 import pytest
@@ -142,3 +143,53 @@ def test_create_evaluation_queue__fetch_call():
                                                       parentid=parentid)
         patch_rest_get.assert_called_once_with(f"/evaluation/name/{queue_name}")
         assert new_team == returned
+
+
+class Challenge:
+    """mock challenge class"""
+    id = str(uuid.uuid1())
+
+
+def test_create_challenge_widget__call():
+    """Tests the correct parameters are passed in for creation"""
+    project_live = str(uuid.uuid1())
+    team_part_id = str(uuid.uuid1())
+    with patch.object(utils, "create_challenge",
+                      return_value=Challenge) as patch_create_chal:
+        chal = CREATE_CLS.create_challenge_widget(project_live, team_part_id)
+        patch_create_chal.assert_called_once_with(SYN, project_live,
+                                                  team_part_id)
+        assert chal == Challenge
+
+
+def test_create_challenge_widget__fetch_call():
+    """Tests the correct parameters are passed in for fetching"""
+    project_live = str(uuid.uuid1())
+    team_part_id = str(uuid.uuid1())
+    with patch.object(utils, "get_challenge",
+                      return_value=Challenge) as patch_get_chal:
+        chal = UPDATE_CLS.create_challenge_widget(project_live, team_part_id)
+        patch_get_chal.assert_called_once_with(SYN, project_live)
+        assert chal == Challenge
+
+
+@pytest.mark.parametrize("invoke_cls,create",
+                         [(CREATE_CLS, False), (UPDATE_CLS, True)])
+def test_create_wiki__call(invoke_cls, create):
+    """Tests the correct parameters are passed in"""
+    title = str(uuid.uuid1())
+    markdown = str(uuid.uuid1())
+    projectid = str(uuid.uuid1())
+    parent_wiki = str(uuid.uuid1())
+
+    returned = synapseclient.Wiki(title=title,
+                                  markdown=markdown,
+                                  owner=projectid,
+                                  parentWikiId=parent_wiki)
+    with patch.object(SYN, "store", return_value=returned) as patch_syn_store:
+        new_wiki = invoke_cls.create_wiki(title=title, projectid=projectid,
+                                          markdown=markdown,
+                                          parent_wiki=parent_wiki)
+        assert new_wiki == returned
+        patch_syn_store.assert_called_once_with(returned,
+                                                createOrUpdate=create)
