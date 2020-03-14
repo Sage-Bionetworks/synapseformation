@@ -74,33 +74,6 @@ class SynapseCreation:
                                                   team.id))
         return team
 
-    def _create_evaluation_queue(self, name: str, description: str,
-                                 parentid: str,
-                                 quota: dict = None) -> Evaluation:
-        """Creates Evaluation Queues (currently synapseclient doens't return
-        informative error when queue name exists)
-
-        Args:
-            syn: Synapse connection
-            name: Name of evaluation queue
-            description: Description of queue
-            parentid: Synapse project id
-            quota: Evaluation queue quota
-
-        Returns:
-            Synapse Evaluation Queue
-
-        """
-        try:
-            queue_ent = Evaluation(name=name,
-                                   description=description,
-                                   contentSource=parentid,
-                                   quota=quota)
-            queue = self.syn.store(queue_ent)
-        except SynapseHTTPError:
-            raise ValueError(f"Queue {name} already exists")
-        return queue
-
     def create_evaluation_queue(self, name: str, parentid: str,
                                 description: str = None,
                                 quota: dict = None) -> Evaluation:
@@ -122,10 +95,13 @@ class SynapseCreation:
             queue = self.syn.restGET(f"/evaluation/name/{url_name}")
             queue = Evaluation(**queue)
         else:
-            queue = self._create_evaluation_queue(name=name,
-                                                  description=description,
-                                                  parentid=parentid,
-                                                  quota=quota)
+            queue_ent = Evaluation(name=name,
+                                   description=description,
+                                   contentSource=parentid,
+                                   quota=quota)
+            # Throws SynapseHTTPError is queue already exists
+            queue = self.syn.store(queue_ent,
+                                   createOrUpdate=self.create_or_update)
         self.logger.info('{} Queue {}({})'.format(self._update_str,
                                                   queue.name, queue.id))
         return queue

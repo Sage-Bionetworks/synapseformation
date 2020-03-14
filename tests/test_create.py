@@ -103,3 +103,42 @@ def test_create_team__fetch_call():
                                           can_public_join=can_public_join)
         patch_get_team.assert_called_once_with(team_name)
         assert new_team == returned
+
+
+def test_create_evaluation_queue__call():
+    """Tests the correct parameters are passed in"""
+    queue_name = str(uuid.uuid1())
+    parentid = "syn" + str(uuid.uuid1())
+    description = str(uuid.uuid1())
+    queue = synapseclient.Evaluation(name=queue_name,
+                                     contentSource=parentid,
+                                     description=description,
+                                     quota={})
+    returned = synapseclient.Evaluation(name=queue_name,
+                                        contentSource=parentid,
+                                        id=str(uuid.uuid1()),
+                                        description=description,
+                                        quota={})
+    with patch.object(SYN, "store", return_value=returned) as patch_syn_store:
+        new_queue = CREATE_CLS.create_evaluation_queue(queue_name,
+                                                       parentid=parentid,
+                                                       description=description,
+                                                       quota={})
+        assert new_queue == returned
+        patch_syn_store.assert_called_once_with(queue,
+                                                createOrUpdate=False)
+
+
+def test_create_evaluation_queue__fetch_call():
+    """Tests the correct parameters are passed in for updating"""
+    queue_name = str(uuid.uuid1())
+    parentid = "syn" + str(uuid.uuid1())
+    returned = synapseclient.Evaluation(name=queue_name,
+                                        contentSource=parentid,
+                                        id=str(uuid.uuid1()))
+    with patch.object(SYN, "restGET",
+                      return_value=returned) as patch_rest_get:
+        new_team = UPDATE_CLS.create_evaluation_queue(queue_name,
+                                                      parentid=parentid)
+        patch_rest_get.assert_called_once_with(f"/evaluation/name/{queue_name}")
+        assert new_team == returned
