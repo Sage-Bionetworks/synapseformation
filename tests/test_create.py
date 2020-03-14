@@ -17,8 +17,9 @@ CREATE_CLS = SynapseCreation(SYN)
 UPDATE_CLS = SynapseCreation(SYN, create_or_update=True)
 
 
-@pytest.mark.parametrize("invoke_cls", [CREATE_CLS, UPDATE_CLS])
-def test_create_project__call(invoke_cls):
+@pytest.mark.parametrize("invoke_cls,create",
+                         [(CREATE_CLS, False), (UPDATE_CLS, True)])
+def test_create_project__call(invoke_cls, create):
     """Tests the correct parameters are passed in"""
     project_name = str(uuid.uuid1())
     project = synapseclient.Project(name=project_name)
@@ -28,10 +29,12 @@ def test_create_project__call(invoke_cls):
         new_project = invoke_cls.create_project(project_name)
         assert new_project == returned
         patch_syn_store.assert_called_once_with(project,
-                                                createOrUpdate=invoke_cls.create_or_update)
+                                                createOrUpdate=create)
 
-@pytest.mark.parametrize("invoke_cls", [CREATE_CLS, UPDATE_CLS])
-def test_create_folder__call(invoke_cls):
+
+@pytest.mark.parametrize("invoke_cls,create",
+                         [(CREATE_CLS, False), (UPDATE_CLS, True)])
+def test_create_folder__call(invoke_cls, create):
     """Tests the correct parameters are passed in"""
     folder_name = str(uuid.uuid1())
     parentid = str(uuid.uuid1())
@@ -44,11 +47,12 @@ def test_create_folder__call(invoke_cls):
         new_folder = invoke_cls.create_folder(folder_name, parentid)
         assert new_folder == returned
         patch_syn_store.assert_called_once_with(folder,
-                                                createOrUpdate=invoke_cls.create_or_update)
+                                                createOrUpdate=create)
 
 
-@pytest.mark.parametrize("invoke_cls", [CREATE_CLS, UPDATE_CLS])
-def test_create_file__call(invoke_cls):
+@pytest.mark.parametrize("invoke_cls,create",
+                         [(CREATE_CLS, False), (UPDATE_CLS, True)])
+def test_create_file__call(invoke_cls, create):
     """Tests the correct parameters are passed in"""
     file_path = str(uuid.uuid1())
     parentid = str(uuid.uuid1())
@@ -61,10 +65,10 @@ def test_create_file__call(invoke_cls):
         new_file = invoke_cls.create_file(file_path, parentid)
         assert new_file == returned
         patch_syn_store.assert_called_once_with(file_ent,
-                                                createOrUpdate=invoke_cls.create_or_update)
+                                                createOrUpdate=create)
 
 
-def test__create_team__call():
+def test_create_team__call():
     """Tests the correct parameters are passed in"""
     team_name = str(uuid.uuid1())
     description = str(uuid.uuid1())
@@ -80,34 +84,8 @@ def test__create_team__call():
         new_team = CREATE_CLS.create_team(team_name, description=description,
                                           can_public_join=can_public_join)
         assert new_team == returned
-        patch_syn_store.assert_called_once_with(team_ent)
-
-
-def test__create_team__raise_error():
-    """Error is raised when team name already exists"""
-    team_name = str(uuid.uuid1())
-    with patch.object(SYN, "store", side_effect=ValueError),\
-         pytest.raises(ValueError, match=f"Team {team_name}*"):
-        CREATE_CLS.create_team(team_name)
-
-
-def test_create_team__call():
-    """Tests the correct parameters are passed in"""
-    team_name = str(uuid.uuid1())
-    description = str(uuid.uuid1())
-    can_public_join = True
-    returned = synapseclient.Team(name=team_name,
-                                  description=description,
-                                  id=str(uuid.uuid1()),
-                                  canPublicJoin=can_public_join)
-    with patch.object(CREATE_CLS, "_create_team",
-                      return_value=returned) as patch_create:
-        new_team = CREATE_CLS.create_team(team_name, description=description,
-                                          can_public_join=can_public_join)
-        patch_create.assert_called_once_with(team_name,
-                                             description=description,
-                                             can_public_join=can_public_join)
-        assert new_team == returned
+        patch_syn_store.assert_called_once_with(team_ent,
+                                                createOrUpdate=False)
 
 
 def test_create_team__fetch_call():

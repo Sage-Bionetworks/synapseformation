@@ -46,32 +46,6 @@ class SynapseCreation:
                                                     project.id))
         return project
 
-    def _create_team(self, team_name: str, description: str = None,
-                     can_public_join: bool = False) -> Team:
-        """Creates Synapse Team (currently synapseclient doens't return
-        informative error when team name exists)
-
-        Args:
-            syn: Synapse connection
-            team_name: Name of team
-            description: Description of team
-            can_public_join: true for teams which members can join without
-                             an invitation or approval. Default to False
-        Returns:
-            Synapse Team
-
-        Raises:
-            ValueError: If team already exists
-        """
-        try:
-            team = Team(name=team_name, description=description,
-                        canPublicJoin=can_public_join)
-            # raises a ValueError if a team with this name already exists
-            team = self.syn.store(team)
-            return team
-        except ValueError:
-            raise ValueError(f"Team {team_name} already exists")
-
     def create_team(self, team_name: str, description: str = None,
                     can_public_join: bool = False) -> Team:
         """Creates Synapse Team
@@ -90,8 +64,11 @@ class SynapseCreation:
         if self.create_or_update:
             team = self.syn.getTeam(team_name)
         else:
-            team = self._create_team(team_name, description=description,
-                                     can_public_join=can_public_join)
+            team = Team(name=team_name, description=description,
+                        canPublicJoin=can_public_join)
+            # raises a SynapseHTTPError if a team with this name already
+            # exists
+            team = self.syn.store(team, createOrUpdate=self.create_or_update)
         self.logger.info('{} Team {} ({})'.format(self._update_str,
                                                   team.name,
                                                   team.id))
