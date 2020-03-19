@@ -371,7 +371,7 @@ def test_get_or_create_challenge__get():
         assert new_chal == returned
 
 
-def test_get_or_create_queue__get_raise():
+def test_get_or_create_challenge__get_raise():
     """Tests trying to get a queue when only_create"""
     projectid = str(uuid.uuid1())
     teamid = str(uuid.uuid1())
