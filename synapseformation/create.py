@@ -205,27 +205,3 @@ class SynapseCreation:
         self.logger.info('{} Queue {}({})'.format(self._update_str,
                                                   queue.name, queue.id))
         return queue
-
-
-    def create_challenge_widget(self, project_live: str,
-                                team_part_id: str) -> 'Challenge':
-        """Creates challenge widget - activates a Synapse project
-        If challenge object exists, it retrieves existing object
-
-        Args:
-            syn: Synapse connection
-            project_live: Synapse id of live challenge project
-            team_part_id: Synapse team id of participant team
-
-        Returns:
-            Synapse challenge object
-
-        """
-        if self.only_create:
-            challenge = utils.get_challenge(self.syn, project_live)
-        else:
-            challenge = utils.create_challenge(self.syn, project_live,
-                                               team_part_id)
-        self.logger.info("{} Challenge ({})".format(self._update_str,
-                                                    challenge.id))
-        return challenge
