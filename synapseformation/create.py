@@ -132,7 +132,7 @@ class SynapseCreation:
         schema = self._find_by_name_or_create(schema)
         return schema
 
-    def get_or_create_team(self, name, *args, **kwargs) -> Team:
+    def get_or_create_team(self, name: str, *args, **kwargs) -> Team:
         """Gets an existing team by name or creates a new one.
 
         Args:
@@ -155,7 +155,7 @@ class SynapseCreation:
                                                   team.id))
         return team
 
-    def get_or_create_wiki(self, owner, *args, **kwargs) -> Wiki:
+    def get_or_create_wiki(self, owner: str, *args, **kwargs) -> Wiki:
         """Gets an existing wiki or creates a new one. If
         parentWikiId is specified, a page will always be created.
         There are no restrictions on wiki titles on subwiki pages.
@@ -181,37 +181,31 @@ class SynapseCreation:
                                              wiki_ent.title))
         return wiki_ent
 
-    def create_evaluation_queue(self, name: str, parentid: str,
-                                description: str = None,
-                                quota: dict = None) -> Evaluation:
-        """Creates Evaluation Queues
+    def get_or_create_queue(self, name: str, *args,
+                            **kwargs) -> Evaluation:
+        """Gets an existing evaluation queue by name or creates a new one.
 
         Args:
-            syn: Synapse connection
             name: Name of evaluation queue
-            parentid: Synapse project id
-            description: Description of queue
-            quota: Evaluation queue quota
+            Same arguments as synapseclient.Evaluation
 
         Returns:
-            Synapse Evaluation Queue
+            A synapseclient.Evaluation
 
         """
-        if self.only_create:
+        try:
+            queue_ent = Evaluation(name=name, *args, **kwargs)
+            queue = self.syn.store(queue_ent, createOrUpdate=False)
+        except SynapseHTTPError:
+            if self.only_create:
+                raise ValueError("only_create is set to True.")
             url_name = quote(name)
             queue = self.syn.restGET(f"/evaluation/name/{url_name}")
             queue = Evaluation(**queue)
-        else:
-            queue_ent = Evaluation(name=name,
-                                   description=description,
-                                   contentSource=parentid,
-                                   quota=quota)
-            # Throws SynapseHTTPError is queue already exists
-            queue = self.syn.store(queue_ent,
-                                   createOrUpdate=self.only_create)
         self.logger.info('{} Queue {}({})'.format(self._update_str,
                                                   queue.name, queue.id))
         return queue
+
 
     def create_challenge_widget(self, project_live: str,
                                 team_part_id: str) -> 'Challenge':

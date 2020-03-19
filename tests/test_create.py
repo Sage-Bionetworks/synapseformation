@@ -202,7 +202,7 @@ def test_get_or_create_schema__call():
 
 
 def test_get_or_create_wiki__create():
-    """Tests creation of team"""
+    """Tests creation of wiki"""
     wiki_title = str(uuid.uuid1())
     markdown = str(uuid.uuid1())
     owner = str(uuid.uuid1())
@@ -223,7 +223,7 @@ def test_get_or_create_wiki__create():
 
 
 def test_get_or_create_wiki__get():
-    """Tests getting of team"""
+    """Tests getting of wiki"""
     wiki_title = str(uuid.uuid1())
     markdown = str(uuid.uuid1())
     owner = str(uuid.uuid1())
@@ -242,15 +242,15 @@ def test_get_or_create_wiki__get():
 
 
 def test_get_or_create_wiki__get_raise():
-    """Tests trying to get a team when only_create"""
+    """Tests trying to get a wiki when only_create"""
     owner = str(uuid.uuid1())
     with patch.object(SYN, "store", side_effect=SynapseHTTPError),\
          pytest.raises(ValueError, match="only_create is set to True."):
         CREATE_CLS.get_or_create_wiki(owner)
 
 
-def test_create_evaluation_queue__call():
-    """Tests the correct parameters are passed in"""
+def test_get_or_create_queue__create():
+    """Tests creation of queue"""
     queue_name = str(uuid.uuid1())
     parentid = "syn" + str(uuid.uuid1())
     description = str(uuid.uuid1())
@@ -264,28 +264,47 @@ def test_create_evaluation_queue__call():
                                         description=description,
                                         quota={})
     with patch.object(SYN, "store", return_value=returned) as patch_syn_store:
-        new_queue = CREATE_CLS.create_evaluation_queue(queue_name,
-                                                       parentid=parentid,
-                                                       description=description,
-                                                       quota={})
+        new_queue = CREATE_CLS.get_or_create_queue(name=queue_name,
+                                                   contentSource=parentid,
+                                                   description=description,
+                                                   quota={})
         assert new_queue == returned
         patch_syn_store.assert_called_once_with(queue,
                                                 createOrUpdate=False)
 
 
-def test_create_evaluation_queue__fetch_call():
-    """Tests the correct parameters are passed in for updating"""
+def test_get_or_create_queue__get():
+    """Tests getting of queue"""
     queue_name = str(uuid.uuid1())
     parentid = "syn" + str(uuid.uuid1())
-    returned = synapseclient.Evaluation(name=queue_name,
-                                        contentSource=parentid,
-                                        id=str(uuid.uuid1()))
-    with patch.object(SYN, "restGET",
-                      return_value=returned) as patch_rest_get:
-        new_team = UPDATE_CLS.create_evaluation_queue(queue_name,
-                                                      parentid=parentid)
+    description = str(uuid.uuid1())
+    evalid = str(uuid.uuid1())
+    # Rest get return json
+    queue_json = {"name": queue_name,
+                  "contentSource": parentid,
+                  "id": evalid,
+                  "description": description,
+                  "quota": {}}
+    returned = synapseclient.Evaluation(**queue_json)
+    with patch.object(SYN, "store", side_effect=SynapseHTTPError),\
+         patch.object(SYN, "restGET",
+                      return_value=queue_json) as patch_rest_get:
+        new_queue = UPDATE_CLS.get_or_create_queue(name=queue_name,
+                                                   contentSource=parentid,
+                                                   description=description,
+                                                   quota={})
         patch_rest_get.assert_called_once_with(f"/evaluation/name/{queue_name}")
-        assert new_team == returned
+        assert new_queue == returned
+
+
+def test_get_or_create_queue__get_raise():
+    """Tests trying to get a queue when only_create"""
+    queue_name = str(uuid.uuid1())
+    parentid = "syn" + str(uuid.uuid1())
+    with patch.object(SYN, "store", side_effect=SynapseHTTPError),\
+         pytest.raises(ValueError, match="only_create is set to True."):
+        CREATE_CLS.get_or_create_queue(name=queue_name,
+                                       contentSource=parentid)
 
 
 class Challenge:
