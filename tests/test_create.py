@@ -201,6 +201,54 @@ def test_get_or_create_schema__call():
         patch_find_or_create.assert_called_once_with(schema_ent)
 
 
+def test_get_or_create_wiki__create():
+    """Tests creation of team"""
+    wiki_title = str(uuid.uuid1())
+    markdown = str(uuid.uuid1())
+    owner = str(uuid.uuid1())
+    wiki_ent = synapseclient.Wiki(title=wiki_title,
+                                  markdown=markdown,
+                                  owner=owner)
+    returned = synapseclient.Wiki(title=wiki_title,
+                                  markdown=markdown,
+                                  id=str(uuid.uuid1()),
+                                  owner=owner)
+    with patch.object(SYN, "store", return_value=returned) as patch_syn_store:
+        new_wiki = CREATE_CLS.get_or_create_wiki(owner=owner,
+                                                 title=wiki_title,
+                                                 markdown=markdown)
+        assert new_wiki == returned
+        patch_syn_store.assert_called_once_with(wiki_ent,
+                                                createOrUpdate=False)
+
+
+def test_get_or_create_wiki__get():
+    """Tests getting of team"""
+    wiki_title = str(uuid.uuid1())
+    markdown = str(uuid.uuid1())
+    owner = str(uuid.uuid1())
+    returned = synapseclient.Wiki(title=wiki_title,
+                                  markdown=markdown,
+                                  id=str(uuid.uuid1()),
+                                  owner=owner)
+    with patch.object(SYN, "store", side_effect=SynapseHTTPError),\
+         patch.object(SYN, "getWiki",
+                      return_value=returned) as patch_get_wiki:
+        new_wiki = UPDATE_CLS.get_or_create_wiki(owner=owner,
+                                                 title=wiki_title,
+                                                 markdown=markdown)
+        patch_get_wiki.assert_called_once_with(owner=owner)
+        assert new_wiki == returned
+
+
+def test_get_or_create_wiki__get_raise():
+    """Tests trying to get a team when only_create"""
+    owner = str(uuid.uuid1())
+    with patch.object(SYN, "store", side_effect=SynapseHTTPError),\
+         pytest.raises(ValueError, match="only_create is set to True."):
+        CREATE_CLS.get_or_create_wiki(owner)
+
+
 def test_create_evaluation_queue__call():
     """Tests the correct parameters are passed in"""
     queue_name = str(uuid.uuid1())

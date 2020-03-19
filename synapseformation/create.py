@@ -49,7 +49,7 @@ class SynapseCreation:
         return entity
 
     def get_or_create_project(self, *args, **kwargs) -> Project:
-        """Creates Synapse Project
+        """Gets an existing project by name or creates a new one.
 
         Args:
             Same arguments as synapseclient.Project
@@ -66,7 +66,8 @@ class SynapseCreation:
         return project
 
     def get_or_create_file(self, *args, **kwargs) -> File:
-        """Creates Synapse File
+        """Gets an existing file by name and parent or
+        creates a new one.
 
         Args:
             Same arguments as synapseclient.File
@@ -83,7 +84,8 @@ class SynapseCreation:
         return file_ent
 
     def get_or_create_folder(self, *args, **kwargs) -> Folder:
-        """Creates Synapse Folder
+        """Gets an existing folder by name and parent or
+        creates a new one.
 
         Args:
             Same arguments as synapseclient.Folder
@@ -100,7 +102,8 @@ class SynapseCreation:
         return folder_ent
 
     def get_or_create_view(self, *args, **kwargs):
-        """Wrapper to get an entity view by name, or create one if not found.
+        """Gets an existing view schema by name and parent or
+        creates a new one.
 
         Args:
             Same arguments as synapseclient.EntityViewSchema
@@ -114,7 +117,8 @@ class SynapseCreation:
         return view
 
     def get_or_create_schema(self, *args, **kwargs):
-        """Get an existing table schema by name and parent or create a new one.
+        """Gets an existing table schema by name and parent or
+        creates a new one.
 
         Args:
             Same arguments as synapseclient.Schema
@@ -128,34 +132,8 @@ class SynapseCreation:
         schema = self._find_by_name_or_create(schema)
         return schema
 
-    def create_wiki(self, title: str, projectid: str, markdown: str = None,
-                    parent_wiki: str = None) -> Wiki:
-        """Creates wiki page
-
-        Args:
-            syn: Synapse connection
-            title: Title of wiki
-            markdown: markdown formatted string
-            projectid: Synapse project id,
-            parent_wiki: Parent wiki id
-
-        Returns:
-            Synapse wiki page
-
-        """
-        wiki_ent = Wiki(title=title, markdown=markdown, owner=projectid,
-                        parentWikiId=parent_wiki)
-        # Create or update won't make a difference for subwiki pages
-        # because there is no restriction on names.  So you could
-        # have duplicated wiki title names
-        wiki_ent = self.syn.store(wiki_ent,
-                                  createOrUpdate=self.only_create)
-        self.logger.info('{} Wiki {}'.format(self._update_str,
-                                             wiki_ent.title))
-        return wiki_ent
-
     def get_or_create_team(self, name, *args, **kwargs) -> Team:
-        """Creates Synapse Team
+        """Gets an existing team by name or creates a new one.
 
         Args:
             name: Name of Team
@@ -176,6 +154,32 @@ class SynapseCreation:
                                                   team.name,
                                                   team.id))
         return team
+
+    def get_or_create_wiki(self, owner, *args, **kwargs) -> Wiki:
+        """Gets an existing wiki or creates a new one. If
+        parentWikiId is specified, a page will always be created.
+        There are no restrictions on wiki titles on subwiki pages.
+        Get doesn't work for subwiki pages
+
+        Args:
+            owner: Synapse Entity or its id that allows wikis
+            Same arguments as synapseclient.Wiki
+
+        Returns:
+            Synapse wiki page
+
+        """
+        try:
+            wiki_ent = Wiki(owner=owner, *args, **kwargs)
+            wiki_ent = self.syn.store(wiki_ent,
+                                      createOrUpdate=False)
+        except SynapseHTTPError:
+            if self.only_create:
+                raise ValueError("only_create is set to True.")
+            wiki_ent = self.syn.getWiki(owner=owner)
+        self.logger.info('{} Wiki {}'.format(self._update_str,
+                                             wiki_ent.title))
+        return wiki_ent
 
     def create_evaluation_queue(self, name: str, parentid: str,
                                 description: str = None,
