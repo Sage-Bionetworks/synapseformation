@@ -1,3 +1,2 @@
 click
 synapseclient==1.9.4
-git+https://github.com/Sage-Bionetworks/challengeutils.git@v1.3.0#egg=challengeutils
