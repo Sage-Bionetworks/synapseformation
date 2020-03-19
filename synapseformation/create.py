@@ -28,7 +28,6 @@ class SynapseCreation:
         """Creates Synapse Project
 
         Args:
-            syn: Synapse connection
             project_name: Name of project
 
         Returns:
@@ -50,7 +49,6 @@ class SynapseCreation:
         """Creates Synapse Team
 
         Args:
-            syn: Synapse connection
             team_name: Name of team
             description: Description of team
             can_public_join: true for teams which members can join without
@@ -79,7 +77,6 @@ class SynapseCreation:
         """Creates Evaluation Queues
 
         Args:
-            syn: Synapse connection
             name: Name of evaluation queue
             parentid: Synapse project id
             description: Description of queue
@@ -111,7 +108,6 @@ class SynapseCreation:
         If challenge object exists, it retrieves existing object
 
         Args:
-            syn: Synapse connection
             project_live: Synapse id of live challenge project
             team_part_id: Synapse team id of participant team
 
@@ -132,7 +128,6 @@ class SynapseCreation:
         """Creates Synapse File
 
         Args:
-            syn: Synapse connection
             path: Path to file
             parentid: Synapse parent id
 
@@ -154,7 +149,6 @@ class SynapseCreation:
         """Creates Synapse Folder
 
         Args:
-            syn: Synapse connection
             folder_name: Name of folder
 
         Returns:
@@ -176,7 +170,6 @@ class SynapseCreation:
         """Creates wiki page
 
         Args:
-            syn: Synapse connection
             title: Title of wiki
             markdown: markdown formatted string
             projectid: Synapse project id,
