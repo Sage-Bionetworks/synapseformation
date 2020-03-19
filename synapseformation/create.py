@@ -65,29 +65,24 @@ class SynapseCreation:
                                                     project.id))
         return project
 
-    def create_team(self, team_name: str, description: str = None,
-                    can_public_join: bool = False) -> Team:
+    def get_or_create_team(self, name, *args, **kwargs) -> Team:
         """Creates Synapse Team
 
         Args:
-            syn: Synapse connection
-            team_name: Name of team
-            description: Description of team
-            can_public_join: true for teams which members can join without
-                            an invitation or approval. Default to False
+            name: Name of Team
+            Same arguments as synapseclient.Team
 
         Returns:
-            Synapse Team id
+            A synapseclient.Team
 
         """
-        if self.only_create:
-            team = self.syn.getTeam(team_name)
-        else:
-            team = Team(name=team_name, description=description,
-                        canPublicJoin=can_public_join)
-            # raises a SynapseHTTPError if a team with this name already
-            # exists
-            team = self.syn.store(team, createOrUpdate=self.only_create)
+        try:
+            team = Team(name=name, *args, **kwargs)
+            team = self.syn.store(team, createOrUpdate=False)
+        except SynapseHTTPError:
+            if self.only_create:
+                raise ValueError("only_create is set to True.")
+            team = self.syn.getTeam(name)
         self.logger.info('{} Team {} ({})'.format(self._update_str,
                                                   team.name,
                                                   team.id))

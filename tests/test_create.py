@@ -67,8 +67,8 @@ def test__find_by_name_or_create__get():
         patch_rest_get.assert_called_once_with(restpost.id, downloadFile=False)
 
 
-def test_get_or_create_project__call():
-    """Tests the correct parameters are passed in"""
+def test_get_or_create_project__create():
+    """Tests creation of project"""
     project_name = str(uuid.uuid1())
     project = synapseclient.Project(name=project_name)
     returned = synapseclient.Project(name=project_name,
@@ -79,6 +79,54 @@ def test_get_or_create_project__call():
         new_project = CREATE_CLS.get_or_create_project(name=project_name)
         assert new_project == returned
         patch_find_or_create.assert_called_once_with(project)
+
+
+def test_get_or_create_team__create():
+    """Tests creation of team"""
+    team_name = str(uuid.uuid1())
+    description = str(uuid.uuid1())
+    public_join = True
+    team_ent = synapseclient.Team(name=team_name,
+                                  description=description,
+                                  canPublicJoin=public_join)
+    returned = synapseclient.Team(name=team_name,
+                                  description=description,
+                                  id=str(uuid.uuid1()),
+                                  canPublicJoin=public_join)
+    with patch.object(SYN, "store", return_value=returned) as patch_syn_store:
+        new_team = CREATE_CLS.get_or_create_team(team_name,
+                                                 description=description,
+                                                 canPublicJoin=public_join)
+        assert new_team == returned
+        patch_syn_store.assert_called_once_with(team_ent,
+                                                createOrUpdate=False)
+
+
+def test_get_or_create_team__get():
+    """Tests getting of team"""
+    team_name = str(uuid.uuid1())
+    description = str(uuid.uuid1())
+    public_join = False
+    returned = synapseclient.Team(name=team_name,
+                                  description=description,
+                                  id=str(uuid.uuid1()),
+                                  canPublicJoin=public_join)
+    with patch.object(SYN, "store", side_effect=SynapseHTTPError),\
+         patch.object(SYN, "getTeam",
+                      return_value=returned) as patch_get_team:
+        new_team = UPDATE_CLS.get_or_create_team(team_name,
+                                                 description=description,
+                                                 canPublicJoin=public_join)
+        patch_get_team.assert_called_once_with(team_name)
+        assert new_team == returned
+
+
+def test_get_or_create_team__get_raise():
+    """Tests trying to get a team when only_create"""
+    team_name = str(uuid.uuid1())
+    with patch.object(SYN, "store", side_effect=SynapseHTTPError),\
+         pytest.raises(ValueError, match="only_create is set to True."):
+        CREATE_CLS.get_or_create_team(team_name)
 
 
 @pytest.mark.parametrize("invoke_cls,create",
@@ -115,43 +163,6 @@ def test_create_file__call(invoke_cls, create):
         assert new_file == returned
         patch_syn_store.assert_called_once_with(file_ent,
                                                 createOrUpdate=create)
-
-
-def test_create_team__call():
-    """Tests the correct parameters are passed in"""
-    team_name = str(uuid.uuid1())
-    description = str(uuid.uuid1())
-    can_public_join = True
-    team_ent = synapseclient.Team(name=team_name,
-                                  description=description,
-                                  canPublicJoin=can_public_join)
-    returned = synapseclient.Team(name=team_name,
-                                  description=description,
-                                  id=str(uuid.uuid1()),
-                                  canPublicJoin=can_public_join)
-    with patch.object(SYN, "store", return_value=returned) as patch_syn_store:
-        new_team = CREATE_CLS.create_team(team_name, description=description,
-                                          can_public_join=can_public_join)
-        assert new_team == returned
-        patch_syn_store.assert_called_once_with(team_ent,
-                                                createOrUpdate=False)
-
-
-def test_create_team__fetch_call():
-    """Tests the correct parameters are passed in for updating"""
-    team_name = str(uuid.uuid1())
-    description = str(uuid.uuid1())
-    can_public_join = True
-    returned = synapseclient.Team(name=team_name,
-                                  description=description,
-                                  id=str(uuid.uuid1()),
-                                  canPublicJoin=can_public_join)
-    with patch.object(SYN, "getTeam",
-                      return_value=returned) as patch_get_team:
-        new_team = UPDATE_CLS.create_team(team_name, description=description,
-                                          can_public_join=can_public_join)
-        patch_get_team.assert_called_once_with(team_name)
-        assert new_team == returned
 
 
 def test_create_evaluation_queue__call():
