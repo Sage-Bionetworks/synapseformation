@@ -3,9 +3,9 @@ Tests creation module
 Functions are named with the function name in create module along
 with what is tested
 """
+import json
 import uuid
 
-from challengeutils import utils
 import mock
 from mock import patch
 import pytest
@@ -145,34 +145,6 @@ def test_create_evaluation_queue__fetch_call():
         assert new_team == returned
 
 
-class Challenge:
-    """mock challenge class"""
-    id = str(uuid.uuid1())
-
-
-def test_create_challenge_widget__call():
-    """Tests the correct parameters are passed in for creation"""
-    project_live = str(uuid.uuid1())
-    team_part_id = str(uuid.uuid1())
-    with patch.object(utils, "create_challenge",
-                      return_value=Challenge) as patch_create_chal:
-        chal = CREATE_CLS.create_challenge_widget(project_live, team_part_id)
-        patch_create_chal.assert_called_once_with(SYN, project_live,
-                                                  team_part_id)
-        assert chal == Challenge
-
-
-def test_create_challenge_widget__fetch_call():
-    """Tests the correct parameters are passed in for fetching"""
-    project_live = str(uuid.uuid1())
-    team_part_id = str(uuid.uuid1())
-    with patch.object(utils, "get_challenge",
-                      return_value=Challenge) as patch_get_chal:
-        chal = UPDATE_CLS.create_challenge_widget(project_live, team_part_id)
-        patch_get_chal.assert_called_once_with(SYN, project_live)
-        assert chal == Challenge
-
-
 @pytest.mark.parametrize("invoke_cls,create",
                          [(CREATE_CLS, False), (UPDATE_CLS, True)])
 def test_create_wiki__call(invoke_cls, create):
@@ -193,3 +165,66 @@ def test_create_wiki__call(invoke_cls, create):
         assert new_wiki == returned
         patch_syn_store.assert_called_once_with(returned,
                                                 createOrUpdate=create)
+
+
+def test_get_challenge__call():
+    """Tests the correct parameters are passed in"""
+    projectid = str(uuid.uuid1())
+    chalid = str(uuid.uuid1())
+    etag = str(uuid.uuid1())
+    participant_teamid = str(uuid.uuid1())
+    rest_return = {'id': chalid,
+                   'projectId': projectid,
+                   'etag': etag,
+                   'participantTeamId': participant_teamid}
+    with patch.object(SYN, "restGET",
+                      return_value=rest_return) as patch_rest_get:
+        chal = CREATE_CLS._get_challenge(projectid)
+        patch_rest_get.assert_called_once_with(f"/entity/{projectid}/challenge")
+        assert chal == rest_return
+
+
+def test_create_challenge__call():
+    """Tests the correct parameters are passed in"""
+    projectid = str(uuid.uuid1())
+    chalid = str(uuid.uuid1())
+    etag = str(uuid.uuid1())
+    participant_teamid = str(uuid.uuid1())
+    rest_return = {'id': chalid,
+                   'projectId': projectid,
+                   'etag': etag,
+                   'participantTeamId': participant_teamid}
+    input_dict = {'participantTeamId': participant_teamid,
+                  'projectId': projectid}
+    with patch.object(SYN, "restPOST",
+                      return_value=rest_return) as patch_rest_post:
+        chal = CREATE_CLS._create_challenge(projectid,
+                                            participant_teamid)
+        patch_rest_post.assert_called_once_with('/challenge',
+                                                json.dumps(input_dict))
+        assert chal == rest_return
+
+
+def test_create_challenge_widget__call():
+    """Tests the correct parameters are passed in for creation"""
+    project_live = str(uuid.uuid1())
+    team_part_id = str(uuid.uuid1())
+    test_return = {'id': str(uuid.uuid1())}
+    with patch.object(CREATE_CLS, "_create_challenge",
+                      return_value=test_return) as patch_create_chal:
+        chal = CREATE_CLS.create_challenge(project_live, team_part_id)
+        patch_create_chal.assert_called_once_with(project_live,
+                                                  team_part_id)
+        assert chal == test_return
+
+
+def test_create_challenge_widget__fetch_call():
+    """Tests the correct parameters are passed in for fetching"""
+    project_live = str(uuid.uuid1())
+    team_part_id = str(uuid.uuid1())
+    test_return = {'id': str(uuid.uuid1())}
+    with patch.object(UPDATE_CLS, "_get_challenge",
+                      return_value=test_return) as patch_get_chal:
+        chal = UPDATE_CLS.create_challenge(project_live, team_part_id)
+        patch_get_chal.assert_called_once_with(project_live)
+        assert chal == test_return

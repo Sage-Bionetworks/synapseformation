@@ -1,11 +1,14 @@
 """Convenience functions to create Synapse entities"""
+import json
 import logging
 from logging import Logger
 from urllib.parse import quote
 
 from synapseclient import Project, Team, Evaluation, File, Folder, Wiki
-
-from challengeutils import utils
+try:
+    from synapseclient.utils import id_of
+except ModuleNotFoundError:
+    from synapseclient.core.utils import id_of
 
 
 class SynapseCreation:
@@ -105,8 +108,46 @@ class SynapseCreation:
                                                   queue.name, queue.id))
         return queue
 
-    def create_challenge_widget(self, project_live: str,
-                                team_part_id: str) -> 'Challenge':
+    def _get_challenge(self, entity):
+        """Gets the Challenge associated with a Project.
+
+        See the definition of a Challenge object here:
+        https://docs.synapse.org/rest/org/sagebionetworks/repo/model/Challenge.html
+
+        Args:
+            entity: An Entity or Synapse ID of a Project.
+
+        Returns:
+            Challenge object
+        """
+        synid = id_of(entity)
+        challenge = self.syn.restGET(f"/entity/{synid}/challenge")
+        return challenge
+
+    def _create_challenge(self, entity, team):
+        """Creates Challenge associated with a Project
+
+        See the definition of a Challenge object here:
+        https://docs.synapse.org/rest/org/sagebionetworks/repo/model/Challenge.html
+
+        Args:
+            syn: Synapse connection
+            entity: An Entity or Synapse ID of a Project.
+            team: A Team or Team ID.
+
+        Returns:
+            Challenge object
+        """
+        synid = id_of(entity)
+        teamid = id_of(team)
+        challenge_object = {'participantTeamId': teamid,
+                            'projectId': synid}
+        challenge = self.syn.restPOST('/challenge',
+                                      json.dumps(challenge_object))
+        return challenge
+
+    def create_challenge(self, project_live: str,
+                         team_part_id: str) -> 'Challenge':
         """Creates challenge widget - activates a Synapse project
         If challenge object exists, it retrieves existing object
 
@@ -120,12 +161,12 @@ class SynapseCreation:
 
         """
         if self.create_or_update:
-            challenge = utils.get_challenge(self.syn, project_live)
+            challenge = self._get_challenge(project_live)
         else:
-            challenge = utils.create_challenge(self.syn, project_live,
+            challenge = self._create_challenge(project_live,
                                                team_part_id)
         self.logger.info("{} Challenge ({})".format(self._update_str,
-                                                    challenge.id))
+                                                    challenge['id']))
         return challenge
 
     def create_file(self, path: str, parentid: str) -> File:
