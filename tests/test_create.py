@@ -3,6 +3,7 @@ Tests creation module
 Functions are named with the function name in create module along
 with what is tested
 """
+import json
 import uuid
 
 from challengeutils import utils
@@ -10,27 +11,74 @@ import mock
 from mock import patch
 import pytest
 import synapseclient
+from synapseclient.exceptions import SynapseHTTPError
 
 from synapseformation.create import SynapseCreation
 
 SYN = mock.create_autospec(synapseclient.Synapse)
 CREATE_CLS = SynapseCreation(SYN)
-UPDATE_CLS = SynapseCreation(SYN, create_or_update=True)
+GET_CLS = SynapseCreation(SYN, only_create=False)
+# remove this later
+UPDATE_CLS = SynapseCreation(SYN, only_create=False)
 
 
-@pytest.mark.parametrize("invoke_cls,create",
-                         [(CREATE_CLS, False), (UPDATE_CLS, True)])
-def test_create_project__call(invoke_cls, create):
+def test__find_by_name_or_create__create():
+    """Tests creation"""
+    entity = synapseclient.Entity(name=str(uuid.uuid1()))
+    returned = synapseclient.Entity(name=str(uuid.uuid1()))
+    with patch.object(SYN, "store", return_value=returned) as patch_syn_store:
+        created_ent = CREATE_CLS._find_by_name_or_create(entity)
+        patch_syn_store.assert_called_once_with(entity,
+                                                createOrUpdate=False)
+        assert created_ent == returned
+
+
+def test__find_by_name_or_create__onlycreate_raise():
+    """Tests only create flag raises error when entity exists"""
+    entity = synapseclient.Entity(name=str(uuid.uuid1()))
+    returned = synapseclient.Entity(name=str(uuid.uuid1()))
+    with patch.object(SYN, "store", side_effect=SynapseHTTPError),\
+         pytest.raises(ValueError, match="only_create is set to True."):
+        CREATE_CLS._find_by_name_or_create(entity)
+
+
+def test__find_by_name_or_create__get():
+    """Tests only create flag raises error when entity exists"""
+    concretetype = str(uuid.uuid1())
+    entity = synapseclient.Entity(name=str(uuid.uuid1()),
+                                  parentId=str(uuid.uuid1()),
+                                  concreteType=concretetype)
+    restpost = synapseclient.Entity(name=str(uuid.uuid1()),
+                                    id=str(uuid.uuid1()),
+                                    parentId=str(uuid.uuid1()))
+    returned = synapseclient.Entity(name=str(uuid.uuid1()),
+                                    id=str(uuid.uuid1()),
+                                    parentId=str(uuid.uuid1()),
+                                    concreteType=concretetype)
+    body = json.dumps({"parentId": entity.properties.get("parentId", None),
+                       "entityName": entity.name})
+    with patch.object(SYN, "store", side_effect=SynapseHTTPError),\
+         patch.object(SYN, "restPOST",
+                      return_value=restpost) as patch_rest_post,\
+         patch.object(SYN, "get", return_value=returned) as patch_rest_get:
+        get_ent = GET_CLS._find_by_name_or_create(entity)
+        assert get_ent == returned
+        patch_rest_post.assert_called_once_with("/entity/child", body=body)
+        patch_rest_get.assert_called_once_with(restpost.id, downloadFile=False)
+
+
+def test_get_or_create_project__call():
     """Tests the correct parameters are passed in"""
     project_name = str(uuid.uuid1())
     project = synapseclient.Project(name=project_name)
     returned = synapseclient.Project(name=project_name,
                                      id=str(uuid.uuid1()))
-    with patch.object(SYN, "store", return_value=returned) as patch_syn_store:
-        new_project = invoke_cls.create_project(project_name)
+    with patch.object(CREATE_CLS,
+                      "_find_by_name_or_create",
+                      return_value=returned) as patch_find_or_create:
+        new_project = CREATE_CLS.get_or_create_project(name=project_name)
         assert new_project == returned
-        patch_syn_store.assert_called_once_with(project,
-                                                createOrUpdate=create)
+        patch_find_or_create.assert_called_once_with(project)
 
 
 @pytest.mark.parametrize("invoke_cls,create",

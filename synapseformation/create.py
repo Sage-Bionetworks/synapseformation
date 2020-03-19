@@ -1,45 +1,65 @@
 """Convenience functions to create Synapse entities"""
 import logging
 from logging import Logger
+import json
 from urllib.parse import quote
 
 from synapseclient import Project, Team, Evaluation, File, Folder, Wiki
+from synapseclient import EntityViewSchema, Table
+from synapseclient.exceptions import SynapseHTTPError
 
 from challengeutils import utils
 
 
 class SynapseCreation:
     """Creates Synapse Features"""
-    def __init__(self, syn: 'Synapse', create_or_update: bool = False,
+    def __init__(self, syn: 'Synapse', only_create: bool = True,
                  logger: Logger = None):
         """
         Args:
             syn: Synapse connection
-            create_or_update: Default is False, which means resources can
-                              only be created and not updated if resource
-                              already exists.
+            only_create: Only create entities.  Default is True, which
+                         means creation will fail if resource already exists.
         """
         self.syn = syn
-        self.create_or_update = create_or_update
+        self.only_create = only_create
         self.logger = logger or logging.getLogger(__name__)
-        self._update_str = "Fetched existing" if create_or_update else "Created"
+        self._update_str = "Fetched existing" if only_create else "Created"
 
-    def create_project(self, project_name: str) -> Project:
+    def _find_by_name_or_create(self, entity: 'Entity') -> 'Entity':
+        """Gets an existing entity by name and parent or create a new one.
+
+        Args:
+            entity: synapseclient.Entity type
+
+        Returns:
+            synapseclient.Entity
+        """
+        try:
+            entity = self.syn.store(entity, createOrUpdate=False)
+        except SynapseHTTPError:
+            if self.only_create:
+                raise ValueError("only_create is set to True.")
+            body = json.dumps({"parentId": entity.properties.get("parentId", None),  # pylint: disable=line-too-long
+                               "entityName": entity.name})
+            entity_obj = self.syn.restPOST("/entity/child", body=body)
+            entity_tmp = self.syn.get(entity_obj['id'], downloadFile=False)
+            assert entity.properties.concreteType == entity_tmp.properties.concreteType, "Different types."  # pylint: disable=line-too-long
+            entity = entity_tmp
+        return entity
+
+    def get_or_create_project(self, *args, **kwargs) -> Project:
         """Creates Synapse Project
 
         Args:
-            syn: Synapse connection
-            project_name: Name of project
+            Same arguments as synapseclient.Project
 
         Returns:
-            Project Entity
+            A synapseclient.Project
 
         """
-        project = Project(project_name)
-        # returns the handle to the project if the user has sufficient
-        # priviledge
-        project = self.syn.store(project,
-                                 createOrUpdate=self.create_or_update)
+        project = Project(*args, **kwargs)
+        project = self._find_by_name_or_create(project)
         self.logger.info('{} Project {}({})'.format(self._update_str,
                                                     project.name,
                                                     project.id))
@@ -60,14 +80,14 @@ class SynapseCreation:
             Synapse Team id
 
         """
-        if self.create_or_update:
+        if self.only_create:
             team = self.syn.getTeam(team_name)
         else:
             team = Team(name=team_name, description=description,
                         canPublicJoin=can_public_join)
             # raises a SynapseHTTPError if a team with this name already
             # exists
-            team = self.syn.store(team, createOrUpdate=self.create_or_update)
+            team = self.syn.store(team, createOrUpdate=self.only_create)
         self.logger.info('{} Team {} ({})'.format(self._update_str,
                                                   team.name,
                                                   team.id))
@@ -89,7 +109,7 @@ class SynapseCreation:
             Synapse Evaluation Queue
 
         """
-        if self.create_or_update:
+        if self.only_create:
             url_name = quote(name)
             queue = self.syn.restGET(f"/evaluation/name/{url_name}")
             queue = Evaluation(**queue)
@@ -100,7 +120,7 @@ class SynapseCreation:
                                    quota=quota)
             # Throws SynapseHTTPError is queue already exists
             queue = self.syn.store(queue_ent,
-                                   createOrUpdate=self.create_or_update)
+                                   createOrUpdate=self.only_create)
         self.logger.info('{} Queue {}({})'.format(self._update_str,
                                                   queue.name, queue.id))
         return queue
@@ -119,7 +139,7 @@ class SynapseCreation:
             Synapse challenge object
 
         """
-        if self.create_or_update:
+        if self.only_create:
             challenge = utils.get_challenge(self.syn, project_live)
         else:
             challenge = utils.create_challenge(self.syn, project_live,
@@ -143,7 +163,7 @@ class SynapseCreation:
         file_ent = File(path, parent=parentid)
         # returns the handle to the file if the user has sufficient priviledge
         file_ent = self.syn.store(file_ent,
-                                  createOrUpdate=self.create_or_update)
+                                  createOrUpdate=self.only_create)
         self.logger.info('{} File {} ({})'.format(self._update_str,
                                                   file_ent.name,
                                                   file_ent.id))
@@ -165,7 +185,7 @@ class SynapseCreation:
         # returns the handle to the project if the user has sufficient
         # priviledge
         folder_ent = self.syn.store(folder_ent,
-                                    createOrUpdate=self.create_or_update)
+                                    createOrUpdate=self.only_create)
         self.logger.info('{} Folder {} ({})'.format(self._update_str,
                                                     folder_ent.name,
                                                     folder_ent.id))
@@ -192,7 +212,20 @@ class SynapseCreation:
         # because there is no restriction on names.  So you could
         # have duplicated wiki title names
         wiki_ent = self.syn.store(wiki_ent,
-                                  createOrUpdate=self.create_or_update)
+                                  createOrUpdate=self.only_create)
         self.logger.info('{} Wiki {}'.format(self._update_str,
                                              wiki_ent.title))
         return wiki_ent
+
+    def get_or_create_view(self, *args, **kwargs):
+        """Wrapper to get an entity view by name, or create one if not found.
+
+        Args:
+            Same arguments as synapseclient.EntityViewSchema
+
+        Returns:
+            A synapseclient.EntityViewSchema.
+        """
+        view = EntityViewSchema(*args, **kwargs)
+        view = self._find_by_name_or_create(view)
+        return view
