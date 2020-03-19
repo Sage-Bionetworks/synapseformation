@@ -67,8 +67,8 @@ def test__find_by_name_or_create__get():
         patch_rest_get.assert_called_once_with(restpost.id, downloadFile=False)
 
 
-def test_get_or_create_project__create():
-    """Tests creation of project"""
+def test_get_or_create_project__call():
+    """Makes sure correct parameters are called"""
     project_name = str(uuid.uuid1())
     project = synapseclient.Project(name=project_name)
     returned = synapseclient.Project(name=project_name,
@@ -129,10 +129,8 @@ def test_get_or_create_team__get_raise():
         CREATE_CLS.get_or_create_team(team_name)
 
 
-@pytest.mark.parametrize("invoke_cls,create",
-                         [(CREATE_CLS, False), (UPDATE_CLS, True)])
-def test_create_folder__call(invoke_cls, create):
-    """Tests the correct parameters are passed in"""
+def test_get_or_create_folder__call():
+    """Makes sure correct parameters are called"""
     folder_name = str(uuid.uuid1())
     parentid = str(uuid.uuid1())
     folder = synapseclient.Folder(name=folder_name,
@@ -140,17 +138,17 @@ def test_create_folder__call(invoke_cls, create):
     returned = synapseclient.Folder(name=folder_name,
                                     id=str(uuid.uuid1()),
                                     parentId=parentid)
-    with patch.object(SYN, "store", return_value=returned) as patch_syn_store:
-        new_folder = invoke_cls.create_folder(folder_name, parentid)
+    with patch.object(CREATE_CLS,
+                      "_find_by_name_or_create",
+                      return_value=returned) as patch_find_or_create:
+        new_folder = CREATE_CLS.get_or_create_folder(folder_name,
+                                                     parentId=parentid)
         assert new_folder == returned
-        patch_syn_store.assert_called_once_with(folder,
-                                                createOrUpdate=create)
+        patch_find_or_create.assert_called_once_with(folder)
 
 
-@pytest.mark.parametrize("invoke_cls,create",
-                         [(CREATE_CLS, False), (UPDATE_CLS, True)])
-def test_create_file__call(invoke_cls, create):
-    """Tests the correct parameters are passed in"""
+def test_get_or_create_file__call():
+    """Makes sure correct parameters are called"""
     file_path = str(uuid.uuid1())
     parentid = str(uuid.uuid1())
     file_ent = synapseclient.File(path=file_path,
@@ -158,11 +156,13 @@ def test_create_file__call(invoke_cls, create):
     returned = synapseclient.File(path=file_path,
                                   id=str(uuid.uuid1()),
                                   parentId=parentid)
-    with patch.object(SYN, "store", return_value=returned) as patch_syn_store:
-        new_file = invoke_cls.create_file(file_path, parentid)
+    with patch.object(CREATE_CLS,
+                      "_find_by_name_or_create",
+                      return_value=returned) as patch_find_or_create:
+        new_file = CREATE_CLS.get_or_create_file(file_path,
+                                                 parentId=parentid)
         assert new_file == returned
-        patch_syn_store.assert_called_once_with(file_ent,
-                                                createOrUpdate=create)
+        patch_find_or_create.assert_called_once_with(file_ent)
 
 
 def test_create_evaluation_queue__call():

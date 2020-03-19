@@ -65,6 +65,79 @@ class SynapseCreation:
                                                     project.id))
         return project
 
+    def get_or_create_file(self, *args, **kwargs) -> File:
+        """Creates Synapse File
+
+        Args:
+            Same arguments as synapseclient.File
+
+        Returns:
+            A synapseclient.File
+
+        """
+        file_ent = File(*args, **kwargs)
+        file_ent = self._find_by_name_or_create(file_ent)
+        self.logger.info('{} File {} ({})'.format(self._update_str,
+                                                  file_ent.name,
+                                                  file_ent.id))
+        return file_ent
+
+    def get_or_create_folder(self, *args, **kwargs) -> Folder:
+        """Creates Synapse Folder
+
+        Args:
+            Same arguments as synapseclient.Folder
+
+        Returns:
+            A synapseclient.Folder
+
+        """
+        folder_ent = Folder(*args, **kwargs)
+        folder_ent = self._find_by_name_or_create(folder_ent)
+        self.logger.info('{} Folder {} ({})'.format(self._update_str,
+                                                    folder_ent.name,
+                                                    folder_ent.id))
+        return folder_ent
+
+    def create_wiki(self, title: str, projectid: str, markdown: str = None,
+                    parent_wiki: str = None) -> Wiki:
+        """Creates wiki page
+
+        Args:
+            syn: Synapse connection
+            title: Title of wiki
+            markdown: markdown formatted string
+            projectid: Synapse project id,
+            parent_wiki: Parent wiki id
+
+        Returns:
+            Synapse wiki page
+
+        """
+        wiki_ent = Wiki(title=title, markdown=markdown, owner=projectid,
+                        parentWikiId=parent_wiki)
+        # Create or update won't make a difference for subwiki pages
+        # because there is no restriction on names.  So you could
+        # have duplicated wiki title names
+        wiki_ent = self.syn.store(wiki_ent,
+                                  createOrUpdate=self.only_create)
+        self.logger.info('{} Wiki {}'.format(self._update_str,
+                                             wiki_ent.title))
+        return wiki_ent
+
+    def get_or_create_view(self, *args, **kwargs):
+        """Wrapper to get an entity view by name, or create one if not found.
+
+        Args:
+            Same arguments as synapseclient.EntityViewSchema
+
+        Returns:
+            A synapseclient.EntityViewSchema.
+        """
+        view = EntityViewSchema(*args, **kwargs)
+        view = self._find_by_name_or_create(view)
+        return view
+
     def get_or_create_team(self, name, *args, **kwargs) -> Team:
         """Creates Synapse Team
 
@@ -142,85 +215,3 @@ class SynapseCreation:
         self.logger.info("{} Challenge ({})".format(self._update_str,
                                                     challenge.id))
         return challenge
-
-    def create_file(self, path: str, parentid: str) -> File:
-        """Creates Synapse File
-
-        Args:
-            syn: Synapse connection
-            path: Path to file
-            parentid: Synapse parent id
-
-        Returns:
-            Synapse file
-
-        """
-        file_ent = File(path, parent=parentid)
-        # returns the handle to the file if the user has sufficient priviledge
-        file_ent = self.syn.store(file_ent,
-                                  createOrUpdate=self.only_create)
-        self.logger.info('{} File {} ({})'.format(self._update_str,
-                                                  file_ent.name,
-                                                  file_ent.id))
-        return file_ent
-
-
-    def create_folder(self, folder_name: str, parentid: str) -> Folder:
-        """Creates Synapse Folder
-
-        Args:
-            syn: Synapse connection
-            folder_name: Name of folder
-
-        Returns:
-            Synapse folder
-
-        """
-        folder_ent = Folder(folder_name, parent=parentid)
-        # returns the handle to the project if the user has sufficient
-        # priviledge
-        folder_ent = self.syn.store(folder_ent,
-                                    createOrUpdate=self.only_create)
-        self.logger.info('{} Folder {} ({})'.format(self._update_str,
-                                                    folder_ent.name,
-                                                    folder_ent.id))
-        return folder_ent
-
-    def create_wiki(self, title: str, projectid: str, markdown: str = None,
-                    parent_wiki: str = None) -> Wiki:
-        """Creates wiki page
-
-        Args:
-            syn: Synapse connection
-            title: Title of wiki
-            markdown: markdown formatted string
-            projectid: Synapse project id,
-            parent_wiki: Parent wiki id
-
-        Returns:
-            Synapse wiki page
-
-        """
-        wiki_ent = Wiki(title=title, markdown=markdown, owner=projectid,
-                        parentWikiId=parent_wiki)
-        # Create or update won't make a difference for subwiki pages
-        # because there is no restriction on names.  So you could
-        # have duplicated wiki title names
-        wiki_ent = self.syn.store(wiki_ent,
-                                  createOrUpdate=self.only_create)
-        self.logger.info('{} Wiki {}'.format(self._update_str,
-                                             wiki_ent.title))
-        return wiki_ent
-
-    def get_or_create_view(self, *args, **kwargs):
-        """Wrapper to get an entity view by name, or create one if not found.
-
-        Args:
-            Same arguments as synapseclient.EntityViewSchema
-
-        Returns:
-            A synapseclient.EntityViewSchema.
-        """
-        view = EntityViewSchema(*args, **kwargs)
-        view = self._find_by_name_or_create(view)
-        return view
