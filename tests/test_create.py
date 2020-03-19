@@ -352,8 +352,8 @@ def test_get_or_create_challenge__create():
         new_chal = CREATE_CLS.get_or_create_challenge(participantTeamId=teamid,
                                                       projectId=projectid)
         assert new_chal == returned
-        patch_create.assert_called_once_with(participantTeamId=teamid,
-                                             projectId=projectid,)
+        patch_create.assert_called_once_with(projectid,
+                                             participantTeamId=teamid)
 
 
 def test_get_or_create_challenge__get():
@@ -367,8 +367,7 @@ def test_get_or_create_challenge__get():
                       return_value=returned) as patch_get:
         new_chal = GET_CLS.get_or_create_challenge(participantTeamId=teamid,
                                                    projectId=projectid)
-        patch_get.assert_called_once_with(participantTeamId=teamid,
-                                          projectId=projectid)
+        patch_get.assert_called_once_with(projectid)
         assert new_chal == returned
 
 

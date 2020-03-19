@@ -219,8 +219,8 @@ class SynapseCreation:
         challenge = self.syn.restGET(f"/entity/{projectId}/challenge")
         return challenge
 
-    def _create_challenge(self, participantTeamId: str,
-                          projectId: str) -> 'Challenge':
+    def _create_challenge(self, projectId: str,
+                          participantTeamId: str) -> 'Challenge':
         """Creates Challenge associated with a Project
 
         See the definition of a Challenge object here:
@@ -239,7 +239,7 @@ class SynapseCreation:
                                       json.dumps(challenge_object))
         return challenge
 
-    def get_or_create_challenge(self, *args, **kwargs) -> 'Challenge':
+    def get_or_create_challenge(self, projectId, *args, **kwargs) -> 'Challenge':
         """Gets an existing challenge by projectId or creates a new one.
 
         Args:
@@ -251,11 +251,11 @@ class SynapseCreation:
             https://docs.synapse.org/rest/org/sagebionetworks/repo/model/Challenge.html
         """
         try:
-            challenge = self._create_challenge(*args, **kwargs)
+            challenge = self._create_challenge(projectId, *args, **kwargs)
         except SynapseHTTPError:
             if self.only_create:
                 raise ValueError("only_create is set to True.")
-            challenge = self._get_challenge(*args, **kwargs)
+            challenge = self._get_challenge(projectId)
         self.logger.info("{} Challenge ({})".format(self._update_str,
                                                     challenge['id']))
         return challenge
