@@ -165,6 +165,42 @@ def test_get_or_create_file__call():
         patch_find_or_create.assert_called_once_with(file_ent)
 
 
+def test_get_or_create_view__call():
+    """Makes sure correct parameters are called"""
+    view_name = str(uuid.uuid1())
+    parentid = str(uuid.uuid1())
+    view_ent = synapseclient.EntityViewSchema(view_name,
+                                              parentId=parentid)
+    returned = synapseclient.EntityViewSchema(view_name,
+                                              id=str(uuid.uuid1()),
+                                              parentId=parentid)
+    with patch.object(CREATE_CLS,
+                      "_find_by_name_or_create",
+                      return_value=returned) as patch_find_or_create:
+        new_view = CREATE_CLS.get_or_create_view(view_name,
+                                                 parentId=parentid)
+        assert new_view == returned
+        patch_find_or_create.assert_called_once_with(view_ent)
+
+
+def test_get_or_create_schema__call():
+    """Makes sure correct parameters are called"""
+    schema_name = str(uuid.uuid1())
+    parentid = str(uuid.uuid1())
+    schema_ent = synapseclient.Schema(schema_name,
+                                      parentId=parentid)
+    returned = synapseclient.Schema(schema_name,
+                                    id=str(uuid.uuid1()),
+                                    parentId=parentid)
+    with patch.object(CREATE_CLS,
+                      "_find_by_name_or_create",
+                      return_value=returned) as patch_find_or_create:
+        new_schema = CREATE_CLS.get_or_create_schema(schema_name,
+                                                     parentId=parentid)
+        assert new_schema == returned
+        patch_find_or_create.assert_called_once_with(schema_ent)
+
+
 def test_create_evaluation_queue__call():
     """Tests the correct parameters are passed in"""
     queue_name = str(uuid.uuid1())

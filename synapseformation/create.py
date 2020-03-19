@@ -5,7 +5,7 @@ import json
 from urllib.parse import quote
 
 from synapseclient import Project, Team, Evaluation, File, Folder, Wiki
-from synapseclient import EntityViewSchema, Table
+from synapseclient import EntityViewSchema, Schema
 from synapseclient.exceptions import SynapseHTTPError
 
 from challengeutils import utils
@@ -99,6 +99,35 @@ class SynapseCreation:
                                                     folder_ent.id))
         return folder_ent
 
+    def get_or_create_view(self, *args, **kwargs):
+        """Wrapper to get an entity view by name, or create one if not found.
+
+        Args:
+            Same arguments as synapseclient.EntityViewSchema
+
+        Returns:
+            A synapseclient.EntityViewSchema.
+
+        """
+        view = EntityViewSchema(*args, **kwargs)
+        view = self._find_by_name_or_create(view)
+        return view
+
+    def get_or_create_schema(self, *args, **kwargs):
+        """Get an existing table schema by name and parent or create a new one.
+
+        Args:
+            Same arguments as synapseclient.Schema
+
+        Returns:
+            A synapseclient.Schema.
+
+        """
+
+        schema = Schema(*args, **kwargs)
+        schema = self._find_by_name_or_create(schema)
+        return schema
+
     def create_wiki(self, title: str, projectid: str, markdown: str = None,
                     parent_wiki: str = None) -> Wiki:
         """Creates wiki page
@@ -124,19 +153,6 @@ class SynapseCreation:
         self.logger.info('{} Wiki {}'.format(self._update_str,
                                              wiki_ent.title))
         return wiki_ent
-
-    def get_or_create_view(self, *args, **kwargs):
-        """Wrapper to get an entity view by name, or create one if not found.
-
-        Args:
-            Same arguments as synapseclient.EntityViewSchema
-
-        Returns:
-            A synapseclient.EntityViewSchema.
-        """
-        view = EntityViewSchema(*args, **kwargs)
-        view = self._find_by_name_or_create(view)
-        return view
 
     def get_or_create_team(self, name, *args, **kwargs) -> Team:
         """Creates Synapse Team
