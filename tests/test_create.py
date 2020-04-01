@@ -8,7 +8,7 @@ import uuid
 
 from challengeutils import utils
 import mock
-from mock import patch
+from mock import patch, Mock
 import pytest
 import synapseclient
 from synapseclient.exceptions import SynapseHTTPError
@@ -18,8 +18,6 @@ from synapseformation.create import SynapseCreation
 SYN = mock.create_autospec(synapseclient.Synapse)
 CREATE_CLS = SynapseCreation(SYN)
 GET_CLS = SynapseCreation(SYN, only_create=False)
-# remove this later
-UPDATE_CLS = SynapseCreation(SYN, only_create=False)
 
 
 def test__find_by_name_or_create__create():
@@ -33,17 +31,40 @@ def test__find_by_name_or_create__create():
         assert created_ent == returned
 
 
-def test__find_by_name_or_create__onlycreate_raise():
-    """Tests only create flag raises error when entity exists"""
+@patch.object(SYN, "store")
+def test__find_by_name_or_create__onlycreate_raise(patch_syn_store):
+    """Tests only create flag raises error when entity exists (409 error)"""
     entity = synapseclient.Entity(name=str(uuid.uuid1()))
     returned = synapseclient.Entity(name=str(uuid.uuid1()))
-    with patch.object(SYN, "store", side_effect=SynapseHTTPError),\
-         pytest.raises(ValueError, match="only_create is set to True."):
+    # Mock SynapseHTTPError with 409 response
+    mocked_409 = SynapseHTTPError("foo", response=Mock(status_code=409))
+    patch_syn_store.side_effect = mocked_409
+    with pytest.raises(ValueError, match="foo. To use existing entities, "
+                                         "set only_create to False."):
         CREATE_CLS._find_by_name_or_create(entity)
+        patch_syn_store.assert_called_once_with(entity, createOrUpdate=False)
 
 
-def test__find_by_name_or_create__get():
-    """Tests only create flag raises error when entity exists"""
+@patch.object(SYN, "store")
+def test__find_by_name_or_create__wrongcode_raise(patch_syn_store):
+    """Tests correct error is raised when not 409 code"""
+    entity = synapseclient.Entity(name=str(uuid.uuid1()))
+    returned = synapseclient.Entity(name=str(uuid.uuid1()))
+    # Mock SynapseHTTPError with 404 response
+    mocked_404 = SynapseHTTPError("Not Found", response=Mock(status_code=404))
+    patch_syn_store.side_effect = mocked_404
+    with pytest.raises(SynapseHTTPError, match="Not Found"):
+        CREATE_CLS._find_by_name_or_create(entity)
+        patch_syn_store.assert_called_once_with(entity, createOrUpdate=False)
+
+
+# Goes in reverse order, store first, restPOST 2nd, and get 3rd
+@patch.object(SYN, "get")
+@patch.object(SYN, "restPOST")
+@patch.object(SYN, "store")
+def test__find_by_name_or_create__get(patch_syn_store, patch_rest_post,
+                                      patch_syn_get):
+    """Tests getting of entity"""
     concretetype = str(uuid.uuid1())
     entity = synapseclient.Entity(name=str(uuid.uuid1()),
                                   parentId=str(uuid.uuid1()),
@@ -57,28 +78,29 @@ def test__find_by_name_or_create__get():
                                     concreteType=concretetype)
     body = json.dumps({"parentId": entity.properties.get("parentId", None),
                        "entityName": entity.name})
-    with patch.object(SYN, "store", side_effect=SynapseHTTPError),\
-         patch.object(SYN, "restPOST",
-                      return_value=restpost) as patch_rest_post,\
-         patch.object(SYN, "get", return_value=returned) as patch_rest_get:
-        get_ent = GET_CLS._find_by_name_or_create(entity)
-        assert get_ent == returned
-        patch_rest_post.assert_called_once_with("/entity/child", body=body)
-        patch_rest_get.assert_called_once_with(restpost.id, downloadFile=False)
+    mocked_409 = SynapseHTTPError("foo", response=Mock(status_code=409))
+    patch_rest_post.return_value = restpost
+    patch_syn_get.return_value = returned
+    patch_syn_store.side_effect = mocked_409
+    get_ent = GET_CLS._find_by_name_or_create(entity)
+    assert get_ent == returned
+    patch_syn_store.assert_called_once()
+    patch_rest_post.assert_called_once_with("/entity/child", body=body)
+    patch_syn_get.assert_called_once_with(restpost.id, downloadFile=False)
 
 
-def test_get_or_create_project__call():
+@patch.object(CREATE_CLS, "_find_by_name_or_create")
+def test_get_or_create_project__call(patch_find_or_create):
     """Makes sure correct parameters are called"""
     project_name = str(uuid.uuid1())
     project = synapseclient.Project(name=project_name)
     returned = synapseclient.Project(name=project_name,
                                      id=str(uuid.uuid1()))
-    with patch.object(CREATE_CLS,
-                      "_find_by_name_or_create",
-                      return_value=returned) as patch_find_or_create:
-        new_project = CREATE_CLS.get_or_create_project(name=project_name)
-        assert new_project == returned
-        patch_find_or_create.assert_called_once_with(project)
+    patch_find_or_create.return_value = returned
+
+    new_project = CREATE_CLS.get_or_create_project(name=project_name)
+    assert new_project == returned
+    patch_find_or_create.assert_called_once_with(project)
 
 
 def test_get_or_create_team__create():
@@ -94,7 +116,7 @@ def test_get_or_create_team__create():
                                   id=str(uuid.uuid1()),
                                   canPublicJoin=public_join)
     with patch.object(SYN, "store", return_value=returned) as patch_syn_store:
-        new_team = CREATE_CLS.get_or_create_team(team_name,
+        new_team = CREATE_CLS.get_or_create_team(name=team_name,
                                                  description=description,
                                                  canPublicJoin=public_join)
         assert new_team == returned
@@ -114,9 +136,9 @@ def test_get_or_create_team__get():
     with patch.object(SYN, "store", side_effect=SynapseHTTPError),\
          patch.object(SYN, "getTeam",
                       return_value=returned) as patch_get_team:
-        new_team = UPDATE_CLS.get_or_create_team(team_name,
-                                                 description=description,
-                                                 canPublicJoin=public_join)
+        new_team = GET_CLS.get_or_create_team(name=team_name,
+                                              description=description,
+                                              canPublicJoin=public_join)
         patch_get_team.assert_called_once_with(team_name)
         assert new_team == returned
 
@@ -126,7 +148,7 @@ def test_get_or_create_team__get_raise():
     team_name = str(uuid.uuid1())
     with patch.object(SYN, "store", side_effect=SynapseHTTPError),\
          pytest.raises(ValueError, match="only_create is set to True."):
-        CREATE_CLS.get_or_create_team(team_name)
+        CREATE_CLS.get_or_create_team(name=team_name)
 
 
 def test_get_or_create_folder__call():
@@ -141,7 +163,7 @@ def test_get_or_create_folder__call():
     with patch.object(CREATE_CLS,
                       "_find_by_name_or_create",
                       return_value=returned) as patch_find_or_create:
-        new_folder = CREATE_CLS.get_or_create_folder(folder_name,
+        new_folder = CREATE_CLS.get_or_create_folder(name=folder_name,
                                                      parentId=parentid)
         assert new_folder == returned
         patch_find_or_create.assert_called_once_with(folder)
@@ -159,7 +181,7 @@ def test_get_or_create_file__call():
     with patch.object(CREATE_CLS,
                       "_find_by_name_or_create",
                       return_value=returned) as patch_find_or_create:
-        new_file = CREATE_CLS.get_or_create_file(file_path,
+        new_file = CREATE_CLS.get_or_create_file(path=file_path,
                                                  parentId=parentid)
         assert new_file == returned
         patch_find_or_create.assert_called_once_with(file_ent)
@@ -169,15 +191,15 @@ def test_get_or_create_view__call():
     """Makes sure correct parameters are called"""
     view_name = str(uuid.uuid1())
     parentid = str(uuid.uuid1())
-    view_ent = synapseclient.EntityViewSchema(view_name,
+    view_ent = synapseclient.EntityViewSchema(name=view_name,
                                               parentId=parentid)
-    returned = synapseclient.EntityViewSchema(view_name,
+    returned = synapseclient.EntityViewSchema(name=view_name,
                                               id=str(uuid.uuid1()),
                                               parentId=parentid)
     with patch.object(CREATE_CLS,
                       "_find_by_name_or_create",
                       return_value=returned) as patch_find_or_create:
-        new_view = CREATE_CLS.get_or_create_view(view_name,
+        new_view = CREATE_CLS.get_or_create_view(name=view_name,
                                                  parentId=parentid)
         assert new_view == returned
         patch_find_or_create.assert_called_once_with(view_ent)
@@ -187,15 +209,15 @@ def test_get_or_create_schema__call():
     """Makes sure correct parameters are called"""
     schema_name = str(uuid.uuid1())
     parentid = str(uuid.uuid1())
-    schema_ent = synapseclient.Schema(schema_name,
+    schema_ent = synapseclient.Schema(name=schema_name,
                                       parentId=parentid)
-    returned = synapseclient.Schema(schema_name,
+    returned = synapseclient.Schema(name=schema_name,
                                     id=str(uuid.uuid1()),
                                     parentId=parentid)
     with patch.object(CREATE_CLS,
                       "_find_by_name_or_create",
                       return_value=returned) as patch_find_or_create:
-        new_schema = CREATE_CLS.get_or_create_schema(schema_name,
+        new_schema = CREATE_CLS.get_or_create_schema(name=schema_name,
                                                      parentId=parentid)
         assert new_schema == returned
         patch_find_or_create.assert_called_once_with(schema_ent)
@@ -234,9 +256,9 @@ def test_get_or_create_wiki__get():
     with patch.object(SYN, "store", side_effect=SynapseHTTPError),\
          patch.object(SYN, "getWiki",
                       return_value=returned) as patch_get_wiki:
-        new_wiki = UPDATE_CLS.get_or_create_wiki(owner=owner,
-                                                 title=wiki_title,
-                                                 markdown=markdown)
+        new_wiki = GET_CLS.get_or_create_wiki(owner=owner,
+                                              title=wiki_title,
+                                              markdown=markdown)
         patch_get_wiki.assert_called_once_with(owner=owner)
         assert new_wiki == returned
 
@@ -246,7 +268,7 @@ def test_get_or_create_wiki__get_raise():
     owner = str(uuid.uuid1())
     with patch.object(SYN, "store", side_effect=SynapseHTTPError),\
          pytest.raises(ValueError, match="only_create is set to True."):
-        CREATE_CLS.get_or_create_wiki(owner)
+        CREATE_CLS.get_or_create_wiki(owner=owner)
 
 
 def test_get_or_create_queue__create():
@@ -289,10 +311,10 @@ def test_get_or_create_queue__get():
     with patch.object(SYN, "store", side_effect=SynapseHTTPError),\
          patch.object(SYN, "restGET",
                       return_value=queue_json) as patch_rest_get:
-        new_queue = UPDATE_CLS.get_or_create_queue(name=queue_name,
-                                                   contentSource=parentid,
-                                                   description=description,
-                                                   quota={})
+        new_queue = GET_CLS.get_or_create_queue(name=queue_name,
+                                                contentSource=parentid,
+                                                description=description,
+                                                quota={})
         patch_rest_get.assert_called_once_with(f"/evaluation/name/{queue_name}")
         assert new_queue == returned
 
