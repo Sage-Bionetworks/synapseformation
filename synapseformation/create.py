@@ -16,7 +16,7 @@ class SynapseCreation:
         """
         Args:
             syn: Synapse connection
-            only_create: Only create entities.  Default is True, which
+            only_create: Only create entities. Default is True, which
                          means creation will fail if resource already exists.
         """
         self.syn = syn
@@ -24,29 +24,50 @@ class SynapseCreation:
         self.logger = logger or logging.getLogger(__name__)
         self._update_str = "Fetched existing" if only_create else "Created"
 
-    def _find_by_name_or_create(self, entity: 'Entity') -> 'Entity':
-        """Gets an existing entity by name and parent or create a new one.
+    def _get_obj(self, obj: 'Object') -> 'Object':
+        """Gets the object from Synapse based on object constructor
 
         Args:
-            entity: synapseclient.Entity type
+            obj: synapseclient Object
 
         Returns:
-            synapseclient.Entity
+            obj: synapseclient Object
+
+        """
+        if isinstance(obj, (Project, File, Folder, EntityViewSchema, Schema)):
+            obj = self.syn.get(obj, downloadFile=False)
+        elif isinstance(obj, Team):
+            obj = self.syn.getTeam(obj)
+        elif isinstance(obj, Wiki):
+            obj = self.syn.getWiki(obj)
+        elif isinstance(obj, Evaluation):
+            obj = self.syn.getEvaluation(obj)
+        else:
+            raise ValueError(f"{obj} not recognized")
+        return obj
+
+    def _find_by_obj_or_create(self, obj: 'Object') -> 'Object':
+        """Gets an existing synapse object or create a new one.
+
+        Args:
+            obj: synapseclient Object
+
+        Returns:
+            A synapseclient Object
         """
         try:
-            entity = self.syn.store(entity, createOrUpdate=False)
-        except SynapseHTTPError:
+            obj = self.syn.store(obj, createOrUpdate=False)
+        except SynapseHTTPError as err:
+            # Must check for 409 error
+            if err.response.status_code != 409:
+                raise err
             if self.only_create:
-                raise ValueError("only_create is set to True.")
-            body = json.dumps({"parentId": entity.properties.get("parentId", None),  # pylint: disable=line-too-long
-                               "entityName": entity.name})
-            entity_obj = self.syn.restPOST("/entity/child", body=body)
-            entity_tmp = self.syn.get(entity_obj['id'], downloadFile=False)
-            assert entity.properties.concreteType == entity_tmp.properties.concreteType, "Different types."  # pylint: disable=line-too-long
-            entity = entity_tmp
-        return entity
+                raise ValueError(f"{str(err)}. To use existing entities, "
+                                 "set only_create to False.")
+            obj = self._get_obj(obj)
+        return obj
 
-    def get_or_create_project(self, *args, **kwargs) -> Project:
+    def get_or_create_project(self, **kwargs) -> Project:
         """Gets an existing project by name or creates a new one.
 
         Args:
@@ -56,14 +77,14 @@ class SynapseCreation:
             A synapseclient.Project
 
         """
-        project = Project(*args, **kwargs)
-        project = self._find_by_name_or_create(project)
+        project = Project(**kwargs)
+        project = self._find_by_obj_or_create(project)
         self.logger.info('{} Project {}({})'.format(self._update_str,
                                                     project.name,
                                                     project.id))
         return project
 
-    def get_or_create_file(self, *args, **kwargs) -> File:
+    def get_or_create_file(self, **kwargs) -> File:
         """Gets an existing file by name and parent or
         creates a new one.
 
@@ -74,14 +95,14 @@ class SynapseCreation:
             A synapseclient.File
 
         """
-        file_ent = File(*args, **kwargs)
-        file_ent = self._find_by_name_or_create(file_ent)
+        file_ent = File(**kwargs)
+        file_ent = self._find_by_obj_or_create(file_ent)
         self.logger.info('{} File {} ({})'.format(self._update_str,
                                                   file_ent.name,
                                                   file_ent.id))
         return file_ent
 
-    def get_or_create_folder(self, *args, **kwargs) -> Folder:
+    def get_or_create_folder(self, **kwargs) -> Folder:
         """Gets an existing folder by name and parent or
         creates a new one.
 
@@ -92,14 +113,14 @@ class SynapseCreation:
             A synapseclient.Folder
 
         """
-        folder_ent = Folder(*args, **kwargs)
-        folder_ent = self._find_by_name_or_create(folder_ent)
+        folder_ent = Folder(**kwargs)
+        folder_ent = self._find_by_obj_or_create(folder_ent)
         self.logger.info('{} Folder {} ({})'.format(self._update_str,
                                                     folder_ent.name,
                                                     folder_ent.id))
         return folder_ent
 
-    def get_or_create_view(self, *args, **kwargs):
+    def get_or_create_view(self, **kwargs):
         """Gets an existing view schema by name and parent or
         creates a new one.
 
@@ -110,11 +131,14 @@ class SynapseCreation:
             A synapseclient.EntityViewSchema.
 
         """
-        view = EntityViewSchema(*args, **kwargs)
-        view = self._find_by_name_or_create(view)
+        view = EntityViewSchema(**kwargs)
+        view = self._find_by_obj_or_create(view)
+        self.logger.info('{} View {} ({})'.format(self._update_str,
+                                                  view.name,
+                                                  view.id))
         return view
 
-    def get_or_create_schema(self, *args, **kwargs):
+    def get_or_create_schema(self, **kwargs):
         """Gets an existing table schema by name and parent or
         creates a new one.
 
@@ -126,85 +150,68 @@ class SynapseCreation:
 
         """
 
-        schema = Schema(*args, **kwargs)
-        schema = self._find_by_name_or_create(schema)
+        schema = Schema(**kwargs)
+        schema = self._find_by_obj_or_create(schema)
+        self.logger.info('{} Schema {} ({})'.format(self._update_str,
+                                                    schema.name,
+                                                    schema.id))
         return schema
 
-    def get_or_create_team(self, name: str, *args, **kwargs) -> Team:
+    def get_or_create_team(self, **kwargs) -> Team:
         """Gets an existing team by name or creates a new one.
 
         Args:
-            name: Name of Team
             Same arguments as synapseclient.Team
 
         Returns:
             A synapseclient.Team
 
         """
-        try:
-            team = Team(name=name, *args, **kwargs)
-            team = self.syn.store(team, createOrUpdate=False)
-        except SynapseHTTPError:
-            if self.only_create:
-                raise ValueError("only_create is set to True.")
-            team = self.syn.getTeam(name)
+
+        team = Team(**kwargs)
+        team = self._find_by_obj_or_create(team)
         self.logger.info('{} Team {} ({})'.format(self._update_str,
                                                   team.name,
                                                   team.id))
         return team
 
-    def get_or_create_wiki(self, owner: str, *args, **kwargs) -> Wiki:
+    def get_or_create_wiki(self, **kwargs) -> Wiki:
         """Gets an existing wiki or creates a new one. If
         parentWikiId is specified, a page will always be created.
         There are no restrictions on wiki titles on subwiki pages.
         Get doesn't work for subwiki pages
 
         Args:
-            owner: Synapse Entity or its id that allows wikis
             Same arguments as synapseclient.Wiki
 
         Returns:
             Synapse wiki page
 
         """
-        try:
-            wiki_ent = Wiki(owner=owner, *args, **kwargs)
-            wiki_ent = self.syn.store(wiki_ent,
-                                      createOrUpdate=False)
-        except SynapseHTTPError:
-            if self.only_create:
-                raise ValueError("only_create is set to True.")
-            wiki_ent = self.syn.getWiki(owner=owner)
-        self.logger.info('{} Wiki {}'.format(self._update_str,
-                                             wiki_ent.title))
-        return wiki_ent
 
-    def get_or_create_queue(self, name: str, *args,
-                            **kwargs) -> Evaluation:
+        wiki = Wiki(**kwargs)
+        wiki = self._find_by_obj_or_create(wiki)
+        self.logger.info('{} Wiki {}'.format(self._update_str,
+                                             wiki.title))
+        return wiki
+
+    def get_or_create_queue(self, **kwargs) -> Evaluation:
         """Gets an existing evaluation queue by name or creates a new one.
 
         Args:
-            name: Name of evaluation queue
             Same arguments as synapseclient.Evaluation
 
         Returns:
             A synapseclient.Evaluation
 
         """
-        try:
-            queue_ent = Evaluation(name=name, *args, **kwargs)
-            queue = self.syn.store(queue_ent, createOrUpdate=False)
-        except SynapseHTTPError:
-            if self.only_create:
-                raise ValueError("only_create is set to True.")
-            url_name = quote(name)
-            queue = self.syn.restGET(f"/evaluation/name/{url_name}")
-            queue = Evaluation(**queue)
+        queue = Evaluation(**kwargs)
+        queue = self._find_by_obj_or_create(queue)
         self.logger.info('{} Queue {}({})'.format(self._update_str,
                                                   queue.name, queue.id))
         return queue
 
-    def _get_challenge(self, projectId) -> 'Challenge':
+    def _get_challenge(self, projectId: str) -> 'dict':
         """Gets the Challenge associated with a Project.
 
         See the definition of a Challenge object here:
@@ -214,13 +221,15 @@ class SynapseCreation:
             projectId: A Synapse Id of a Project.
 
         Returns:
-            Challenge object
+            A Synapse challenge dict
+            https://docs.synapse.org/rest/org/sagebionetworks/repo/model/Challenge.html
+
         """
         challenge = self.syn.restGET(f"/entity/{projectId}/challenge")
         return challenge
 
     def _create_challenge(self, projectId: str,
-                          participantTeamId: str) -> 'Challenge':
+                          participantTeamId: str) -> 'dict':
         """Creates Challenge associated with a Project
 
         See the definition of a Challenge object here:
@@ -231,7 +240,9 @@ class SynapseCreation:
             projectId: A Team or Team ID.
 
         Returns:
-            Challenge object
+            A Synapse challenge dict
+            https://docs.synapse.org/rest/org/sagebionetworks/repo/model/Challenge.html
+
         """
         challenge_object = {'participantTeamId': participantTeamId,
                             'projectId': projectId}
@@ -239,23 +250,28 @@ class SynapseCreation:
                                       json.dumps(challenge_object))
         return challenge
 
-    def get_or_create_challenge(self, projectId, *args, **kwargs) -> 'Challenge':
+    def get_or_create_challenge(self, **kwargs) -> 'dict':
         """Gets an existing challenge by projectId or creates a new one.
+        # TODO: Use eventually implemented challenge class
 
         Args:
             projectId: Synapse project id
             participantTeamId: An Entity or Synapse ID of a Project.
 
         Returns:
-            A Synapse challenge object
+            A Synapse challenge dict
             https://docs.synapse.org/rest/org/sagebionetworks/repo/model/Challenge.html
         """
         try:
-            challenge = self._create_challenge(projectId, *args, **kwargs)
-        except SynapseHTTPError:
+            challenge = self._create_challenge(**kwargs)
+        except SynapseHTTPError as err:
+            # Must check for 409 error
+            if err.response.status_code != 409:
+                raise err
             if self.only_create:
-                raise ValueError("only_create is set to True.")
-            challenge = self._get_challenge(projectId)
+                raise ValueError(f"{str(err)}. To use existing entities, "
+                                 "set only_create to False.")
+            challenge = self._get_challenge(kwargs['projectId'])
         self.logger.info("{} Challenge ({})".format(self._update_str,
                                                     challenge['id']))
         return challenge
