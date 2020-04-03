@@ -20,73 +20,82 @@ CREATE_CLS = SynapseCreation(SYN)
 GET_CLS = SynapseCreation(SYN, only_create=False)
 
 
-def test__find_by_name_or_create__create():
+def test__find_by_obj_or_create__create():
     """Tests creation"""
     entity = synapseclient.Entity(name=str(uuid.uuid1()))
     returned = synapseclient.Entity(name=str(uuid.uuid1()))
     with patch.object(SYN, "store", return_value=returned) as patch_syn_store:
-        created_ent = CREATE_CLS._find_by_name_or_create(entity)
+        created_ent = CREATE_CLS._find_by_obj_or_create(entity)
         patch_syn_store.assert_called_once_with(entity,
                                                 createOrUpdate=False)
         assert created_ent == returned
 
 
-@patch.object(SYN, "store")
-def test__find_by_name_or_create__onlycreate_raise(patch_syn_store):
-    """Tests only create flag raises error when entity exists (409 error)"""
+#@patch.object(SYN, "store")
+def test__find_by_obj_or_create__onlycreate_raise():
+    """Tests only create flag raises error when entity exists"""
     entity = synapseclient.Entity(name=str(uuid.uuid1()))
     returned = synapseclient.Entity(name=str(uuid.uuid1()))
     # Mock SynapseHTTPError with 409 response
     mocked_409 = SynapseHTTPError("foo", response=Mock(status_code=409))
-    patch_syn_store.side_effect = mocked_409
-    with pytest.raises(ValueError, match="foo. To use existing entities, "
+    with patch.object(SYN, "store",
+                      side_effect=mocked_409) as patch_syn_store,\
+         pytest.raises(ValueError, match="foo. To use existing entities, "
                                          "set only_create to False."):
-        CREATE_CLS._find_by_name_or_create(entity)
+        CREATE_CLS._find_by_obj_or_create(entity)
         patch_syn_store.assert_called_once_with(entity, createOrUpdate=False)
 
 
-@patch.object(SYN, "store")
-def test__find_by_name_or_create__wrongcode_raise(patch_syn_store):
+def test__find_by_obj_or_create__wrongcode_raise():
     """Tests correct error is raised when not 409 code"""
     entity = synapseclient.Entity(name=str(uuid.uuid1()))
     returned = synapseclient.Entity(name=str(uuid.uuid1()))
     # Mock SynapseHTTPError with 404 response
     mocked_404 = SynapseHTTPError("Not Found", response=Mock(status_code=404))
-    patch_syn_store.side_effect = mocked_404
-    with pytest.raises(SynapseHTTPError, match="Not Found"):
-        CREATE_CLS._find_by_name_or_create(entity)
+    with patch.object(SYN, "store",
+                      side_effect=mocked_404) as patch_syn_store,\
+         pytest.raises(SynapseHTTPError, match="Not Found"):
+        CREATE_CLS._find_by_obj_or_create(entity)
         patch_syn_store.assert_called_once_with(entity, createOrUpdate=False)
 
 
-# Goes in reverse order, store first, restPOST 2nd, and get 3rd
-@patch.object(SYN, "get")
-@patch.object(SYN, "restPOST")
-@patch.object(SYN, "store")
-def test__find_by_name_or_create__get(patch_syn_store, patch_rest_post,
-                                      patch_syn_get):
+def test__find_by_obj_or_create__get():
     """Tests getting of entity"""
     concretetype = str(uuid.uuid1())
     entity = synapseclient.Entity(name=str(uuid.uuid1()),
                                   parentId=str(uuid.uuid1()),
                                   concreteType=concretetype)
-    restpost = synapseclient.Entity(name=str(uuid.uuid1()),
-                                    id=str(uuid.uuid1()),
-                                    parentId=str(uuid.uuid1()))
     returned = synapseclient.Entity(name=str(uuid.uuid1()),
                                     id=str(uuid.uuid1()),
                                     parentId=str(uuid.uuid1()),
                                     concreteType=concretetype)
-    body = json.dumps({"parentId": entity.properties.get("parentId", None),
-                       "entityName": entity.name})
     mocked_409 = SynapseHTTPError("foo", response=Mock(status_code=409))
-    patch_rest_post.return_value = restpost
-    patch_syn_get.return_value = returned
-    patch_syn_store.side_effect = mocked_409
-    get_ent = GET_CLS._find_by_name_or_create(entity)
-    assert get_ent == returned
-    patch_syn_store.assert_called_once()
-    patch_rest_post.assert_called_once_with("/entity/child", body=body)
-    patch_syn_get.assert_called_once_with(restpost.id, downloadFile=False)
+
+    with patch.object(SYN, "store",
+                      side_effect=mocked_409) as patch_syn_store,\
+         patch.object(GET_CLS, "_get_obj",
+                      return_value=returned) as patch_cls_get:
+        get_ent = GET_CLS._find_by_obj_or_create(entity)
+        assert get_ent == returned
+        patch_syn_store.assert_called_once()
+        patch_cls_get.assert_called_once_with(entity)
+
+
+@pytest.mark.parametrize("obj,get_func",
+                         [(synapseclient.Project(name="foo"), "get"),
+                          (synapseclient.Team(name="foo"), "getTeam"),
+                          (synapseclient.Wiki(owner="foo"), "getWiki"),
+                          (synapseclient.Evaluation(name="foo",
+                                                    contentSource="syn123"),
+                           "getEvaluation")])
+def test__get_obj__entity(obj, get_func):
+    """Test getting of entities"""
+    with patch.object(SYN, get_func) as patch_get:
+        return_obj = GET_CLS._get_obj(obj)
+        if isinstance(obj, synapseclient.Project):
+            patch_get.assert_called_once_with(obj, downloadFile=False)
+        else:
+            patch_get.assert_called_once_with(obj)
 
 
 @patch.object(CREATE_CLS, "_find_by_name_or_create")

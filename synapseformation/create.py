@@ -1,4 +1,5 @@
 """Convenience functions to create Synapse entities"""
+from functools import partial
 import logging
 from logging import Logger
 import json
@@ -26,6 +27,28 @@ class SynapseCreation:
         self.logger = logger or logging.getLogger(__name__)
         self._update_str = "Fetched existing" if only_create else "Created"
 
+    def _get_obj(self, obj: 'Object') -> 'Object':
+        """Gets the object from Synapse based on object constructor
+
+        Args:
+            obj: synapseclient Object
+
+        Returns:
+            obj: synapseclient Object
+
+        """
+        if isinstance(obj, (Project, File, Folder, EntityViewSchema, Schema)):
+            obj = self.syn.get(obj, downloadFile=False)
+        elif isinstance(obj, Team):
+            obj = self.syn.getTeam(obj)
+        elif isinstance(obj, Wiki):
+            obj = self.syn.getWiki(obj)
+        elif isinstance(obj, Evaluation):
+            obj = self.syn.getEvaluation(obj)
+        else:
+            raise ValueError(f"{obj} not recognized")
+        return obj
+
     def _find_by_obj_or_create(self, obj: 'Object') -> 'Object':
         """Gets an existing synapse object or create a new one.
 
@@ -44,18 +67,7 @@ class SynapseCreation:
             if self.only_create:
                 raise ValueError(f"{str(err)}. To use existing entities, "
                                  "set only_create to False.")
-
-            if isinstance(obj, (Project, File, Folder, EntityViewSchema,
-                                Schema)):
-                obj = self.syn.get(obj, downloadFile=False)
-            elif isinstance(obj, Team):
-                obj = self.syn.getTeam(obj)
-            elif isinstance(obj, Wiki):
-                obj = self.syn.getWiki(obj)
-            elif isinstance(obj, Evaluation):
-                obj = self.syn.getEvaluation(obj)
-            else:
-                raise ValueError("obj not recognized")
+            obj = self._get_obj(obj)
         return obj
 
     def get_or_create_project(self, **kwargs) -> Project:
