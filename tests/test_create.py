@@ -98,21 +98,21 @@ def test__get_obj__entity(obj, get_func):
             patch_get.assert_called_once_with(obj)
 
 
-@patch.object(CREATE_CLS, "_find_by_name_or_create")
-def test_get_or_create_project__call(patch_find_or_create):
+def test_get_or_create_project__call():
     """Makes sure correct parameters are called"""
     project_name = str(uuid.uuid1())
     project = synapseclient.Project(name=project_name)
     returned = synapseclient.Project(name=project_name,
                                      id=str(uuid.uuid1()))
-    patch_find_or_create.return_value = returned
+    with patch.object(CREATE_CLS,
+                      "_find_by_obj_or_create",
+                      return_value=returned) as patch_find_or_create:
+        new_project = CREATE_CLS.get_or_create_project(name=project_name)
+        assert new_project == returned
+        patch_find_or_create.assert_called_once_with(project)
 
-    new_project = CREATE_CLS.get_or_create_project(name=project_name)
-    assert new_project == returned
-    patch_find_or_create.assert_called_once_with(project)
 
-
-def test_get_or_create_team__create():
+def test_get_or_create_team__call():
     """Tests creation of team"""
     team_name = str(uuid.uuid1())
     description = str(uuid.uuid1())
@@ -124,40 +124,14 @@ def test_get_or_create_team__create():
                                   description=description,
                                   id=str(uuid.uuid1()),
                                   canPublicJoin=public_join)
-    with patch.object(SYN, "store", return_value=returned) as patch_syn_store:
+    with patch.object(CREATE_CLS,
+                      "_find_by_obj_or_create",
+                      return_value=returned) as patch_find_or_create:
         new_team = CREATE_CLS.get_or_create_team(name=team_name,
                                                  description=description,
                                                  canPublicJoin=public_join)
         assert new_team == returned
-        patch_syn_store.assert_called_once_with(team_ent,
-                                                createOrUpdate=False)
-
-
-def test_get_or_create_team__get():
-    """Tests getting of team"""
-    team_name = str(uuid.uuid1())
-    description = str(uuid.uuid1())
-    public_join = False
-    returned = synapseclient.Team(name=team_name,
-                                  description=description,
-                                  id=str(uuid.uuid1()),
-                                  canPublicJoin=public_join)
-    with patch.object(SYN, "store", side_effect=SynapseHTTPError),\
-         patch.object(SYN, "getTeam",
-                      return_value=returned) as patch_get_team:
-        new_team = GET_CLS.get_or_create_team(name=team_name,
-                                              description=description,
-                                              canPublicJoin=public_join)
-        patch_get_team.assert_called_once_with(team_name)
-        assert new_team == returned
-
-
-def test_get_or_create_team__get_raise():
-    """Tests trying to get a team when only_create"""
-    team_name = str(uuid.uuid1())
-    with patch.object(SYN, "store", side_effect=SynapseHTTPError),\
-         pytest.raises(ValueError, match="only_create is set to True."):
-        CREATE_CLS.get_or_create_team(name=team_name)
+        patch_find_or_create.assert_called_once_with(team_ent)
 
 
 def test_get_or_create_folder__call():
@@ -170,7 +144,7 @@ def test_get_or_create_folder__call():
                                     id=str(uuid.uuid1()),
                                     parentId=parentid)
     with patch.object(CREATE_CLS,
-                      "_find_by_name_or_create",
+                      "_find_by_obj_or_create",
                       return_value=returned) as patch_find_or_create:
         new_folder = CREATE_CLS.get_or_create_folder(name=folder_name,
                                                      parentId=parentid)
@@ -188,7 +162,7 @@ def test_get_or_create_file__call():
                                   id=str(uuid.uuid1()),
                                   parentId=parentid)
     with patch.object(CREATE_CLS,
-                      "_find_by_name_or_create",
+                      "_find_by_obj_or_create",
                       return_value=returned) as patch_find_or_create:
         new_file = CREATE_CLS.get_or_create_file(path=file_path,
                                                  parentId=parentid)
@@ -206,7 +180,7 @@ def test_get_or_create_view__call():
                                               id=str(uuid.uuid1()),
                                               parentId=parentid)
     with patch.object(CREATE_CLS,
-                      "_find_by_name_or_create",
+                      "_find_by_obj_or_create",
                       return_value=returned) as patch_find_or_create:
         new_view = CREATE_CLS.get_or_create_view(name=view_name,
                                                  parentId=parentid)
@@ -224,7 +198,7 @@ def test_get_or_create_schema__call():
                                     id=str(uuid.uuid1()),
                                     parentId=parentid)
     with patch.object(CREATE_CLS,
-                      "_find_by_name_or_create",
+                      "_find_by_obj_or_create",
                       return_value=returned) as patch_find_or_create:
         new_schema = CREATE_CLS.get_or_create_schema(name=schema_name,
                                                      parentId=parentid)
@@ -232,7 +206,7 @@ def test_get_or_create_schema__call():
         patch_find_or_create.assert_called_once_with(schema_ent)
 
 
-def test_get_or_create_wiki__create():
+def test_get_or_create_wiki__call():
     """Tests creation of wiki"""
     wiki_title = str(uuid.uuid1())
     markdown = str(uuid.uuid1())
@@ -244,43 +218,17 @@ def test_get_or_create_wiki__create():
                                   markdown=markdown,
                                   id=str(uuid.uuid1()),
                                   owner=owner)
-    with patch.object(SYN, "store", return_value=returned) as patch_syn_store:
+    with patch.object(CREATE_CLS,
+                      "_find_by_obj_or_create",
+                      return_value=returned) as patch_find_or_create:
         new_wiki = CREATE_CLS.get_or_create_wiki(owner=owner,
                                                  title=wiki_title,
                                                  markdown=markdown)
         assert new_wiki == returned
-        patch_syn_store.assert_called_once_with(wiki_ent,
-                                                createOrUpdate=False)
+        patch_find_or_create.assert_called_once_with(wiki_ent)
 
 
-def test_get_or_create_wiki__get():
-    """Tests getting of wiki"""
-    wiki_title = str(uuid.uuid1())
-    markdown = str(uuid.uuid1())
-    owner = str(uuid.uuid1())
-    returned = synapseclient.Wiki(title=wiki_title,
-                                  markdown=markdown,
-                                  id=str(uuid.uuid1()),
-                                  owner=owner)
-    with patch.object(SYN, "store", side_effect=SynapseHTTPError),\
-         patch.object(SYN, "getWiki",
-                      return_value=returned) as patch_get_wiki:
-        new_wiki = GET_CLS.get_or_create_wiki(owner=owner,
-                                              title=wiki_title,
-                                              markdown=markdown)
-        patch_get_wiki.assert_called_once_with(owner=owner)
-        assert new_wiki == returned
-
-
-def test_get_or_create_wiki__get_raise():
-    """Tests trying to get a wiki when only_create"""
-    owner = str(uuid.uuid1())
-    with patch.object(SYN, "store", side_effect=SynapseHTTPError),\
-         pytest.raises(ValueError, match="only_create is set to True."):
-        CREATE_CLS.get_or_create_wiki(owner=owner)
-
-
-def test_get_or_create_queue__create():
+def test_get_or_create_queue__call():
     """Tests creation of queue"""
     queue_name = str(uuid.uuid1())
     parentid = "syn" + str(uuid.uuid1())
@@ -294,45 +242,12 @@ def test_get_or_create_queue__create():
                                         id=str(uuid.uuid1()),
                                         description=description,
                                         quota={})
-    with patch.object(SYN, "store", return_value=returned) as patch_syn_store:
+    with patch.object(CREATE_CLS,
+                      "_find_by_obj_or_create",
+                      return_value=returned) as patch_find_or_create:
         new_queue = CREATE_CLS.get_or_create_queue(name=queue_name,
                                                    contentSource=parentid,
                                                    description=description,
                                                    quota={})
         assert new_queue == returned
-        patch_syn_store.assert_called_once_with(queue,
-                                                createOrUpdate=False)
-
-
-def test_get_or_create_queue__get():
-    """Tests getting of queue"""
-    queue_name = str(uuid.uuid1())
-    parentid = "syn" + str(uuid.uuid1())
-    description = str(uuid.uuid1())
-    evalid = str(uuid.uuid1())
-    # Rest get return json
-    queue_json = {"name": queue_name,
-                  "contentSource": parentid,
-                  "id": evalid,
-                  "description": description,
-                  "quota": {}}
-    returned = synapseclient.Evaluation(**queue_json)
-    with patch.object(SYN, "store", side_effect=SynapseHTTPError),\
-         patch.object(SYN, "restGET",
-                      return_value=queue_json) as patch_rest_get:
-        new_queue = GET_CLS.get_or_create_queue(name=queue_name,
-                                                contentSource=parentid,
-                                                description=description,
-                                                quota={})
-        patch_rest_get.assert_called_once_with(f"/evaluation/name/{queue_name}")
-        assert new_queue == returned
-
-
-def test_get_or_create_queue__get_raise():
-    """Tests trying to get a queue when only_create"""
-    queue_name = str(uuid.uuid1())
-    parentid = "syn" + str(uuid.uuid1())
-    with patch.object(SYN, "store", side_effect=SynapseHTTPError),\
-         pytest.raises(ValueError, match="only_create is set to True."):
-        CREATE_CLS.get_or_create_queue(name=queue_name,
-                                       contentSource=parentid)
+        patch_find_or_create.assert_called_once_with(queue)
