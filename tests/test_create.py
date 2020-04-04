@@ -331,3 +331,25 @@ def test_get_or_create_challenge__get_raise():
                                          "set only_create to False."):
         CREATE_CLS.get_or_create_challenge(participantTeamId=teamid,
                                            projectId=projectid)
+
+
+def test_get_or_create_challenge__get_raise_404():
+    """Tests trying to get a queue raise 404"""
+    projectid = str(uuid.uuid1())
+    teamid = str(uuid.uuid1())
+    mocked_404 = SynapseHTTPError("Not Found", response=Mock(status_code=404))
+    with patch.object(CREATE_CLS, "_create_challenge",
+                      side_effect=mocked_404),\
+         pytest.raises(SynapseHTTPError, match="Not Found"):
+        CREATE_CLS.get_or_create_challenge(participantTeamId=teamid,
+                                           projectId=projectid)
+
+
+def test_get_or_create_challenge__get_raise_missing_param():
+    """Tests that a missing parameter will raise an error"""
+    projectid = str(uuid.uuid1())
+    teamid = str(uuid.uuid1())
+    with pytest.raises(TypeError,
+                       match=".*missing 1 required positional argument: "
+                             "'projectId'"):
+        CREATE_CLS.get_or_create_challenge(participantTeamId=teamid)
