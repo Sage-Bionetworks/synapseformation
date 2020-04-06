@@ -3,14 +3,16 @@ Tests creation module
 Functions are named with the function name in create module along
 with what is tested
 """
-import json
 import uuid
 
 import mock
 from mock import patch, Mock
 import pytest
 import synapseclient
-from synapseclient.exceptions import SynapseHTTPError
+try:
+    from synapseclient.core.exceptions import SynapseHTTPError
+except ModuleNotFoundError:
+    from synapseclient.exceptions import SynapseHTTPError
 
 from synapseformation.create import SynapseCreation
 

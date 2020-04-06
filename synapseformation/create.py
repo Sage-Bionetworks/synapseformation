@@ -4,9 +4,12 @@ import logging
 from logging import Logger
 from urllib.parse import quote
 
-from synapseclient import Project, Team, Evaluation, File, Folder, Wiki
-from synapseclient import EntityViewSchema, Schema
-from synapseclient.exceptions import SynapseHTTPError
+from synapseclient import (Project, Team, Evaluation, File, Folder, Wiki,
+                           EntityViewSchema, Schema)
+try:
+    from synapseclient.core.exceptions import SynapseHTTPError
+except ModuleNotFoundError:
+    from synapseclient.exceptions import SynapseHTTPError
 
 
 class SynapseCreation:
