@@ -3,6 +3,7 @@ Tests creation module
 Functions are named with the function name in create module along
 with what is tested
 """
+import json
 import uuid
 
 import mock
