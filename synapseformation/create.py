@@ -214,7 +214,7 @@ class SynapseCreation:
                                                   queue.name, queue.id))
         return queue
 
-    def _get_challenge(self, projectId: str) -> 'dict':
+    def _get_challenge(self, projectId: str) -> dict:
         """Gets the Challenge associated with a Project.
 
         See the definition of a Challenge object here:
@@ -232,7 +232,7 @@ class SynapseCreation:
         return challenge
 
     def _create_challenge(self, projectId: str,
-                          participantTeamId: str) -> 'dict':
+                          participantTeamId: str) -> dict:
         """Creates Challenge associated with a Project
 
         See the definition of a Challenge object here:
@@ -253,7 +253,7 @@ class SynapseCreation:
                                       json.dumps(challenge_object))
         return challenge
 
-    def get_or_create_challenge(self, **kwargs) -> 'dict':
+    def get_or_create_challenge(self, **kwargs) -> dict:
         """Gets an existing challenge by projectId or creates a new one.
         # TODO: Use eventually implemented challenge class
 
