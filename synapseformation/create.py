@@ -1,5 +1,4 @@
 """Convenience functions to create Synapse entities"""
-from functools import partial
 import logging
 from logging import Logger
 import json
