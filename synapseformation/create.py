@@ -1,6 +1,7 @@
 """Convenience functions to create Synapse entities"""
 import logging
 from logging import Logger
+from typing import Union
 from urllib.parse import quote
 
 from synapseclient import (Project, Team, Evaluation, File, Folder, Wiki,
@@ -11,6 +12,9 @@ except ModuleNotFoundError:
     from synapseclient.exceptions import SynapseHTTPError
 
 from challengeutils import utils
+
+SynapseCls = Union[Project, Team, Evaluation, File, Folder, Wiki,
+                   EntityViewSchema, Schema]
 
 
 class SynapseCreation:
@@ -28,7 +32,7 @@ class SynapseCreation:
         self.logger = logger or logging.getLogger(__name__)
         self._update_str = "Fetched existing" if only_create else "Created"
 
-    def _get_obj(self, obj: 'Object') -> 'Object':
+    def _get_obj(self, obj: SynapseCls) -> SynapseCls:
         """Gets the object from Synapse based on object constructor
 
         Args:
@@ -50,7 +54,7 @@ class SynapseCreation:
             raise ValueError(f"{obj} not recognized")
         return obj
 
-    def _find_by_obj_or_create(self, obj: 'Object') -> 'Object':
+    def _find_by_obj_or_create(self, obj: SynapseCls) -> SynapseCls:
         """Gets an existing synapse object or create a new one.
 
         Args:
@@ -124,7 +128,7 @@ class SynapseCreation:
                                                     folder_ent.id))
         return folder_ent
 
-    def get_or_create_view(self, **kwargs):
+    def get_or_create_view(self, **kwargs) -> EntityViewSchema:
         """Gets an existing view schema by name and parent or
         creates a new one.
 
@@ -142,7 +146,7 @@ class SynapseCreation:
                                                   view.id))
         return view
 
-    def get_or_create_schema(self, **kwargs):
+    def get_or_create_schema(self, **kwargs) -> Schema:
         """Gets an existing table schema by name and parent or
         creates a new one.
 
