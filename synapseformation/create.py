@@ -66,7 +66,8 @@ class SynapseCreation:
         try:
             obj = self.syn.store(obj, createOrUpdate=False)
         except SynapseHTTPError as err:
-            # Must check for 409 error
+            # 409 is the NameConflictError that occurs when trying to
+            # upload an entity that has the same name
             if err.response.status_code != 409:
                 raise err
             if self.only_create:
