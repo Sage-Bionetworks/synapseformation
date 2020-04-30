@@ -1,198 +1,282 @@
 """Convenience functions to create Synapse entities"""
+import json
 import logging
 from logging import Logger
+from typing import Union
 from urllib.parse import quote
 
-from synapseclient import Project, Team, Evaluation, File, Folder, Wiki
+from synapseclient import (Project, Team, Evaluation, File, Folder, Wiki,
+                           EntityViewSchema, Schema)
+from synapseclient.core.exceptions import SynapseHTTPError
 
-from challengeutils import utils
+SynapseCls = Union[Project, Team, Evaluation, File, Folder, Wiki,
+                   EntityViewSchema, Schema]
 
 
 class SynapseCreation:
     """Creates Synapse Features"""
-    def __init__(self, syn: 'Synapse', create_or_update: bool = False,
+    def __init__(self, syn: 'Synapse', only_create: bool = True,
                  logger: Logger = None):
         """
         Args:
             syn: Synapse connection
-            create_or_update: Default is False, which means resources can
-                              only be created and not updated if resource
-                              already exists.
+            only_create: Only create entities. Default is True, which
+                         means creation will fail if resource already exists.
         """
         self.syn = syn
-        self.create_or_update = create_or_update
+        self.only_create = only_create
         self.logger = logger or logging.getLogger(__name__)
-        self._update_str = "Fetched existing" if create_or_update else "Created"
+        self._update_str = "Fetched existing" if only_create else "Created"
 
-    def create_project(self, project_name: str) -> Project:
-        """Creates Synapse Project
+    def _get_obj(self, obj: SynapseCls) -> SynapseCls:
+        """Gets the object from Synapse based on object constructor
 
         Args:
-            syn: Synapse connection
-            project_name: Name of project
+            obj: synapseclient Object
 
         Returns:
-            Project Entity
+            obj: synapseclient Object
 
         """
-        project = Project(project_name)
-        # returns the handle to the project if the user has sufficient
-        # priviledge
-        project = self.syn.store(project,
-                                 createOrUpdate=self.create_or_update)
+        if isinstance(obj, (Project, File, Folder, EntityViewSchema, Schema)):
+            obj = self.syn.get(obj, downloadFile=False)
+        elif isinstance(obj, Team):
+            obj = self.syn.getTeam(obj)
+        elif isinstance(obj, Wiki):
+            obj = self.syn.getWiki(obj)
+        elif isinstance(obj, Evaluation):
+            obj = self.syn.getEvaluation(obj)
+        else:
+            raise ValueError(f"{obj} not recognized")
+        return obj
+
+    def _find_by_obj_or_create(self, obj: SynapseCls) -> SynapseCls:
+        """Gets an existing synapse object or create a new one.
+
+        Args:
+            obj: synapseclient Object
+
+        Returns:
+            A synapseclient Object
+        """
+        try:
+            obj = self.syn.store(obj, createOrUpdate=False)
+        except SynapseHTTPError as err:
+            # 409 is the NameConflictError that occurs when trying to
+            # upload an entity that has the same name
+            if err.response.status_code != 409:
+                raise err
+            if self.only_create:
+                raise ValueError(f"{str(err)}. To use existing entities, "
+                                 "set only_create to False.")
+            obj = self._get_obj(obj)
+        return obj
+
+    def get_or_create_project(self, **kwargs) -> Project:
+        """Gets an existing project by name or creates a new one.
+
+        Args:
+            Same arguments as synapseclient.Project
+
+        Returns:
+            A synapseclient.Project
+
+        """
+        project = Project(**kwargs)
+        project = self._find_by_obj_or_create(project)
         self.logger.info('{} Project {}({})'.format(self._update_str,
                                                     project.name,
                                                     project.id))
         return project
 
-    def create_team(self, team_name: str, description: str = None,
-                    can_public_join: bool = False) -> Team:
-        """Creates Synapse Team
+    def get_or_create_file(self, **kwargs) -> File:
+        """Gets an existing file by name and parent or
+        creates a new one.
 
         Args:
-            syn: Synapse connection
-            team_name: Name of team
-            description: Description of team
-            can_public_join: true for teams which members can join without
-                            an invitation or approval. Default to False
+            Same arguments as synapseclient.File
 
         Returns:
-            Synapse Team id
+            A synapseclient.File
 
         """
-        if self.create_or_update:
-            team = self.syn.getTeam(team_name)
-        else:
-            team = Team(name=team_name, description=description,
-                        canPublicJoin=can_public_join)
-            # raises a SynapseHTTPError if a team with this name already
-            # exists
-            team = self.syn.store(team, createOrUpdate=self.create_or_update)
-        self.logger.info('{} Team {} ({})'.format(self._update_str,
-                                                  team.name,
-                                                  team.id))
-        return team
-
-    def create_evaluation_queue(self, name: str, parentid: str,
-                                description: str = None,
-                                quota: dict = None) -> Evaluation:
-        """Creates Evaluation Queues
-
-        Args:
-            syn: Synapse connection
-            name: Name of evaluation queue
-            parentid: Synapse project id
-            description: Description of queue
-            quota: Evaluation queue quota
-
-        Returns:
-            Synapse Evaluation Queue
-
-        """
-        if self.create_or_update:
-            url_name = quote(name)
-            queue = self.syn.restGET(f"/evaluation/name/{url_name}")
-            queue = Evaluation(**queue)
-        else:
-            queue_ent = Evaluation(name=name,
-                                   description=description,
-                                   contentSource=parentid,
-                                   quota=quota)
-            # Throws SynapseHTTPError is queue already exists
-            queue = self.syn.store(queue_ent,
-                                   createOrUpdate=self.create_or_update)
-        self.logger.info('{} Queue {}({})'.format(self._update_str,
-                                                  queue.name, queue.id))
-        return queue
-
-    def create_challenge_widget(self, project_live: str,
-                                team_part_id: str) -> 'Challenge':
-        """Creates challenge widget - activates a Synapse project
-        If challenge object exists, it retrieves existing object
-
-        Args:
-            syn: Synapse connection
-            project_live: Synapse id of live challenge project
-            team_part_id: Synapse team id of participant team
-
-        Returns:
-            Synapse challenge object
-
-        """
-        if self.create_or_update:
-            challenge = utils.get_challenge(self.syn, project_live)
-        else:
-            challenge = utils.create_challenge(self.syn, project_live,
-                                               team_part_id)
-        self.logger.info("{} Challenge ({})".format(self._update_str,
-                                                    challenge.id))
-        return challenge
-
-    def create_file(self, path: str, parentid: str) -> File:
-        """Creates Synapse File
-
-        Args:
-            syn: Synapse connection
-            path: Path to file
-            parentid: Synapse parent id
-
-        Returns:
-            Synapse file
-
-        """
-        file_ent = File(path, parent=parentid)
-        # returns the handle to the file if the user has sufficient priviledge
-        file_ent = self.syn.store(file_ent,
-                                  createOrUpdate=self.create_or_update)
+        file_ent = File(**kwargs)
+        file_ent = self._find_by_obj_or_create(file_ent)
         self.logger.info('{} File {} ({})'.format(self._update_str,
                                                   file_ent.name,
                                                   file_ent.id))
         return file_ent
 
-
-    def create_folder(self, folder_name: str, parentid: str) -> Folder:
-        """Creates Synapse Folder
+    def get_or_create_folder(self, **kwargs) -> Folder:
+        """Gets an existing folder by name and parent or
+        creates a new one.
 
         Args:
-            syn: Synapse connection
-            folder_name: Name of folder
+            Same arguments as synapseclient.Folder
 
         Returns:
-            Synapse folder
+            A synapseclient.Folder
 
         """
-        folder_ent = Folder(folder_name, parent=parentid)
-        # returns the handle to the project if the user has sufficient
-        # priviledge
-        folder_ent = self.syn.store(folder_ent,
-                                    createOrUpdate=self.create_or_update)
+        folder_ent = Folder(**kwargs)
+        folder_ent = self._find_by_obj_or_create(folder_ent)
         self.logger.info('{} Folder {} ({})'.format(self._update_str,
                                                     folder_ent.name,
                                                     folder_ent.id))
         return folder_ent
 
-    def create_wiki(self, title: str, projectid: str, markdown: str = None,
-                    parent_wiki: str = None) -> Wiki:
-        """Creates wiki page
+    def get_or_create_view(self, **kwargs) -> EntityViewSchema:
+        """Gets an existing view schema by name and parent or
+        creates a new one.
 
         Args:
-            syn: Synapse connection
-            title: Title of wiki
-            markdown: markdown formatted string
-            projectid: Synapse project id,
-            parent_wiki: Parent wiki id
+            Same arguments as synapseclient.EntityViewSchema
+
+        Returns:
+            A synapseclient.EntityViewSchema.
+
+        """
+        view = EntityViewSchema(**kwargs)
+        view = self._find_by_obj_or_create(view)
+        self.logger.info('{} View {} ({})'.format(self._update_str,
+                                                  view.name,
+                                                  view.id))
+        return view
+
+    def get_or_create_schema(self, **kwargs) -> Schema:
+        """Gets an existing table schema by name and parent or
+        creates a new one.
+
+        Args:
+            Same arguments as synapseclient.Schema
+
+        Returns:
+            A synapseclient.Schema.
+
+        """
+
+        schema = Schema(**kwargs)
+        schema = self._find_by_obj_or_create(schema)
+        self.logger.info('{} Schema {} ({})'.format(self._update_str,
+                                                    schema.name,
+                                                    schema.id))
+        return schema
+
+    def get_or_create_team(self, **kwargs) -> Team:
+        """Gets an existing team by name or creates a new one.
+
+        Args:
+            Same arguments as synapseclient.Team
+
+        Returns:
+            A synapseclient.Team
+
+        """
+
+        team = Team(**kwargs)
+        team = self._find_by_obj_or_create(team)
+        self.logger.info('{} Team {} ({})'.format(self._update_str,
+                                                  team.name,
+                                                  team.id))
+        return team
+
+    def get_or_create_wiki(self, **kwargs) -> Wiki:
+        """Gets an existing wiki or creates a new one. If
+        parentWikiId is specified, a page will always be created.
+        There are no restrictions on wiki titles on subwiki pages.
+        Get doesn't work for subwiki pages
+
+        Args:
+            Same arguments as synapseclient.Wiki
 
         Returns:
             Synapse wiki page
 
         """
-        wiki_ent = Wiki(title=title, markdown=markdown, owner=projectid,
-                        parentWikiId=parent_wiki)
-        # Create or update won't make a difference for subwiki pages
-        # because there is no restriction on names.  So you could
-        # have duplicated wiki title names
-        wiki_ent = self.syn.store(wiki_ent,
-                                  createOrUpdate=self.create_or_update)
+
+        wiki = Wiki(**kwargs)
+        wiki = self._find_by_obj_or_create(wiki)
         self.logger.info('{} Wiki {}'.format(self._update_str,
-                                             wiki_ent.title))
-        return wiki_ent
+                                             wiki.title))
+        return wiki
+
+    def get_or_create_queue(self, **kwargs) -> Evaluation:
+        """Gets an existing evaluation queue by name or creates a new one.
+
+        Args:
+            Same arguments as synapseclient.Evaluation
+
+        Returns:
+            A synapseclient.Evaluation
+
+        """
+        queue = Evaluation(**kwargs)
+        queue = self._find_by_obj_or_create(queue)
+        self.logger.info('{} Queue {}({})'.format(self._update_str,
+                                                  queue.name, queue.id))
+        return queue
+
+    def _get_challenge(self, projectId: str) -> dict:
+        """Gets the Challenge associated with a Project.
+
+        See the definition of a Challenge object here:
+        https://docs.synapse.org/rest/org/sagebionetworks/repo/model/Challenge.html
+
+        Args:
+            projectId: A Synapse Id of a Project.
+
+        Returns:
+            A Synapse challenge dict
+            https://docs.synapse.org/rest/org/sagebionetworks/repo/model/Challenge.html
+
+        """
+        challenge = self.syn.restGET(f"/entity/{projectId}/challenge")
+        return challenge
+
+    def _create_challenge(self, projectId: str,
+                          participantTeamId: str) -> dict:
+        """Creates Challenge associated with a Project
+
+        See the definition of a Challenge object here:
+        https://docs.synapse.org/rest/org/sagebionetworks/repo/model/Challenge.html
+
+        Args:
+            participantTeamId: An Entity or Synapse ID of a Project.
+            projectId: A Team or Team ID.
+
+        Returns:
+            A Synapse challenge dict
+            https://docs.synapse.org/rest/org/sagebionetworks/repo/model/Challenge.html
+
+        """
+        challenge_object = {'participantTeamId': participantTeamId,
+                            'projectId': projectId}
+        challenge = self.syn.restPOST('/challenge',
+                                      json.dumps(challenge_object))
+        return challenge
+
+    def get_or_create_challenge(self, **kwargs) -> dict:
+        """Gets an existing challenge by projectId or creates a new one.
+        # TODO: Use eventually implemented challenge class
+
+        Args:
+            projectId: Synapse project id
+            participantTeamId: An Entity or Synapse ID of a Project.
+
+        Returns:
+            A Synapse challenge dict
+            https://docs.synapse.org/rest/org/sagebionetworks/repo/model/Challenge.html
+        """
+        try:
+            challenge = self._create_challenge(**kwargs)
+        except SynapseHTTPError as err:
+            # Must check for 409 error
+            if err.response.status_code != 409:
+                raise err
+            if self.only_create:
+                raise ValueError(f"{str(err)}. To use existing entities, "
+                                 "set only_create to False.")
+            challenge = self._get_challenge(kwargs['projectId'])
+        self.logger.info("{} Challenge ({})".format(self._update_str,
+                                                    challenge['id']))
+        return challenge
