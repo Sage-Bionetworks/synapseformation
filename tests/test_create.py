@@ -3,9 +3,9 @@ Tests creation module
 Functions are named with the function name in create module along
 with what is tested
 """
+import json
 import uuid
 
-from challengeutils import utils
 import mock
 from mock import patch, Mock
 import pytest
@@ -253,3 +253,106 @@ def test_get_or_create_queue__call():
                                                    quota={})
         assert new_queue == returned
         patch_find_or_create.assert_called_once_with(queue)
+
+
+def test__get_challenge__call():
+    """Tests the correct parameters are passed in"""
+    projectid = str(uuid.uuid1())
+    chalid = str(uuid.uuid1())
+    etag = str(uuid.uuid1())
+    participant_teamid = str(uuid.uuid1())
+    rest_return = {'id': chalid,
+                   'projectId': projectid,
+                   'etag': etag,
+                   'participantTeamId': participant_teamid}
+    with patch.object(SYN, "restGET",
+                      return_value=rest_return) as patch_rest_get:
+        chal = CREATE_CLS._get_challenge(projectid)
+        patch_rest_get.assert_called_once_with(f"/entity/{projectid}/challenge")
+        assert chal == rest_return
+
+
+def test__create_challenge__call():
+    """Tests the correct parameters are passed in"""
+    projectid = str(uuid.uuid1())
+    chalid = str(uuid.uuid1())
+    etag = str(uuid.uuid1())
+    teamid = str(uuid.uuid1())
+    rest_return = {'id': chalid,
+                   'projectId': projectid,
+                   'etag': etag,
+                   'participantTeamId': teamid}
+    input_dict = {'participantTeamId': teamid,
+                  'projectId': projectid}
+    with patch.object(SYN, "restPOST",
+                      return_value=rest_return) as patch_rest_post:
+        chal = CREATE_CLS._create_challenge(participantTeamId=teamid,
+                                            projectId=projectid)
+        patch_rest_post.assert_called_once_with('/challenge',
+                                                json.dumps(input_dict))
+        assert chal == rest_return
+
+
+def test_get_or_create_challenge__create():
+    """Tests creation of challenge"""
+    projectid = str(uuid.uuid1())
+    teamid = str(uuid.uuid1())
+    returned = {'id': str(uuid.uuid1())}
+    with patch.object(CREATE_CLS, "_create_challenge",
+                      return_value=returned) as patch_create:
+        new_chal = CREATE_CLS.get_or_create_challenge(participantTeamId=teamid,
+                                                      projectId=projectid)
+        assert new_chal == returned
+        patch_create.assert_called_once_with(projectId=projectid,
+                                             participantTeamId=teamid)
+
+
+def test_get_or_create_challenge__get():
+    """Tests getting of challenge"""
+    projectid = str(uuid.uuid1())
+    teamid = str(uuid.uuid1())
+    returned = {'id': str(uuid.uuid1())}
+    mocked_409 = SynapseHTTPError("foo", response=Mock(status_code=409))
+    with patch.object(GET_CLS, "_create_challenge",
+                      side_effect=mocked_409),\
+         patch.object(GET_CLS, "_get_challenge",
+                      return_value=returned) as patch_get:
+        new_chal = GET_CLS.get_or_create_challenge(participantTeamId=teamid,
+                                                   projectId=projectid)
+        patch_get.assert_called_once_with(projectid)
+        assert new_chal == returned
+
+
+def test_get_or_create_challenge__get_raise():
+    """Tests trying to get a queue when only_create"""
+    projectid = str(uuid.uuid1())
+    teamid = str(uuid.uuid1())
+    mocked_409 = SynapseHTTPError("foo", response=Mock(status_code=409))
+    with patch.object(CREATE_CLS, "_create_challenge",
+                      side_effect=mocked_409),\
+         pytest.raises(ValueError, match="foo. To use existing entities, "
+                                         "set only_create to False."):
+        CREATE_CLS.get_or_create_challenge(participantTeamId=teamid,
+                                           projectId=projectid)
+
+
+def test_get_or_create_challenge__get_raise_404():
+    """Tests trying to get a queue raise 404"""
+    projectid = str(uuid.uuid1())
+    teamid = str(uuid.uuid1())
+    mocked_404 = SynapseHTTPError("Not Found", response=Mock(status_code=404))
+    with patch.object(CREATE_CLS, "_create_challenge",
+                      side_effect=mocked_404),\
+         pytest.raises(SynapseHTTPError, match="Not Found"):
+        CREATE_CLS.get_or_create_challenge(participantTeamId=teamid,
+                                           projectId=projectid)
+
+
+def test_get_or_create_challenge__get_raise_missing_param():
+    """Tests that a missing parameter will raise an error"""
+    projectid = str(uuid.uuid1())
+    teamid = str(uuid.uuid1())
+    with pytest.raises(TypeError,
+                       match=".*missing 1 required positional argument: "
+                             "'projectId'"):
+        CREATE_CLS.get_or_create_challenge(participantTeamId=teamid)

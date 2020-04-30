@@ -1,4 +1,5 @@
 """Convenience functions to create Synapse entities"""
+import json
 import logging
 from logging import Logger
 from typing import Union
@@ -10,8 +11,6 @@ try:
     from synapseclient.core.exceptions import SynapseHTTPError
 except ModuleNotFoundError:
     from synapseclient.exceptions import SynapseHTTPError
-
-from challengeutils import utils
 
 SynapseCls = Union[Project, Team, Evaluation, File, Folder, Wiki,
                    EntityViewSchema, Schema]
@@ -208,7 +207,6 @@ class SynapseCreation:
         """Gets an existing evaluation queue by name or creates a new one.
 
         Args:
-            name: Name of evaluation queue
             Same arguments as synapseclient.Evaluation
 
         Returns:
@@ -220,3 +218,68 @@ class SynapseCreation:
         self.logger.info('{} Queue {}({})'.format(self._update_str,
                                                   queue.name, queue.id))
         return queue
+
+    def _get_challenge(self, projectId: str) -> dict:
+        """Gets the Challenge associated with a Project.
+
+        See the definition of a Challenge object here:
+        https://docs.synapse.org/rest/org/sagebionetworks/repo/model/Challenge.html
+
+        Args:
+            projectId: A Synapse Id of a Project.
+
+        Returns:
+            A Synapse challenge dict
+            https://docs.synapse.org/rest/org/sagebionetworks/repo/model/Challenge.html
+
+        """
+        challenge = self.syn.restGET(f"/entity/{projectId}/challenge")
+        return challenge
+
+    def _create_challenge(self, projectId: str,
+                          participantTeamId: str) -> dict:
+        """Creates Challenge associated with a Project
+
+        See the definition of a Challenge object here:
+        https://docs.synapse.org/rest/org/sagebionetworks/repo/model/Challenge.html
+
+        Args:
+            participantTeamId: An Entity or Synapse ID of a Project.
+            projectId: A Team or Team ID.
+
+        Returns:
+            A Synapse challenge dict
+            https://docs.synapse.org/rest/org/sagebionetworks/repo/model/Challenge.html
+
+        """
+        challenge_object = {'participantTeamId': participantTeamId,
+                            'projectId': projectId}
+        challenge = self.syn.restPOST('/challenge',
+                                      json.dumps(challenge_object))
+        return challenge
+
+    def get_or_create_challenge(self, **kwargs) -> dict:
+        """Gets an existing challenge by projectId or creates a new one.
+        # TODO: Use eventually implemented challenge class
+
+        Args:
+            projectId: Synapse project id
+            participantTeamId: An Entity or Synapse ID of a Project.
+
+        Returns:
+            A Synapse challenge dict
+            https://docs.synapse.org/rest/org/sagebionetworks/repo/model/Challenge.html
+        """
+        try:
+            challenge = self._create_challenge(**kwargs)
+        except SynapseHTTPError as err:
+            # Must check for 409 error
+            if err.response.status_code != 409:
+                raise err
+            if self.only_create:
+                raise ValueError(f"{str(err)}. To use existing entities, "
+                                 "set only_create to False.")
+            challenge = self._get_challenge(kwargs['projectId'])
+        self.logger.info("{} Challenge ({})".format(self._update_str,
+                                                    challenge['id']))
+        return challenge
