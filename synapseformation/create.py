@@ -7,10 +7,7 @@ from urllib.parse import quote
 
 from synapseclient import (Project, Team, Evaluation, File, Folder, Wiki,
                            EntityViewSchema, Schema)
-try:
-    from synapseclient.core.exceptions import SynapseHTTPError
-except ModuleNotFoundError:
-    from synapseclient.exceptions import SynapseHTTPError
+from synapseclient.core.exceptions import SynapseHTTPError
 
 SynapseCls = Union[Project, Team, Evaluation, File, Folder, Wiki,
                    EntityViewSchema, Schema]

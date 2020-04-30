@@ -10,10 +10,7 @@ import mock
 from mock import patch, Mock
 import pytest
 import synapseclient
-try:
-    from synapseclient.core.exceptions import SynapseHTTPError
-except ModuleNotFoundError:
-    from synapseclient.exceptions import SynapseHTTPError
+from synapseclient.core.exceptions import SynapseHTTPError
 
 from synapseformation.create import SynapseCreation
 
