@@ -19,4 +19,4 @@ setup(name='synapseformation',
       python_requires='>=3.6',
       entry_points={'console_scripts': ['synapseformation = synapseformation.__main__:cli']},
       install_requires=['click',
-                        'synapseclient>=1.9.4'])
+                        'synapseclient>=2.0.0'])
