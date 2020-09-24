@@ -50,7 +50,8 @@ class SynapseCreation:
         elif isinstance(obj, Team):
             obj = self.syn.getTeam(obj.name)
         elif isinstance(obj, Wiki):
-            obj = self.syn.getWiki(obj)
+            # Only gets the root wiki page
+            obj = self.syn.getWiki(obj.ownerId)
         elif isinstance(obj, Evaluation):
             obj = self.syn.getEvaluationByName(obj.name)
         else:
