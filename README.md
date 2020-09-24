@@ -1,7 +1,18 @@
 # synapseformation
 Client for using Synapse Formation templates.
 
+## Usage
+```
+import synapseclient
+from synapseformation import create
 
+syn = synapseclient.login()
+# Only create entities
+CreateCls = create.SynapseCreation(syn)
+# Only retrieve entities (don't update)
+RetrieveCls = create.SynapseCreation(syn, only_create=False)
+
+```
 
 ## Contributing
 

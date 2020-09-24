@@ -39,13 +39,20 @@ class SynapseCreation:
 
         """
         if isinstance(obj, (Project, File, Folder, EntityViewSchema, Schema)):
-            obj = self.syn.get(obj, downloadFile=False)
+            # Can't syn.get a File constructor that hasn't been stored
+            # So must run these rest calls to obtain the entity
+            body = json.dumps({"parentId": obj.properties.get("parentId", None),  # pylint: disable=line-too-long
+                               "entityName": obj.name})
+            entity_obj = self.syn.restPOST("/entity/child", body=body)
+            new_obj = self.syn.get(entity_obj['id'], downloadFile=False)
+            assert obj.properties.concreteType == new_obj.properties.concreteType, "Different types."  # pylint: disable=line-too-long
+            obj = new_obj
         elif isinstance(obj, Team):
-            obj = self.syn.getTeam(obj)
+            obj = self.syn.getTeam(obj.name)
         elif isinstance(obj, Wiki):
             obj = self.syn.getWiki(obj)
         elif isinstance(obj, Evaluation):
-            obj = self.syn.getEvaluation(obj)
+            obj = self.syn.getEvaluationByName(obj.name)
         else:
             raise ValueError(f"{obj} not recognized")
         return obj
