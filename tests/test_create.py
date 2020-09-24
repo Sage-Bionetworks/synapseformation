@@ -4,10 +4,10 @@ Functions are named with the function name in create module along
 with what is tested
 """
 import json
+from unittest import mock
+from unittest.mock import Mock, patch
 import uuid
 
-import mock
-from mock import patch, Mock
 import pytest
 import synapseclient
 from synapseclient.core.exceptions import SynapseHTTPError
