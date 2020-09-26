@@ -80,18 +80,17 @@ def test__find_by_obj_or_create__get():
         patch_cls_get.assert_called_once_with(entity)
 
 
-@pytest.mark.parametrize("obj,get_func",
-                         [(synapseclient.Project(name="foo"), "get")])
-def test__get_obj__entity(obj, get_func):
+@pytest.mark.parametrize("obj", [synapseclient.Project(name="foo")])
+def test__get_obj__entity(obj):
     """Test getting of entities"""
-    with patch.object(SYN, get_func, return_value=obj) as patch_get:
+    with patch.object(GET_CLS, "_find_entity_by_name",
+                      return_value=obj) as patch_get:
         return_obj = GET_CLS._get_obj(obj)
-        if isinstance(obj, synapseclient.Project):
-            patch_get.assert_called_once_with(obj, downloadFile=False)
-        elif isinstance(obj, (synapseclient.Team, synapseclient.Evaluation)):
-            patch_get.assert_called_once_with(obj.name)
-        elif isinstance(obj, synapseclient.Wiki):
-            patch_get.assert_called_once_with(obj.ownerId)
+        patch_get.assert_called_once_with(
+            parentid=obj.properties.get("parentId", None),
+            entity_name=obj.name,
+            concrete_type=obj.properties.concreteType)
+        assert obj == return_obj
 
 
 @pytest.mark.parametrize("obj,get_func",
