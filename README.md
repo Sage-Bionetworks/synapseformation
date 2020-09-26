@@ -1,5 +1,5 @@
 # synapseformation
-Client for using Synapse Formation templates.
+Client for using Synapse Formation Templates.
 
 
 
