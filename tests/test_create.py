@@ -80,6 +80,46 @@ def test__find_by_obj_or_create__get():
         patch_cls_get.assert_called_once_with(entity)
 
 
+def test__find_entity_by_name__valid():
+    """Test getting entities by name"""
+    post_return = {'id': "syn11111"}
+    obj = synapseclient.File(path="foo.txt", parentId="syn12345",
+                             id="syn11111")
+    with patch.object(SYN, "restPOST",
+                      return_value=post_return) as patch_post,\
+         patch.object(SYN, "get", return_value=obj) as patch_get:
+        return_obj = GET_CLS._find_entity_by_name(
+            parentid="syn12345",
+            entity_name="foo.txt",
+            concrete_type=obj.properties.concreteType
+        )
+        assert obj == return_obj
+        patch_post.assert_called_once_with(
+            "/entity/child",
+            body=json.dumps({"parentId": "syn12345",
+                             "entityName": "foo.txt"})
+        )
+        patch_get.assert_called_once_with(
+            "syn11111", downloadFile=False
+        )
+
+
+def test__find_entity_by_name__invalid():
+    """Test getting entities by name"""
+    post_return = {'id': "syn11111"}
+    obj = synapseclient.File(path="foo.txt", parentId="syn12345",
+                             id="syn11111")
+    with patch.object(SYN, "restPOST",
+                      return_value=post_return) as patch_post,\
+         patch.object(SYN, "get", return_value=obj) as patch_get,\
+         pytest.raises(AssertionError, match="Different types."):
+        return_obj = GET_CLS._find_entity_by_name(
+            parentid="syn12345",
+            entity_name="foo.txt",
+            concrete_type="Test"
+        )
+
+
 @pytest.mark.parametrize(
     "obj", [synapseclient.Project(name="foo"),
             synapseclient.File(path="foo.txt", parentId="syn12345"),
@@ -113,6 +153,7 @@ def test__get_obj__nonentity(obj, get_func):
         elif isinstance(obj, synapseclient.Wiki):
             patch_get.assert_called_once_with(obj.ownerId)
         assert return_obj == obj
+
 
 def test_get_or_create_project__call():
     """Makes sure correct parameters are called"""

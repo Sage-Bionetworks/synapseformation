@@ -6,7 +6,7 @@ from typing import Union
 from urllib.parse import quote
 
 from synapseclient import (Project, Team, Evaluation, File, Folder, Wiki,
-                           EntityViewSchema, Schema)
+                           EntityViewSchema, Schema, Synapse)
 from synapseclient.core.exceptions import SynapseHTTPError
 
 SynapseCls = Union[Project, Team, Evaluation, File, Folder, Wiki,
@@ -15,7 +15,7 @@ SynapseCls = Union[Project, Team, Evaluation, File, Folder, Wiki,
 
 class SynapseCreation:
     """Creates Synapse Features"""
-    def __init__(self, syn: 'Synapse', only_create: bool = True,
+    def __init__(self, syn: Synapse, only_create: bool = True,
                  logger: Logger = None):
         """
         Args:
@@ -28,8 +28,18 @@ class SynapseCreation:
         self.logger = logger or logging.getLogger(__name__)
         self._update_str = "Fetched existing" if only_create else "Created"
 
-    def _find_entity_by_name(self, parentid, entity_name, concrete_type):
-        """Find an Entity by its name"""
+    def _find_entity_by_name(self, entity_name: str, parentid: str,
+                             concrete_type: str) -> SynapseCls:
+        """Find an Entity by its name
+
+        Args:
+            entity_name: Name of Entity
+            parentid: Synapse parentid
+            concrete_type: Type of Entity
+
+        Returns:
+            Entity
+        """
         body = json.dumps({"parentId": parentid, "entityName": entity_name})
         entity_obj = self.syn.restPOST("/entity/child", body=body)
         new_obj = self.syn.get(entity_obj['id'], downloadFile=False)
@@ -50,8 +60,8 @@ class SynapseCreation:
             # Can't syn.get a File constructor that hasn't been stored
             # So must run these rest calls to obtain the entity
             obj = self._find_entity_by_name(
-                parentid=obj.properties.get("parentId", None),
                 entity_name=obj.name,
+                parentid=obj.properties.get("parentId", None),
                 concrete_type=obj.properties.concreteType
             )
         elif isinstance(obj, Team):
