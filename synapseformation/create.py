@@ -28,6 +28,14 @@ class SynapseCreation:
         self.logger = logger or logging.getLogger(__name__)
         self._update_str = "Fetched existing" if only_create else "Created"
 
+    def _find_entity_by_name(self, parentid, entity_name, concrete_type):
+        """Find an Entity by its name"""
+        body = json.dumps({"parentId": parentid, "entityName": entity_name})
+        entity_obj = self.syn.restPOST("/entity/child", body=body)
+        new_obj = self.syn.get(entity_obj['id'], downloadFile=False)
+        assert concrete_type == new_obj.properties.concreteType, "Different types."  # pylint: disable=line-too-long
+        return new_obj
+
     def _get_obj(self, obj: SynapseCls) -> SynapseCls:
         """Gets the object from Synapse based on object constructor
 
@@ -41,12 +49,11 @@ class SynapseCreation:
         if isinstance(obj, (Project, File, Folder, EntityViewSchema, Schema)):
             # Can't syn.get a File constructor that hasn't been stored
             # So must run these rest calls to obtain the entity
-            body = json.dumps({"parentId": obj.properties.get("parentId", None),  # pylint: disable=line-too-long
-                               "entityName": obj.name})
-            entity_obj = self.syn.restPOST("/entity/child", body=body)
-            new_obj = self.syn.get(entity_obj['id'], downloadFile=False)
-            assert obj.properties.concreteType == new_obj.properties.concreteType, "Different types."  # pylint: disable=line-too-long
-            obj = new_obj
+            obj = self._find_entity_by_name(
+                parentid=obj.properties.get("parentId", None),
+                entity_name=obj.name,
+                concrete_type=obj.properties.concreteType
+            )
         elif isinstance(obj, Team):
             obj = self.syn.getTeam(obj.name)
         elif isinstance(obj, Wiki):

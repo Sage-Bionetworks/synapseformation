@@ -81,21 +81,34 @@ def test__find_by_obj_or_create__get():
 
 
 @pytest.mark.parametrize("obj,get_func",
-                         [(synapseclient.Project(name="foo"), "get"),
-                          (synapseclient.Team(name="foo"), "getTeam"),
-                          (synapseclient.Wiki(owner="foo"), "getWiki"),
-                          (synapseclient.Evaluation(name="foo",
-                                                    contentSource="syn123"),
-                           "getEvaluation")])
+                         [(synapseclient.Project(name="foo"), "get")])
 def test__get_obj__entity(obj, get_func):
     """Test getting of entities"""
-    with patch.object(SYN, get_func) as patch_get:
+    with patch.object(SYN, get_func, return_value=obj) as patch_get:
         return_obj = GET_CLS._get_obj(obj)
         if isinstance(obj, synapseclient.Project):
             patch_get.assert_called_once_with(obj, downloadFile=False)
-        else:
-            patch_get.assert_called_once_with(obj)
+        elif isinstance(obj, (synapseclient.Team, synapseclient.Evaluation)):
+            patch_get.assert_called_once_with(obj.name)
+        elif isinstance(obj, synapseclient.Wiki):
+            patch_get.assert_called_once_with(obj.ownerId)
 
+
+@pytest.mark.parametrize("obj,get_func",
+                         [(synapseclient.Team(name="foo"), "getTeam"),
+                          (synapseclient.Wiki(owner="foo"), "getWiki"),
+                          (synapseclient.Evaluation(name="foo",
+                                                    contentSource="syn123"),
+                           "getEvaluationByName")])
+def test__get_obj__nonentity(obj, get_func):
+    """Test getting of entities"""
+    with patch.object(SYN, get_func, return_value=obj) as patch_get:
+        return_obj = GET_CLS._get_obj(obj)
+        if isinstance(obj, (synapseclient.Team, synapseclient.Evaluation)):
+            patch_get.assert_called_once_with(obj.name)
+        elif isinstance(obj, synapseclient.Wiki):
+            patch_get.assert_called_once_with(obj.ownerId)
+        assert return_obj == obj
 
 def test_get_or_create_project__call():
     """Makes sure correct parameters are called"""
@@ -309,9 +322,9 @@ def test_get_or_create_challenge__get():
     projectid = str(uuid.uuid1())
     teamid = str(uuid.uuid1())
     returned = {'id': str(uuid.uuid1())}
-    mocked_409 = SynapseHTTPError("foo", response=Mock(status_code=409))
+    mocked_400 = SynapseHTTPError("foo", response=Mock(status_code=400))
     with patch.object(GET_CLS, "_create_challenge",
-                      side_effect=mocked_409),\
+                      side_effect=mocked_400),\
          patch.object(GET_CLS, "_get_challenge",
                       return_value=returned) as patch_get:
         new_chal = GET_CLS.get_or_create_challenge(participantTeamId=teamid,
@@ -324,9 +337,9 @@ def test_get_or_create_challenge__get_raise():
     """Tests trying to get a queue when only_create"""
     projectid = str(uuid.uuid1())
     teamid = str(uuid.uuid1())
-    mocked_409 = SynapseHTTPError("foo", response=Mock(status_code=409))
+    mocked_400 = SynapseHTTPError("foo", response=Mock(status_code=400))
     with patch.object(CREATE_CLS, "_create_challenge",
-                      side_effect=mocked_409),\
+                      side_effect=mocked_400),\
          pytest.raises(ValueError, match="foo. To use existing entities, "
                                          "set only_create to False."):
         CREATE_CLS.get_or_create_challenge(participantTeamId=teamid,
