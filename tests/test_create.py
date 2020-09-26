@@ -80,7 +80,12 @@ def test__find_by_obj_or_create__get():
         patch_cls_get.assert_called_once_with(entity)
 
 
-@pytest.mark.parametrize("obj", [synapseclient.Project(name="foo")])
+@pytest.mark.parametrize(
+    "obj", [synapseclient.Project(name="foo"),
+            synapseclient.File(path="foo.txt", parentId="syn12345"),
+            synapseclient.Folder(name="foo", parentId="syn12345"),
+            synapseclient.Schema(name="foo", parentId="syn12345")]
+)
 def test__get_obj__entity(obj):
     """Test getting of entities"""
     with patch.object(GET_CLS, "_find_entity_by_name",
