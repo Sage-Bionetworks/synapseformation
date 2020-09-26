@@ -279,7 +279,7 @@ class SynapseCreation:
             challenge = self._create_challenge(**kwargs)
         except SynapseHTTPError as err:
             # Must check for 409 error
-            if err.response.status_code != 409:
+            if err.response.status_code != 400:
                 raise err
             if self.only_create:
                 raise ValueError(f"{str(err)}. To use existing entities, "
