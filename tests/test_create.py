@@ -85,8 +85,8 @@ def test__find_entity_by_name__valid():
     post_return = {'id': "syn11111"}
     obj = synapseclient.File(path="foo.txt", parentId="syn12345",
                              id="syn11111")
-    with patch.object(SYN, "restPOST",
-                      return_value=post_return) as patch_post,\
+    with patch.object(SYN, "findEntityId",
+                      return_value=post_return) as patch_find,\
          patch.object(SYN, "get", return_value=obj) as patch_get:
         return_obj = GET_CLS._find_entity_by_name(
             parentid="syn12345",
@@ -94,14 +94,8 @@ def test__find_entity_by_name__valid():
             concrete_type=obj.properties.concreteType
         )
         assert obj == return_obj
-        patch_post.assert_called_once_with(
-            "/entity/child",
-            body=json.dumps({"parentId": "syn12345",
-                             "entityName": "foo.txt"})
-        )
-        patch_get.assert_called_once_with(
-            "syn11111", downloadFile=False
-        )
+        patch_find.assert_called_once_with("foo.txt", parent="syn12345")
+        patch_get.assert_called_once_with("syn11111", downloadFile=False)
 
 
 def test__find_entity_by_name__invalid():
@@ -109,11 +103,10 @@ def test__find_entity_by_name__invalid():
     post_return = {'id': "syn11111"}
     obj = synapseclient.File(path="foo.txt", parentId="syn12345",
                              id="syn11111")
-    with patch.object(SYN, "restPOST",
-                      return_value=post_return) as patch_post,\
-         patch.object(SYN, "get", return_value=obj) as patch_get,\
+    with patch.object(SYN, "findEntityId", return_value=post_return),\
+         patch.object(SYN, "get", return_value=obj),\
          pytest.raises(AssertionError, match="Different types."):
-        return_obj = GET_CLS._find_entity_by_name(
+        GET_CLS._find_entity_by_name(
             parentid="syn12345",
             entity_name="foo.txt",
             concrete_type="Test"

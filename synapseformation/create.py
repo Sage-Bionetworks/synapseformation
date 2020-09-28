@@ -40,8 +40,10 @@ class SynapseCreation:
         Returns:
             Entity
         """
-        body = json.dumps({"parentId": parentid, "entityName": entity_name})
-        entity_obj = self.syn.restPOST("/entity/child", body=body)
+        # This does not recursively look through containers of containers.
+        # You must always specify the parentid of the entity you are
+        # trying to find
+        entity_obj = self.syn.findEntityId(entity_name, parent=parentid)
         new_obj = self.syn.get(entity_obj['id'], downloadFile=False)
         assert concrete_type == new_obj.properties.concreteType, "Different types."  # pylint: disable=line-too-long
         return new_obj
