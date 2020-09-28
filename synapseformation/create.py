@@ -45,7 +45,10 @@ class SynapseCreation:
         # trying to find
         entity_obj = self.syn.findEntityId(entity_name, parent=parentid)
         new_obj = self.syn.get(entity_obj['id'], downloadFile=False)
-        assert concrete_type == new_obj.properties.concreteType, "Different types."  # pylint: disable=line-too-long
+        assert concrete_type == new_obj.properties.concreteType, (
+            f"Retrieved '{entity_name}' had type '{new_obj.properties.concreteType}' "
+            f"rather than the expected type '{concrete_type}'."
+        )
         return new_obj
 
     def _get_obj(self, obj: SynapseCls) -> SynapseCls:
