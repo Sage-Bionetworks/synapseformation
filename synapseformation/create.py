@@ -47,7 +47,8 @@ class SynapseCreation:
         # TODO: when entity doesn't exist, don't do this get
         new_obj = self.syn.get(entity_obj['id'], downloadFile=False)
         assert concrete_type == new_obj.properties.concreteType, (
-            f"Retrieved '{entity_name}' had type '{new_obj.properties.concreteType}' "
+            f"Retrieved '{entity_name}' had type "
+            f"'{new_obj.properties.concreteType}' "
             f"rather than the expected type '{concrete_type}'."
         )
         return new_obj
@@ -301,11 +302,11 @@ class SynapseCreation:
         try:
             challenge = self._create_challenge(**kwargs)
         except SynapseHTTPError as err:
-            # Must check for 409 error
+            # Must check for 400 error
             if err.response.status_code != 400:
                 raise err
             if self.only_create:
-                raise ValueError(f"{str(err)}. To use existing entities, "
+                raise ValueError(f"{err}. To use existing entities, "
                                  "set only_create to False.")
             challenge = self._get_challenge(kwargs['projectId'])
         self.logger.info("{} Challenge ({})".format(self._update_str,
