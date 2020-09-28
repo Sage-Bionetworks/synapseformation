@@ -105,7 +105,8 @@ def test__find_entity_by_name__invalid():
                              id="syn11111")
     with patch.object(SYN, "findEntityId", return_value=post_return),\
          patch.object(SYN, "get", return_value=obj),\
-         pytest.raises(AssertionError, match="Different types."):
+         pytest.raises(AssertionError,
+                       match="Retrieved .* had type .* rather than .*"):
         GET_CLS._find_entity_by_name(
             parentid="syn12345",
             entity_name="foo.txt",
