@@ -6,7 +6,7 @@ from typing import Union
 from urllib.parse import quote
 
 from synapseclient import (Project, Team, Evaluation, File, Folder, Wiki,
-                           EntityViewSchema, Schema)
+                           EntityViewSchema, Schema, Synapse)
 from synapseclient.core.exceptions import SynapseHTTPError
 
 SynapseCls = Union[Project, Team, Evaluation, File, Folder, Wiki,
@@ -15,18 +15,45 @@ SynapseCls = Union[Project, Team, Evaluation, File, Folder, Wiki,
 
 class SynapseCreation:
     """Creates Synapse Features"""
-    def __init__(self, syn: 'Synapse', only_create: bool = True,
+    def __init__(self, syn: Synapse, only_get: bool = False,
                  logger: Logger = None):
         """
         Args:
             syn: Synapse connection
-            only_create: Only create entities. Default is True, which
-                         means creation will fail if resource already exists.
+            only_get: Only get entities. Default is False, which
+                      means by default, an attempt will be made at
+                      creating an entity.  The creation will fail if
+                      resource already exists.
         """
         self.syn = syn
-        self.only_create = only_create
+        self.only_get = only_get
         self.logger = logger or logging.getLogger(__name__)
-        self._update_str = "Fetched existing" if only_create else "Created"
+        self._update_str = "Created" if only_get else "Fetched existing"
+
+    def _find_entity_by_name(self, entity_name: str, parentid: str,
+                             concrete_type: str) -> SynapseCls:
+        """Find an Entity by its name
+
+        Args:
+            entity_name: Name of Entity
+            parentid: Synapse parentid
+            concrete_type: Type of Entity
+
+        Returns:
+            Entity
+        """
+        # This does not recursively look through containers of containers.
+        # You must always specify the parentid of the entity you are
+        # trying to find
+        entity_obj = self.syn.findEntityId(entity_name, parent=parentid)
+        # TODO: when entity doesn't exist, don't do this get
+        new_obj = self.syn.get(entity_obj['id'], downloadFile=False)
+        assert concrete_type == new_obj.properties.concreteType, (
+            f"Retrieved '{entity_name}' had type "
+            f"'{new_obj.properties.concreteType}' "
+            f"rather than the expected type '{concrete_type}'."
+        )
+        return new_obj
 
     def _get_obj(self, obj: SynapseCls) -> SynapseCls:
         """Gets the object from Synapse based on object constructor
@@ -39,13 +66,20 @@ class SynapseCreation:
 
         """
         if isinstance(obj, (Project, File, Folder, EntityViewSchema, Schema)):
-            obj = self.syn.get(obj, downloadFile=False)
+            # Can't syn.get a File constructor that hasn't been stored
+            # So must run these rest calls to obtain the entity
+            obj = self._find_entity_by_name(
+                entity_name=obj.name,
+                parentid=obj.properties.get("parentId", None),
+                concrete_type=obj.properties.concreteType
+            )
         elif isinstance(obj, Team):
-            obj = self.syn.getTeam(obj)
+            obj = self.syn.getTeam(obj.name)
         elif isinstance(obj, Wiki):
-            obj = self.syn.getWiki(obj)
+            # Only gets the root wiki page
+            obj = self.syn.getWiki(obj.ownerId)
         elif isinstance(obj, Evaluation):
-            obj = self.syn.getEvaluation(obj)
+            obj = self.syn.getEvaluationByName(obj.name)
         else:
             raise ValueError(f"{obj} not recognized")
         return obj
@@ -66,9 +100,9 @@ class SynapseCreation:
             # upload an entity that has the same name
             if err.response.status_code != 409:
                 raise err
-            if self.only_create:
+            if not self.only_get:
                 raise ValueError(f"{str(err)}. To use existing entities, "
-                                 "set only_create to False.")
+                                 "set only_get to True.")
             obj = self._get_obj(obj)
         return obj
 
@@ -270,12 +304,12 @@ class SynapseCreation:
         try:
             challenge = self._create_challenge(**kwargs)
         except SynapseHTTPError as err:
-            # Must check for 409 error
-            if err.response.status_code != 409:
+            # Must check for 400 error
+            if err.response.status_code != 400:
                 raise err
-            if self.only_create:
-                raise ValueError(f"{str(err)}. To use existing entities, "
-                                 "set only_create to False.")
+            if not self.only_get:
+                raise ValueError(f"{err}. To use existing entities, "
+                                 "set only_get to True.")
             challenge = self._get_challenge(kwargs['projectId'])
         self.logger.info("{} Challenge ({})".format(self._update_str,
                                                     challenge['id']))
