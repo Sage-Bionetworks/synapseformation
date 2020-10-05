@@ -10,7 +10,7 @@ syn = synapseclient.login()
 # Only create entities
 CreateCls = create.SynapseCreation(syn)
 # Only retrieve entities (don't update)
-RetrieveCls = create.SynapseCreation(syn, only_create=False)
+RetrieveCls = create.SynapseCreation(syn, only_get=True)
 ```
 
 ## Contributing

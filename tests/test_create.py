@@ -16,7 +16,7 @@ from synapseformation.create import SynapseCreation
 
 SYN = mock.create_autospec(synapseclient.Synapse)
 CREATE_CLS = SynapseCreation(SYN)
-GET_CLS = SynapseCreation(SYN, only_create=False)
+GET_CLS = SynapseCreation(SYN, only_get=True)
 
 
 def test__find_by_obj_or_create__create():
@@ -40,7 +40,7 @@ def test__find_by_obj_or_create__onlycreate_raise():
     with patch.object(SYN, "store",
                       side_effect=mocked_409) as patch_syn_store,\
          pytest.raises(ValueError, match="foo. To use existing entities, "
-                                         "set only_create to False."):
+                                         "set only_get to True."):
         CREATE_CLS._find_by_obj_or_create(entity)
         patch_syn_store.assert_called_once_with(entity, createOrUpdate=False)
 
@@ -373,14 +373,14 @@ def test_get_or_create_challenge__get():
 
 
 def test_get_or_create_challenge__get_raise():
-    """Tests trying to get a queue when only_create"""
+    """Tests trying to get a queue when only_get"""
     projectid = str(uuid.uuid1())
     teamid = str(uuid.uuid1())
     mocked_400 = SynapseHTTPError("foo", response=Mock(status_code=400))
     with patch.object(CREATE_CLS, "_create_challenge",
                       side_effect=mocked_400),\
          pytest.raises(ValueError, match="foo. To use existing entities, "
-                                         "set only_create to False."):
+                                         "set only_get to True."):
         CREATE_CLS.get_or_create_challenge(participantTeamId=teamid,
                                            projectId=projectid)
 
