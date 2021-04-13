@@ -1,0 +1,61 @@
+Structural_Biology_Core_Folder: &struct_bio_folder
+  name: Structural_Biology_Core
+  type: Folder
+  children:
+    - Antibody_Validation_Data
+    - Assay_Protocols
+    - Assay_Results
+    - Cell_Lines
+    - Chemotypes
+    - Crystal_Structures
+    - Expression_Constructs
+    - Expression_Data
+    - Fragment_Screening_Results
+    - Lab_Notebooks
+    - Protein
+    - Protein_Expression_Methods
+    - TEP
+    
+Assay_Core_Folder: &assay_folder
+  name: Assay_Core
+  type: Folder
+  children:
+    - Assay_Results
+    - Compounds
+    - HTS_Protocols
+    - HTS_Results
+    - Isogenic_Cell_Line
+    - Lab_Notebooks
+    - Off_Target_Potency
+    - Secondary_Screen_Protocols
+    - Secondary_Screen_Result
+    
+MedChem_Core_Folder: &medchem_folder
+  name: MedChem_Core
+  type: Folder
+  children:
+    - Chemical_Probe_Data
+    - Chemical_Provenance
+    - Lab_Notebooks
+    - Structure_Activity_Relationship
+
+Gene_Folder: &gene_folder
+  - *struct_bio_folder
+  - *assay_folder
+  - *medchem_folder
+  - Bioinformatics Core
+
+name: TREAD_AD_YAML
+type: Project
+children:
+  - name: Genes
+    type: Folder
+    children:
+      - name: MSN
+        type: Folder
+        children: *gene_folder
+      - name: CD44
+        type: Folder
+        children: *gene_folder
+  - name: Project_Activities
+    type: Folder
