@@ -14,47 +14,128 @@
                 "name": "Structural_Biology_Core",
                 "type": "Folder",
                 "children": [
-                  "Antibody_Validation_Data",
-                  "Assay_Protocols",
-                  "Assay_Results",
-                  "Cell_Lines",
-                  "Chemotypes",
-                  "Crystal_Structures",
-                  "Expression_Constructs",
-                  "Expression_Data",
-                  "Fragment_Screening_Results",
-                  "Lab_Notebooks",
-                  "Protein",
-                  "Protein_Expression_Methods",
-                  "TEP"
+                  {
+                    "name": "Antibody_Validation_Data",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Assay_Protocols",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Assay_Results",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Cell_Lines",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Chemotypes",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Crystal_Structures",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Expression_Constructs",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Expression_Data",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Fragment_Screening_Results",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Lab_Notebooks",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Protein",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Protein_Expression_Methods",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "TEP",
+                    "type": "Folder"
+                  }
                 ]
               },
               {
                 "name": "Assay_Core",
                 "type": "Folder",
                 "children": [
-                  "Assay_Results",
-                  "Compounds",
-                  "HTS_Protocols",
-                  "HTS_Results",
-                  "Isogenic_Cell_Line",
-                  "Lab_Notebooks",
-                  "Off_Target_Potency",
-                  "Secondary_Screen_Protocols",
-                  "Secondary_Screen_Result"
+                  {
+                    "name": "Assay_Results",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Compounds",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "HTS_Protocols",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "HTS_Results",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Isogenic_Cell_Line",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Lab_Notebooks",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Off_Target_Potency",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Secondary_Screen_Protocols",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Secondary_Screen_Result",
+                    "type": "Folder"
+                  }
                 ]
               },
               {
                 "name": "MedChem_Core",
                 "type": "Folder",
                 "children": [
-                  "Chemical_Probe_Data",
-                  "Chemical_Provenance",
-                  "Lab_Notebooks",
-                  "Structure_Activity_Relationship"
+                  {
+                    "name": "Chemical_Probe_Data",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Chemical_Provenance",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Lab_Notebooks",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Structure_Activity_Relationship",
+                    "type": "Folder"
+                  }
                 ]
               },
-              "Bioinformatics Core"
+              {
+                "name": "Bioinformatics Core",
+                "type": "Folder"
+              }
             ]
           },
           {
@@ -65,47 +146,128 @@
                 "name": "Structural_Biology_Core",
                 "type": "Folder",
                 "children": [
-                  "Antibody_Validation_Data",
-                  "Assay_Protocols",
-                  "Assay_Results",
-                  "Cell_Lines",
-                  "Chemotypes",
-                  "Crystal_Structures",
-                  "Expression_Constructs",
-                  "Expression_Data",
-                  "Fragment_Screening_Results",
-                  "Lab_Notebooks",
-                  "Protein",
-                  "Protein_Expression_Methods",
-                  "TEP"
+                  {
+                    "name": "Antibody_Validation_Data",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Assay_Protocols",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Assay_Results",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Cell_Lines",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Chemotypes",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Crystal_Structures",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Expression_Constructs",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Expression_Data",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Fragment_Screening_Results",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Lab_Notebooks",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Protein",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Protein_Expression_Methods",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "TEP",
+                    "type": "Folder"
+                  }
                 ]
               },
               {
                 "name": "Assay_Core",
                 "type": "Folder",
                 "children": [
-                  "Assay_Results",
-                  "Compounds",
-                  "HTS_Protocols",
-                  "HTS_Results",
-                  "Isogenic_Cell_Line",
-                  "Lab_Notebooks",
-                  "Off_Target_Potency",
-                  "Secondary_Screen_Protocols",
-                  "Secondary_Screen_Result"
+                  {
+                    "name": "Assay_Results",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Compounds",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "HTS_Protocols",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "HTS_Results",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Isogenic_Cell_Line",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Lab_Notebooks",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Off_Target_Potency",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Secondary_Screen_Protocols",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Secondary_Screen_Result",
+                    "type": "Folder"
+                  }
                 ]
               },
               {
                 "name": "MedChem_Core",
                 "type": "Folder",
                 "children": [
-                  "Chemical_Probe_Data",
-                  "Chemical_Provenance",
-                  "Lab_Notebooks",
-                  "Structure_Activity_Relationship"
+                  {
+                    "name": "Chemical_Probe_Data",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Chemical_Provenance",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Lab_Notebooks",
+                    "type": "Folder"
+                  },
+                  {
+                    "name": "Structure_Activity_Relationship",
+                    "type": "Folder"
+                  }
                 ]
               },
-              "Bioinformatics Core"
+              {
+                "name": "Bioinformatics Core",
+                "type": "Folder"
+              }
             ]
           }
         ]
