@@ -71,7 +71,7 @@ def _create_synapse_resources(syn: Synapse, config: dict,
         # Get children if exists
         children = config.get('children')
         if children is not None:
-            _create_synapse_resources_yamlanchor(syn, children, parent_id)
+            _create_synapse_resources(syn, children, parent_id)
     else:
         # Loop through folders and create them
         for folder in config:
@@ -83,9 +83,7 @@ def _create_synapse_resources(syn: Synapse, config: dict,
             )
             # Create nested folders
             if children is not None:
-                _create_synapse_resources_yamlanchor(
-                    syn, children, folder_ent.id
-                )
+                _create_synapse_resources(syn, children, folder_ent.id)
 
 
 def create_synapse_resources(template_path: str):
