@@ -1,4 +1,9 @@
 # synapseformation
+
+[![GitHub CI](https://img.shields.io/github/workflow/status/Sage-Bionetworks/synapseformation/build.svg?color=94398d&labelColor=555555&logoColor=ffffff&style=for-the-badge&logo=github)](https://github.com/Sage-Bionetworks/synapseformation)
+[![Coverage Status](https://img.shields.io/coveralls/github/Sage-Bionetworks/synapseformation.svg?&style=for-the-badge&label=coverage&logo=Coveralls)](https://coveralls.io/github/Sage-Bionetworks/synapseformation)
+
+
 Client for using [Synapse Formation Templates](https://github.com/Sage-Bionetworks/synapse-formation-templates). Given one of these templates, `synapseformation` will be able to create all the components required in a Synapse Project.  Currently the implementation does one of these two scenarios.
 
 * Only creates new entities, will fail if entity already exists.
