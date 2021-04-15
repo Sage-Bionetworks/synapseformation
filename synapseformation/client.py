@@ -36,17 +36,17 @@ def _create_synapse_resources_yamlanchor(syn: Synapse, config: dict,
         project = creation_cls.get_or_create_project(name=config['name'])
         parent_id = project.id
         # Get children if exists
-        children = config.get('next_level')
+        children = config.get('children')
         if children is not None:
             _create_synapse_resources_yamlanchor(syn, children, parent_id)
     else:
         # Loop through folders and create them
         for folder in config:
             # The folder configuration can be lists or dicts
-            # Must pull out "children" if next_level exists
+            # Must pull out children if it exists
             if isinstance(folder, dict):
                 folder_name = folder['name']
-                children = folder.get('next_level')
+                children = folder.get('children')
             else:
                 folder_name = folder
                 children = None
