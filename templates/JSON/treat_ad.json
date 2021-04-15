@@ -1,5 +1,5 @@
-{
-  "Project": {
+[
+  {
     "name": "TREAD_AD_YAML",
     "type": "Project",
     "children": [
@@ -279,4 +279,4 @@
       }
     ]
   }
-}
+]
