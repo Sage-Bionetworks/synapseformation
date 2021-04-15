@@ -1,9 +1,6 @@
 """Synapse Formation client"""
-import json
-
 import synapseclient
 from synapseclient import Synapse
-import yaml
 
 from .create import SynapseCreation
 from . import utils

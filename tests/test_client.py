@@ -1,7 +1,4 @@
-from io import StringIO
-
 from synapseformation import client
-import yaml
 
 
 def test_expand_config():
