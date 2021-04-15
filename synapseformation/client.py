@@ -6,7 +6,7 @@ from .create import SynapseCreation
 from . import utils
 
 
-def expand_config(config: dict):
+def expand_config(config: dict) -> dict:
     """Expands shortened configuration to the official json format"""
     # TODO: Once all resources are either under a key mapping or lists
     # this will have to chance
