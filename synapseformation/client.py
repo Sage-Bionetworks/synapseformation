@@ -41,7 +41,7 @@ def expand_config(config: dict) -> dict:
 
 def _create_synapse_resources(syn: Synapse, config: dict,
                               parentid: str = None):
-    """Creates synapse resources using yaml anchor template
+    """Recursively steps through template and creates synapse resources
 
     Args:
         syn: Synapse connection
