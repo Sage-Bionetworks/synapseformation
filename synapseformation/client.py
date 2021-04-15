@@ -96,4 +96,4 @@ def create_synapse_resources(template_path: str):
     # work if full configuration is passed in
     full_config = expand_config(config)
     # Recursive function to create resources
-    _create_synapse_resources(syn, config)
+    _create_synapse_resources(syn, full_config)
