@@ -1,26 +1,15 @@
 """Synapse Formation client"""
+import json
+
 import synapseclient
 from synapseclient import Synapse
 import yaml
 
 from .create import SynapseCreation
+from . import utils
 
 
-def get_yaml_config(template_path: str) -> dict:
-    """Get yaml synapse formation template
-
-    Args:
-        template_path: Path to yaml synapse formation template
-
-    Returns:
-        dict for synapse configuration
-    """
-    with open(template_path, "r") as template_f:
-        template = yaml.load(template_f, Loader=yaml.FullLoader)
-    return template
-
-
-def expand_config(config):
+def expand_config(config: dict):
     """Expands shortened configuration to the official json format"""
     # TODO: Once all resources are either under a key mapping or lists
     # this will have to chance
@@ -89,9 +78,8 @@ def _create_synapse_resources(syn: Synapse, config: dict,
 def create_synapse_resources(template_path: str):
     """Creates synapse resources from template"""
     syn = synapseclient.login()
-    # TODO: Add in option to read in json template, must be able to determine
-    # Whether json or yaml
-    config = get_yaml_config(template_path)
+    # Function will attempt to read template as yaml then try to read in json
+    config = utils.read_config(template_path)
     # Expands shortended configuration into full configuration.  This should
     # work if full configuration is passed in
     full_config = expand_config(config)
