@@ -53,8 +53,8 @@ def expand_config(config):
     return config
 
 
-def _create_synapse_resources_yamlanchor(syn: Synapse, config: dict,
-                                         parentid: str = None):
+def _create_synapse_resources(syn: Synapse, config: dict,
+                              parentid: str = None):
     """Creates synapse resources using yaml anchor template
 
     Args:
@@ -75,14 +75,9 @@ def _create_synapse_resources_yamlanchor(syn: Synapse, config: dict,
     else:
         # Loop through folders and create them
         for folder in config:
-            # The folder configuration can be lists or dicts
             # Must pull out children if it exists
-            if isinstance(folder, dict):
-                folder_name = folder['name']
-                children = folder.get('children')
-            else:
-                folder_name = folder
-                children = None
+            folder_name = folder['name']
+            children = folder.get('children')
             folder_ent = creation_cls.get_or_create_folder(
                 name=folder_name, parentId=parentid
             )
@@ -96,6 +91,11 @@ def _create_synapse_resources_yamlanchor(syn: Synapse, config: dict,
 def create_synapse_resources(template_path: str):
     """Creates synapse resources from template"""
     syn = synapseclient.login()
+    # TODO: Add in option to read in json template, must be able to determine
+    # Whether json or yaml
     config = get_yaml_config(template_path)
+    # Expands shortended configuration into full configuration.  This should
+    # work if full configuration is passed in
     full_config = expand_config(config)
-    _create_synapse_resources_yamlanchor(syn, config)
+    # Recursive function to create resources
+    _create_synapse_resources(syn, config)
