@@ -35,12 +35,21 @@
     id: 3379097
     name: Sage Bio DREAM Curators
 
+- SynapseServiceAccount: &service_account
+    type: User
+    id: 3330862
+    name: test_thomas.yu
+
 - name: Challenge Staging Example
   type: Project
   acl:
-    # principal_id can be both user or team id
+    # principal can be both a synapse user or team
     - principal: *admin_team
       access_type: *admin
   children:
     - Infrastructure
-    - Data
+    - name: Data
+      type: Folder
+      acl:
+        - principal: *service_account
+          access_type: *edit
