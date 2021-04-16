@@ -1,0 +1,48 @@
+# These are ACL lists that correlate to actual permissions
+# on synapse
+- view_acl: &view
+    - READ
+
+- download_acl: &download
+    - READ
+    - DOWNLOAD
+
+- edit_acl: &edit
+    - READ
+    - DOWNLOAD
+    - UPDATE
+    - CREATE
+
+- edit_and_delete_acl: &edit_and_delete
+    - READ
+    - DOWNLOAD
+    - UPDATE
+    - CREATE
+    - DELETE
+
+- admin_acl: &admin
+  - READ
+  - DOWNLOAD
+  - UPDATE
+  - CREATE
+  - DELETE
+  - CHANGE_SETTINGS
+  - MODERATE
+  - CHANGE_PERMISSIONS
+
+- ParticipantTeam: &admin_team
+    type: Team
+    id: 3379097
+    name: Sage Bio DREAM Curators
+
+- name: Challenge Staging Example
+  type: Project
+  acl:
+    # principal_id can be both user or team id
+    - principal: *admin_team
+      access_type: *admin
+  children:
+    - Infrastructure
+    - Data
+
+
