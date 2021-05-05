@@ -1,0 +1,18 @@
+# This expanded template is intentionally kept simple.
+# Each resource type is used as few times as possible.
+# Each use should be for testing different edge cases.
+# Edge cases should be described in the resource name.
+
+- name: Test Project - With Folders
+  type: Project
+  children:
+  - name: Test Folder - With Subfolder and One of Many
+    type: Folder
+    children:
+    - name: Test Subfolder - Empty
+      type: Folder
+  - name: Test Folder - Empty and One of Many
+    type: Folder
+
+- name: Test Project - Empty
+  type: Project
