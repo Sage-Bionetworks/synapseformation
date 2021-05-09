@@ -54,22 +54,20 @@ def _create_synapse_resources(syn: Synapse, config: dict,
         parent_id = project.id
         config['id'] = parent_id
         # Get children if exists
-        children = config.get('children')
-        if children is not None:
-            _create_synapse_resources(syn, children, parent_id)
+        children = config.get('children', [])
+        _create_synapse_resources(syn, children, parent_id)
     else:
         # Loop through folders and create them
         for folder in config:
             # Must pull out children if it exists
             folder_name = folder['name']
-            children = folder.get('children')
             folder_ent = creation_cls.get_or_create_folder(
                 name=folder_name, parentId=parentid
             )
             folder['id'] = folder_ent.id
             # Create nested folders
-            if children is not None:
-                _create_synapse_resources(syn, children, folder_ent.id)
+            children = folder.get('children', [])
+            _create_synapse_resources(syn, children, folder_ent.id)
 
 
 def create_synapse_resources(template_path: str):
