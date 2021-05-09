@@ -13,7 +13,7 @@ def read_yaml_config(template_path: str) -> dict:
         dict for synapse configuration
     """
     with open(template_path, "r") as template_f:
-        template = yaml.load(template_f, Loader=yaml.FullLoader)
+        template = yaml.safe_load(template_f)
     return template
 
 
