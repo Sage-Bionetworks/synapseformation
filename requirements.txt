@@ -1,2 +1,3 @@
 click
-synapseclient==2.0.0
+synapseclient==2.3.0
+pyyaml
