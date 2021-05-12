@@ -155,5 +155,4 @@ class TestCreateSynapseResources():
             patch_create_proj.assert_called_once_with(
                 name="Test Configuration"
             )
-            assert patch_create_folder.call_count == 2
             patch_create_folder.assert_has_calls([call_1, call_2])
