@@ -139,3 +139,21 @@ class TestCreateSynapseResources():
                                              parentid="syn5555")
             patch_create.assert_has_calls([call_1, call_2])
             assert folder_config == expected_config
+
+    def test__create_synapse_resources_recursive(self):
+        """Test recursive calls are made"""
+        project_ent = synapseclient.Project(id="syn5555")
+        folder_ent = synapseclient.Folder(id="syn33333", parentId="syn5555")
+        call_1 = mock.call(name="Genes", parentId="syn5555")
+        call_2 = mock.call(name="testing", parentId="syn33333")
+        with patch.object(self.create_cls, "get_or_create_project",
+                          return_value=project_ent) as patch_create_proj,\
+             patch.object(self.create_cls, "get_or_create_folder",
+                          return_value=folder_ent) as patch_create_folder:
+            client._create_synapse_resources(config=self.config,
+                                             creation_cls=self.create_cls)
+            patch_create_proj.assert_called_once_with(
+                name="Test Configuration"
+            )
+            assert patch_create_folder.call_count == 2
+            patch_create_folder.assert_has_calls([call_1, call_2])
