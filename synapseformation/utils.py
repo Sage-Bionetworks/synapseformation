@@ -17,7 +17,7 @@ def read_yaml_config(template_path: str) -> dict:
     return template
 
 
-def read_json_config():
+def read_json_config(template_path):
     """Get json synapse formation template
 
     Args:
