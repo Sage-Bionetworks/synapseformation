@@ -1,42 +1,41 @@
-import json
-
+"""Utility functions"""
 import yaml
 
 
-def read_yaml_config(template_path: str) -> dict:
-    """Get yaml synapse formation template
+# def read_yaml_config(template_path: str) -> dict:
+#     """Get yaml synapse formation template
 
-    Args:
-        template_path: Path to yaml synapse formation template
+#     Args:
+#         template_path: Path to yaml synapse formation template
 
-    Returns:
-        dict for synapse configuration
-    """
-    with open(template_path, "r") as template_f:
-        template = yaml.safe_load(template_f)
-    return template
+#     Returns:
+#         dict for synapse configuration
+#     """
+#     with open(template_path, "r") as template_f:
+#         template = yaml.safe_load(template_f)
+#     return template
 
 
-def read_json_config(template_path):
-    """Get json synapse formation template
+# def read_json_config(template_path):
+#     """Get json synapse formation template
 
-    Args:
-        template_path: Path to yaml synapse formation template
+#     Args:
+#         template_path: Path to yaml synapse formation template
 
-    Returns:
-        dict for synapse configuration
-    """
-    with open(template_path, "r") as template_f:
-        template = json.load(template_f)
-    return template
+#     Returns:
+#         dict for synapse configuration
+#     """
+#     with open(template_path, "r") as template_f:
+#         template = json.load(template_f)
+#     return template
 
 
 def read_config(template_path: str):
     """Read in yaml or json configuration"""
-    try:
-        config = read_yaml_config(template_path)
-    except Exception:
-        config = read_json_config(template_path)
+    # JSON is technically yaml but not the other way around.
+    # yaml.safe_load can actually read in json files.
+    with open(template_path, "r") as template_f:
+        config = yaml.safe_load(template_f)
     return config
 
 # class Ref(yaml.YAMLObject):
