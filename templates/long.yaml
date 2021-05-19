@@ -6,11 +6,7 @@
 - name: Test Project - With Folders
   type: Project
   acl:
-  - principal:
-      type: Team
-      id: 3379097
-      name: Sage Bio DREAM Curators
-    principal_id: 3379097
+  - principal_id: 3379097  # Team: Sage Bio DREAM Curators
     access_type:
     - READ
     - DOWNLOAD
@@ -24,10 +20,7 @@
   - name: Test Folder - With Subfolder and One of Many
     type: Folder
     acl:
-    - principal:
-        type: User
-        id: 3330862
-        name: test_thomas.yu
+    - principal_id: 3330862  # User: test_thomas.yu
       access_type:
       - READ
       - DOWNLOAD
