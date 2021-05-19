@@ -16,3 +16,8 @@
 
 - name: Test Project - Empty
   type: Project
+
+- name: Test Team
+  type: Team
+  can_public_join: false # true for teams which members can join without an invitation or approval
+  description: Test team description
