@@ -21,3 +21,6 @@
   type: Team
   can_public_join: false # true for teams which members can join without an invitation or approval
   description: Test team description
+  members:
+  - principal_id: 11111
+  - email: "test_email@test.com"
