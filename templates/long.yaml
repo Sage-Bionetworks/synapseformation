@@ -5,9 +5,25 @@
 
 - name: Test Project - With Folders
   type: Project
+  acl:
+  - principal_id: 3379097  # Team: Sage Bio DREAM Curators
+    access_type:
+    - READ
+    - DOWNLOAD
+    - UPDATE
+    - CREATE
+    - DELETE
+    - CHANGE_SETTINGS
+    - MODERATE
+    - CHANGE_PERMISSIONS
   children:
   - name: Test Folder - With Subfolder and One of Many
     type: Folder
+    acl:
+    - principal_id: 3330862  # User: test_thomas.yu
+      access_type:
+      - READ
+      - DOWNLOAD
     children:
     - name: Test Subfolder - Empty
       type: Folder
