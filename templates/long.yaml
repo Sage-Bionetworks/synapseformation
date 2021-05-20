@@ -19,8 +19,8 @@
 
 - name: Test Team
   type: Team
-  can_public_join: false # true for teams which members can join without an invitation or approval
+  can_public_join: false
   description: Test team description
   members:
-  - principal_id: 11111
-  - email: "test_email@test.com"
+  - principal_id: 3426116
+  - email: synapseformation-test-user@sagebase.org
