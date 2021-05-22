@@ -56,6 +56,9 @@ def _create_synapse_resources(config: dict, creation_cls: SynapseCreation,
         creation_cls: SynapseCreation class that can create resources
         parentid: Synapse folder or project id to store entities
     """
+    # Specify entity or there will be an issue when the recursive
+    # function is called from within the for loop
+    # Error: entity not specified
     entity = None
     if isinstance(config, dict) and config.get('type') == "Project":
         entity = creation_cls.get_or_create_project(name=config['name'])
