@@ -39,6 +39,13 @@ from . import utils
 #     return config
 
 
+def _add_acl(syn, entity, acl_config):
+    """Adds ACLs to Synapse entity"""
+    for acl in acl_config:
+        syn.setPermissions(entity=entity, principalId=acl['principal_id'],
+                           accessType=acl['access_type'])
+
+
 def _create_synapse_resources(config: dict, creation_cls: SynapseCreation,
                               parentid: str = None):
     """Recursively steps through template and creates synapse resources
@@ -50,8 +57,9 @@ def _create_synapse_resources(config: dict, creation_cls: SynapseCreation,
         parentid: Synapse folder or project id to store entities
     """
     if isinstance(config, dict) and config.get('type') == "Project":
-        project = creation_cls.get_or_create_project(name=config['name'])
-        parent_id = project.id
+        project_ent = creation_cls.get_or_create_project(name=config['name'])
+        _add_acl(creation_cls.syn, project_ent, config.get('acl', []))
+        parent_id = project_ent.id
         config['id'] = parent_id
         # Get children if exists
         children = config.get('children', [])
@@ -65,6 +73,7 @@ def _create_synapse_resources(config: dict, creation_cls: SynapseCreation,
             folder_ent = creation_cls.get_or_create_folder(
                 name=folder_name, parentId=parentid
             )
+            _add_acl(creation_cls.syn, folder_ent, folder.get('acl', []))
             folder['id'] = folder_ent.id
             # Create nested folders
             children = folder.get('children', [])
