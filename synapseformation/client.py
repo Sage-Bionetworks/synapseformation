@@ -77,8 +77,6 @@ def _create_synapse_resources(config: dict, creation_cls: SynapseCreation,
         # Get ACL if exists
         config.get('acl', [])
         _add_acl(creation_cls.syn, entity, config.get('acl', []))
-        # Get children if exists, but don't run recursive function
-        # if no children exists
         children = config.get('children', [])
         _create_synapse_resources(children, creation_cls,
                                   parentid=parent_id)
