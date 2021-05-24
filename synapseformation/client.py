@@ -69,7 +69,6 @@ def _create_synapse_resources(config: dict, creation_cls: SynapseCreation,
     else:
         # Loop through folders and create them
         for folder_config in config:
-            # Must pull out children if it exists
             _create_synapse_resources(folder_config, creation_cls,
                                       parentid=parentid)
     if entity is not None:
