@@ -316,7 +316,7 @@ class SynapseCreation:
         return challenge
 
 
-def _set_acl(syn: Synapse, entity: Union[Folder, Project],
+def _set_acl(syn: Synapse, entity: Union[File, Folder, Project],
              acl_config: dict):
     """Adds ACLs to Synapse entity
 
