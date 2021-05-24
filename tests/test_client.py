@@ -2,10 +2,10 @@
 Test client
 """
 from unittest import mock
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import synapseclient
-from synapseformation import client
+from synapseformation import client, create
 from synapseformation.create import SynapseCreation
 
 
@@ -139,6 +139,31 @@ class TestCreateSynapseResources():
                                              parentid="syn5555")
             patch_create.assert_has_calls([call_1, call_2])
             assert folder_config == expected_config
+
+    def test__create_synapse_resources_project_acl(self):
+        """Test project gets created"""
+        project_config = {
+            'name': 'Test Configuration',
+            'type': 'Project',
+            'acl': ['fake']
+        }
+        expected_config = {
+            'name': 'Test Configuration',
+            'type': 'Project',
+            'id': 'syn12222',
+            'acl': ['fake']
+        }
+        project_ent = synapseclient.Project(id="syn12222")
+        with patch.object(self.create_cls, "get_or_create_project",
+                          return_value=project_ent) as patch_create,\
+             patch.object(create, "_set_acl") as patch_set:
+            client._create_synapse_resources(config=project_config,
+                                             creation_cls=self.create_cls)
+            patch_create.assert_called_once_with(name=project_config['name'])
+            assert project_config == expected_config
+            patch_set.assert_called_once_with(
+                syn=self.create_cls.syn, entity=project_ent,
+                acl_config=['fake'])
 
     def test__create_synapse_resources_recursive(self):
         """Test recursive calls are made"""
