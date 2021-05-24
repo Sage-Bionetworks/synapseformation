@@ -140,8 +140,8 @@ class TestCreateSynapseResources():
             patch_create.assert_has_calls([call_1, call_2])
             assert folder_config == expected_config
 
-    def test__create_synapse_resources_project_acl(self):
-        """Test project gets created"""
+    def test__create_synapse_resources_acl(self):
+        """Test ACL gets created"""
         project_config = {
             'name': 'Test Configuration',
             'type': 'Project',
