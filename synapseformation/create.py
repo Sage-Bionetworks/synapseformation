@@ -314,3 +314,18 @@ class SynapseCreation:
         self.logger.info("{} Challenge ({})".format(self._update_str,
                                                     challenge['id']))
         return challenge
+
+
+def _set_acl(syn: Synapse, entity: Union[Folder, Project],
+             acl_config: dict):
+    """Adds ACLs to Synapse entity
+
+    Args:
+        syn: Synapse connection
+        entity: Synapse Folder or Project
+        acl_config: ACL template json configuration
+
+    """
+    for acl in acl_config:
+        syn.setPermissions(entity=entity, principalId=acl['principal_id'],
+                           accessType=acl['access_type'])
