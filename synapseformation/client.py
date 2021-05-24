@@ -3,7 +3,7 @@ import synapseclient
 from synapseclient import Synapse
 
 from .create import SynapseCreation
-from . import utils
+from . import create, utils
 
 
 # def expand_config(config: dict) -> dict:
@@ -39,13 +39,6 @@ from . import utils
 #     return config
 
 
-def _add_acl(syn, entity, acl_config):
-    """Adds ACLs to Synapse entity"""
-    for acl in acl_config:
-        syn.setPermissions(entity=entity, principalId=acl['principal_id'],
-                           accessType=acl['access_type'])
-
-
 def _create_synapse_resources(config: dict, creation_cls: SynapseCreation,
                               parentid: str = None):
     """Recursively steps through template and creates synapse resources
@@ -76,7 +69,8 @@ def _create_synapse_resources(config: dict, creation_cls: SynapseCreation,
         config['id'] = parent_id
         # Get ACL if exists
         config.get('acl', [])
-        _add_acl(creation_cls.syn, entity, config.get('acl', []))
+        create._set_acl(syn=creation_cls.syn, entity=entity,
+                        acl_config=config.get('acl', []))
         children = config.get('children', [])
         _create_synapse_resources(children, creation_cls,
                                   parentid=parent_id)
