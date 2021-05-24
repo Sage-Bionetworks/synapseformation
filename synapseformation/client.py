@@ -63,7 +63,6 @@ def _create_synapse_resources(config: dict, creation_cls: SynapseCreation,
     if isinstance(config, dict) and config.get('type') == "Project":
         entity = creation_cls.get_or_create_project(name=config['name'])
     elif isinstance(config, dict) and config.get('type') == "Folder":
-        print(config)
         entity = creation_cls.get_or_create_folder(
             name=config['name'], parentId=parentid
         )
