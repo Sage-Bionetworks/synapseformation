@@ -318,7 +318,7 @@ class SynapseCreation:
 
 def _set_acl(syn: Synapse, entity: Union[File, Folder, Project],
              acl_config: dict):
-    """Adds ACLs to Synapse entity
+    """Sets ACLs to Synapse entity
 
     Args:
         syn: Synapse connection
