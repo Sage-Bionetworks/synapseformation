@@ -68,7 +68,6 @@ def _create_synapse_resources(config: dict, creation_cls: SynapseCreation,
         parent_id = entity.id
         config['id'] = parent_id
         # Get ACL if exists
-        config.get('acl', [])
         create._set_acl(syn=creation_cls.syn, entity=entity,
                         acl_config=config.get('acl', []))
         children = config.get('children', [])
