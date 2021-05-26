@@ -3,7 +3,7 @@ import synapseclient
 from synapseclient import Synapse
 
 from .create import SynapseCreation
-from . import utils
+from . import create, utils
 
 
 # def expand_config(config: dict) -> dict:
@@ -50,8 +50,10 @@ def _create_synapse_resources(config: dict, creation_cls: SynapseCreation,
         parentid: Synapse folder or project id to store entities
     """
     if isinstance(config, dict) and config.get('type') == "Project":
-        project = creation_cls.get_or_create_project(name=config['name'])
-        parent_id = project.id
+        project_ent = creation_cls.get_or_create_project(name=config['name'])
+        create._set_acl(syn=creation_cls.syn, entity=project_ent,
+                        acl_config=config.get('acl', []))
+        parent_id = project_ent.id
         config['id'] = parent_id
         # Get children if exists
         children = config.get('children', [])
@@ -65,6 +67,8 @@ def _create_synapse_resources(config: dict, creation_cls: SynapseCreation,
             folder_ent = creation_cls.get_or_create_folder(
                 name=folder_name, parentId=parentid
             )
+            create._set_acl(syn=creation_cls.syn, entity=folder_ent,
+                            acl_config=folder.get('acl', []))
             folder['id'] = folder_ent.id
             # Create nested folders
             children = folder.get('children', [])
