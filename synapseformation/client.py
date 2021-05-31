@@ -59,6 +59,11 @@ def _create_synapse_resources(config: dict, creation_cls: SynapseCreation,
         entity = creation_cls.get_or_create_folder(
             name=config['name'], parentId=parentid
         )
+    elif isinstance(config, dict) and config.get('type') == "Team":
+        entity = creation_cls.get_or_create_team(
+            name=config['name'], description=config['description'],
+            canPublicJoin=config['can_public_join']
+        )
     else:
         # Loop through folders and create them
         for folder_config in config:
