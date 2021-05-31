@@ -60,10 +60,20 @@ def _create_synapse_resources(config: dict, creation_cls: SynapseCreation,
             name=config['name'], parentId=parentid
         )
     elif isinstance(config, dict) and config.get('type') == "Team":
-        entity = creation_cls.get_or_create_team(
+        team = creation_cls.get_or_create_team(
             name=config['name'], description=config['description'],
             canPublicJoin=config['can_public_join']
         )
+        if config.get("invitations") is not None:
+            # TODO: investigate nested forloop.  This is ugly
+            for invite in config['invitations']:
+                for member in config['members']:
+                    user = member.get("principal_id")
+                    email = member.get("email")
+                    creation_cls.syn.invite_to_team(
+                        team=team, user=user, inviteeEmail=email,
+                        message=invite['message']
+                    )
     else:
         # Loop through folders and create them
         for folder_config in config:
