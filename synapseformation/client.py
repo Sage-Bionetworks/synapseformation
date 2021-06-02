@@ -65,7 +65,6 @@ def _create_synapse_resources(config: dict, creation_cls: SynapseCreation,
             canPublicJoin=config['can_public_join']
         )
         if config.get("invitations") is not None:
-            # TODO: investigate nested forloop.  This is ugly
             for invite in config['invitations']:
                 for member in config['members']:
                     user = member.get("principal_id")
