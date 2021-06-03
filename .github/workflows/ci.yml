@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.6, 3.7, 3.8, 3.9]
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -32,11 +32,27 @@ jobs:
     #     flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest tests/ --doctest-modules --cov=synapseformation --cov-report=html
-    - name: Upload pytest test results
-      uses: actions/upload-artifact@v2
-      with:
-        name: pytest-results-${{ matrix.python-version }}
-        path: htmlcov
-      # Use always() to always run this step to publish test results when there are test failures
-      if: ${{ always() }}
+        pytest tests
+    - name: Prepare environment for coveralls
+      run: |
+        echo "PYTHON_ENV=$(echo py${{ matrix.python-version }} | tr -d .)" >> $GITHUB_ENV
+    - name: Coveralls Parallel
+      env:
+        COVERALLS_FLAG_NAME: ${{ env.PYTHON_ENV }}
+        COVERALLS_PARALLEL: true
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        coverage run --source=synapseformation --omit=synapseformation/__main__.py -m pytest tests/
+        coveralls --service=github
+
+  finish-coveralls:
+    needs: build
+    runs-on: ubuntu-latest
+    container: python:3-slim
+    steps:
+    - name: Finish Coveralls Parallel
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        pip3 install --upgrade coveralls
+        coveralls --finish
