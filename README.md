@@ -1,6 +1,6 @@
 # synapseformation
 
-[![GitHub CI](https://img.shields.io/github/workflow/status/Sage-Bionetworks/synapseformation/build.svg?color=94398d&labelColor=555555&logoColor=ffffff&style=for-the-badge&logo=github)](https://github.com/Sage-Bionetworks/synapseformation)
+[![Get synapseformation from PyPI](https://img.shields.io/pypi/v/synapseformation.svg?style=for-the-badge&logo=pypi)](https://pypi.python.org/pypi/synapseformation) [![GitHub CI](https://img.shields.io/github/workflow/status/Sage-Bionetworks/synapseformation/build.svg?color=94398d&labelColor=555555&logoColor=ffffff&style=for-the-badge&logo=github)](https://github.com/Sage-Bionetworks/synapseformation)
 [![Coverage Status](https://img.shields.io/coveralls/github/Sage-Bionetworks/synapseformation.svg?&style=for-the-badge&label=coverage&logo=Coveralls)](https://coveralls.io/github/Sage-Bionetworks/synapseformation)
 
 
