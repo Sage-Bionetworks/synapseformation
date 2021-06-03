@@ -10,6 +10,24 @@ Client for using [Synapse Formation Templates](https://github.com/Sage-Bionetwor
 * Create entities that don't exist and gets the entity if it already exists, but does not update an entity.
 
 ## Usage
+
+### Command Line
+`synapseformation` has a command line client that will create resources given a `yaml` or `json` template.
+
+```bash
+synapseformation create --help
+Usage: synapseformation create [OPTIONS]
+
+  Creates Synapse Resources
+
+Options:
+  --template_path PATH  Template path
+  --help                Show this message and exit.
+```
+
+### Python
+
+These are some of the lower level functions that exist in the package.
 ```
 import synapseclient
 from synapseformation import create
