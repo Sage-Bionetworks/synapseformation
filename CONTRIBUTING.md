@@ -53,7 +53,7 @@ Tests are also run automatically by Travis on any pull request and are required 
 
 ### Release Procedure (For Package Maintainers)
 
-* Always merge all new features into `develop` branch first (unless it is a minor patch into `master`)
+* Always merge all new features into `develop` branch first (unless it is a minor patch into `main`)
 * update `synapseformation/__version__.py` to not have `-dev`
 * Merge develop into master branch
 
