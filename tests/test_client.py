@@ -181,3 +181,62 @@ class TestCreateSynapseResources():
                 name="Test Configuration"
             )
             patch_create_folder.assert_has_calls([call_1, call_2])
+
+    def test__create_synapse_resources_team(self):
+        """Test team gets created"""
+        team_config = {
+            'name': 'Test Configuration',
+            'type': 'Team',
+            'can_public_join': False,
+            'description': 'Test team description'
+        }
+        expected_config = {
+            'name': 'Test Configuration',
+            'type': 'Team',
+            'can_public_join': False,
+            'description': 'Test team description',
+            'id': '11111'
+        }
+        team_ent = synapseclient.Team(id="11111")
+        with patch.object(self.create_cls, "get_or_create_team",
+                          return_value=team_ent) as patch_create:
+            client._create_synapse_resources(config=team_config,
+                                             creation_cls=self.create_cls)
+            patch_create.assert_called_once_with(
+                name=team_config['name'], description=team_config['description'],
+                canPublicJoin=team_config['can_public_join']
+            )
+            assert team_config == expected_config
+
+    def test__create_synapse_resources_team_invite(self):
+        """Test team members are invited"""
+        team_config = {
+            'name': 'Test Configuration',
+            'type': 'Team',
+            'can_public_join': False,
+            'description': 'Test team description',
+            'invitations': [
+                {
+                    'message': 'Welcome to the Test Team!',
+                    'members': [
+                        {"principal_id": 3426116},
+                        {"email": "synapseformation-test-user@sagebase.org"}
+                    ]
+                }
+            ]
+        }
+        team_ent = synapseclient.Team(id="11111")
+        expected_calls = [
+            mock.call(team=team_ent, user=3426116, inviteeEmail=None,
+                      message='Welcome to the Test Team!'),
+            mock.call(team=team_ent, user=None,
+                      inviteeEmail="synapseformation-test-user@sagebase.org",
+                      message='Welcome to the Test Team!')
+        ]
+        with patch.object(self.create_cls, "get_or_create_team",
+                          return_value=team_ent) as patch_create,\
+             patch.object(self.create_cls.syn,
+                          "invite_to_team") as patch_invite:
+            client._create_synapse_resources(config=team_config,
+                                             creation_cls=self.create_cls)
+            patch_invite.assert_has_calls(expected_calls)
