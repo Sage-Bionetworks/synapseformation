@@ -64,6 +64,7 @@ def _create_synapse_resources(config: dict, creation_cls: SynapseCreation,
             name=config['name'], description=config['description'],
             canPublicJoin=config['can_public_join']
         )
+        config['id'] = team.id
         if config.get("invitations") is not None:
             for invite in config['invitations']:
                 for member in config['members']:
