@@ -32,3 +32,13 @@
 
 - name: Test Project - Empty
   type: Project
+
+- name: Test Team
+  type: Team
+  can_public_join: false
+  description: Test team description
+  invitations:
+  - message: Welcome to the Test Team! 
+    members:
+    - principal_id: 3426116
+    - email: synapseformation-test-user@sagebase.org

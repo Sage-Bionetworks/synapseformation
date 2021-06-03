@@ -12,6 +12,7 @@ import pytest
 import synapseclient
 from synapseclient.core.exceptions import SynapseHTTPError
 
+from synapseformation import create
 from synapseformation.create import SynapseCreation
 
 SYN = mock.create_autospec(synapseclient.Synapse)
@@ -399,9 +400,29 @@ def test_get_or_create_challenge__get_raise_404():
 
 def test_get_or_create_challenge__get_raise_missing_param():
     """Tests that a missing parameter will raise an error"""
-    projectid = str(uuid.uuid1())
     teamid = str(uuid.uuid1())
     with pytest.raises(TypeError,
                        match=".*missing 1 required positional argument: "
                              "'projectId'"):
         CREATE_CLS.get_or_create_challenge(participantTeamId=teamid)
+
+
+def test__set_acl():
+    syn = Mock()
+    entity = Mock()
+    acl_config = [
+        {"principal_id": "1111111",
+         "access_type": ["READ", "DOWNLOAD"]},
+        {"principal_id": "2222222",
+         "access_type": ["READ", "DOWNLOAD", "UPDATE"]}
+    ]
+    expected_calls = [
+        mock.call(entity=entity, principalId="1111111",
+                  accessType=["READ", "DOWNLOAD"]),
+        mock.call(entity=entity, principalId="2222222",
+                  accessType=["READ", "DOWNLOAD", "UPDATE"])
+    ]
+    with patch.object(syn, "setPermissions") as patch_set:
+        create._set_acl(syn=syn, entity=entity,
+                        acl_config=acl_config)
+        patch_set.assert_has_calls(expected_calls)
