@@ -67,7 +67,7 @@ def _create_synapse_resources(config: dict, creation_cls: SynapseCreation,
         config['id'] = team.id
         if config.get("invitations") is not None:
             for invite in config['invitations']:
-                for member in config['members']:
+                for member in invite['members']:
                     user = member.get("principal_id")
                     email = member.get("email")
                     creation_cls.syn.invite_to_team(
