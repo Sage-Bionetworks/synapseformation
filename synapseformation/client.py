@@ -3,7 +3,7 @@ import synapseclient
 from synapseclient import Synapse
 
 from .create import SynapseCreation
-from . import utils
+from . import create, utils
 
 
 # def expand_config(config: dict) -> dict:
@@ -49,27 +49,30 @@ def _create_synapse_resources(config: dict, creation_cls: SynapseCreation,
         creation_cls: SynapseCreation class that can create resources
         parentid: Synapse folder or project id to store entities
     """
+    # Specify entity or there will be an issue when the recursive
+    # function is called from within the for loop
+    # Error: entity not specified
+    entity = None
     if isinstance(config, dict) and config.get('type') == "Project":
-        project = creation_cls.get_or_create_project(name=config['name'])
-        parent_id = project.id
+        entity = creation_cls.get_or_create_project(name=config['name'])
+    elif isinstance(config, dict) and config.get('type') == "Folder":
+        entity = creation_cls.get_or_create_folder(
+            name=config['name'], parentId=parentid
+        )
+    else:
+        # Loop through folders and create them
+        for folder_config in config:
+            _create_synapse_resources(folder_config, creation_cls,
+                                      parentid=parentid)
+    if entity is not None:
+        parent_id = entity.id
         config['id'] = parent_id
-        # Get children if exists
+        # Get ACL if exists
+        create._set_acl(syn=creation_cls.syn, entity=entity,
+                        acl_config=config.get('acl', []))
         children = config.get('children', [])
         _create_synapse_resources(children, creation_cls,
                                   parentid=parent_id)
-    else:
-        # Loop through folders and create them
-        for folder in config:
-            # Must pull out children if it exists
-            folder_name = folder['name']
-            folder_ent = creation_cls.get_or_create_folder(
-                name=folder_name, parentId=parentid
-            )
-            folder['id'] = folder_ent.id
-            # Create nested folders
-            children = folder.get('children', [])
-            _create_synapse_resources(children, creation_cls,
-                                      parentid=folder_ent.id)
 
 
 def create_synapse_resources(template_path: str):
