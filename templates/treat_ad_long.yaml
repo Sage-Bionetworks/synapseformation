@@ -1,0 +1,908 @@
+- name: TREAT-AD Internal Sharing Site
+  type: Project
+  acl:
+  - principal_id: 3425650
+    access_type:
+    - READ
+    - DOWNLOAD
+    - UPDATE
+    - CREATE
+  - principal_id: 3419125
+    access_type:
+    - READ
+    - DOWNLOAD
+    - UPDATE
+    - CREATE
+    - DELETE
+    - CHANGE_SETTINGS
+    - MODERATE
+    - CHANGE_PERMISSIONS
+  - principal_id: 3409149
+    access_type:
+    - READ
+    - DOWNLOAD
+    - UPDATE
+    - CREATE
+    - DELETE
+    - CHANGE_SETTINGS
+    - MODERATE
+    - CHANGE_PERMISSIONS
+  children:
+  - name: Genes
+    type: Folder
+    children:
+    - name: C4A
+      type: Folder
+      children:
+      - name: Structural_Biology_Core
+        type: Folder
+        children:
+        - name: Antibody_Validation_Data
+        - name: Assay_Protocols
+        - name: Assay_Results
+        - name: Cell_Lines
+        - name: Chemotypes
+        - name: Crystal_Structures
+        - name: Expression_Constructs
+        - name: Expression_Data
+        - name: Fragment_Screening_Results
+        - name: Lab_Notebooks
+        - name: Protein
+        - name: Protein_Expression_Methods
+        - name: TEP
+      - name: Assay_Core
+        type: Folder
+        children:
+        - name: Assay_Results
+        - name: Compounds
+        - name: HTS_Protocols
+        - name: HTS_Results
+        - name: Isogenic_Cell_Line
+        - name: Lab_Notebooks
+        - name: Off_Target_Potency
+        - name: Secondary_Screen_Protocols
+        - name: Secondary_Screen_Result
+      - name: MedChem_Core
+        type: Folder
+        children:
+        - name: Chemical_Probe_Data
+        - name: Chemical_Provenance
+        - name: Lab_Notebooks
+        - name: Structure_Activity_Relationship
+      - name: Bioinformatics Core
+    - name: CAPN2
+      type: Folder
+      children:
+      - name: Structural_Biology_Core
+        type: Folder
+        children:
+        - name: Antibody_Validation_Data
+        - name: Assay_Protocols
+        - name: Assay_Results
+        - name: Cell_Lines
+        - name: Chemotypes
+        - name: Crystal_Structures
+        - name: Expression_Constructs
+        - name: Expression_Data
+        - name: Fragment_Screening_Results
+        - name: Lab_Notebooks
+        - name: Protein
+        - name: Protein_Expression_Methods
+        - name: TEP
+      - name: Assay_Core
+        type: Folder
+        children:
+        - name: Assay_Results
+        - name: Compounds
+        - name: HTS_Protocols
+        - name: HTS_Results
+        - name: Isogenic_Cell_Line
+        - name: Lab_Notebooks
+        - name: Off_Target_Potency
+        - name: Secondary_Screen_Protocols
+        - name: Secondary_Screen_Result
+      - name: MedChem_Core
+        type: Folder
+        children:
+        - name: Chemical_Probe_Data
+        - name: Chemical_Provenance
+        - name: Lab_Notebooks
+        - name: Structure_Activity_Relationship
+      - name: Bioinformatics Core
+    - name: CD44
+      type: Folder
+      children:
+      - name: Structural_Biology_Core
+        type: Folder
+        children:
+        - name: Antibody_Validation_Data
+        - name: Assay_Protocols
+        - name: Assay_Results
+        - name: Cell_Lines
+        - name: Chemotypes
+        - name: Crystal_Structures
+        - name: Expression_Constructs
+        - name: Expression_Data
+        - name: Fragment_Screening_Results
+        - name: Lab_Notebooks
+        - name: Protein
+        - name: Protein_Expression_Methods
+        - name: TEP
+      - name: Assay_Core
+        type: Folder
+        children:
+        - name: Assay_Results
+        - name: Compounds
+        - name: HTS_Protocols
+        - name: HTS_Results
+        - name: Isogenic_Cell_Line
+        - name: Lab_Notebooks
+        - name: Off_Target_Potency
+        - name: Secondary_Screen_Protocols
+        - name: Secondary_Screen_Result
+      - name: MedChem_Core
+        type: Folder
+        children:
+        - name: Chemical_Probe_Data
+        - name: Chemical_Provenance
+        - name: Lab_Notebooks
+        - name: Structure_Activity_Relationship
+      - name: Bioinformatics Core
+    - name: CNN3
+      type: Folder
+      children:
+      - name: Structural_Biology_Core
+        type: Folder
+        children:
+        - name: Antibody_Validation_Data
+        - name: Assay_Protocols
+        - name: Assay_Results
+        - name: Cell_Lines
+        - name: Chemotypes
+        - name: Crystal_Structures
+        - name: Expression_Constructs
+        - name: Expression_Data
+        - name: Fragment_Screening_Results
+        - name: Lab_Notebooks
+        - name: Protein
+        - name: Protein_Expression_Methods
+        - name: TEP
+      - name: Assay_Core
+        type: Folder
+        children:
+        - name: Assay_Results
+        - name: Compounds
+        - name: HTS_Protocols
+        - name: HTS_Results
+        - name: Isogenic_Cell_Line
+        - name: Lab_Notebooks
+        - name: Off_Target_Potency
+        - name: Secondary_Screen_Protocols
+        - name: Secondary_Screen_Result
+      - name: MedChem_Core
+        type: Folder
+        children:
+        - name: Chemical_Probe_Data
+        - name: Chemical_Provenance
+        - name: Lab_Notebooks
+        - name: Structure_Activity_Relationship
+      - name: Bioinformatics Core
+    - name: CTSH
+      type: Folder
+      children:
+      - name: Structural_Biology_Core
+        type: Folder
+        children:
+        - name: Antibody_Validation_Data
+        - name: Assay_Protocols
+        - name: Assay_Results
+        - name: Cell_Lines
+        - name: Chemotypes
+        - name: Crystal_Structures
+        - name: Expression_Constructs
+        - name: Expression_Data
+        - name: Fragment_Screening_Results
+        - name: Lab_Notebooks
+        - name: Protein
+        - name: Protein_Expression_Methods
+        - name: TEP
+      - name: Assay_Core
+        type: Folder
+        children:
+        - name: Assay_Results
+        - name: Compounds
+        - name: HTS_Protocols
+        - name: HTS_Results
+        - name: Isogenic_Cell_Line
+        - name: Lab_Notebooks
+        - name: Off_Target_Potency
+        - name: Secondary_Screen_Protocols
+        - name: Secondary_Screen_Result
+      - name: MedChem_Core
+        type: Folder
+        children:
+        - name: Chemical_Probe_Data
+        - name: Chemical_Provenance
+        - name: Lab_Notebooks
+        - name: Structure_Activity_Relationship
+      - name: Bioinformatics Core
+    - name: EPHX2
+      type: Folder
+      children:
+      - name: Structural_Biology_Core
+        type: Folder
+        children:
+        - name: Antibody_Validation_Data
+        - name: Assay_Protocols
+        - name: Assay_Results
+        - name: Cell_Lines
+        - name: Chemotypes
+        - name: Crystal_Structures
+        - name: Expression_Constructs
+        - name: Expression_Data
+        - name: Fragment_Screening_Results
+        - name: Lab_Notebooks
+        - name: Protein
+        - name: Protein_Expression_Methods
+        - name: TEP
+      - name: Assay_Core
+        type: Folder
+        children:
+        - name: Assay_Results
+        - name: Compounds
+        - name: HTS_Protocols
+        - name: HTS_Results
+        - name: Isogenic_Cell_Line
+        - name: Lab_Notebooks
+        - name: Off_Target_Potency
+        - name: Secondary_Screen_Protocols
+        - name: Secondary_Screen_Result
+      - name: MedChem_Core
+        type: Folder
+        children:
+        - name: Chemical_Probe_Data
+        - name: Chemical_Provenance
+        - name: Lab_Notebooks
+        - name: Structure_Activity_Relationship
+      - name: Bioinformatics Core
+    - name: FCER1G
+      type: Folder
+      children:
+      - name: Structural_Biology_Core
+        type: Folder
+        children:
+        - name: Antibody_Validation_Data
+        - name: Assay_Protocols
+        - name: Assay_Results
+        - name: Cell_Lines
+        - name: Chemotypes
+        - name: Crystal_Structures
+        - name: Expression_Constructs
+        - name: Expression_Data
+        - name: Fragment_Screening_Results
+        - name: Lab_Notebooks
+        - name: Protein
+        - name: Protein_Expression_Methods
+        - name: TEP
+      - name: Assay_Core
+        type: Folder
+        children:
+        - name: Assay_Results
+        - name: Compounds
+        - name: HTS_Protocols
+        - name: HTS_Results
+        - name: Isogenic_Cell_Line
+        - name: Lab_Notebooks
+        - name: Off_Target_Potency
+        - name: Secondary_Screen_Protocols
+        - name: Secondary_Screen_Result
+      - name: MedChem_Core
+        type: Folder
+        children:
+        - name: Chemical_Probe_Data
+        - name: Chemical_Provenance
+        - name: Lab_Notebooks
+        - name: Structure_Activity_Relationship
+      - name: Bioinformatics Core
+    - name: GPNMB
+      type: Folder
+      children:
+      - name: Structural_Biology_Core
+        type: Folder
+        children:
+        - name: Antibody_Validation_Data
+        - name: Assay_Protocols
+        - name: Assay_Results
+        - name: Cell_Lines
+        - name: Chemotypes
+        - name: Crystal_Structures
+        - name: Expression_Constructs
+        - name: Expression_Data
+        - name: Fragment_Screening_Results
+        - name: Lab_Notebooks
+        - name: Protein
+        - name: Protein_Expression_Methods
+        - name: TEP
+      - name: Assay_Core
+        type: Folder
+        children:
+        - name: Assay_Results
+        - name: Compounds
+        - name: HTS_Protocols
+        - name: HTS_Results
+        - name: Isogenic_Cell_Line
+        - name: Lab_Notebooks
+        - name: Off_Target_Potency
+        - name: Secondary_Screen_Protocols
+        - name: Secondary_Screen_Result
+      - name: MedChem_Core
+        type: Folder
+        children:
+        - name: Chemical_Probe_Data
+        - name: Chemical_Provenance
+        - name: Lab_Notebooks
+        - name: Structure_Activity_Relationship
+      - name: Bioinformatics Core
+    - name: MDK
+      type: Folder
+      children:
+      - name: Structural_Biology_Core
+        type: Folder
+        children:
+        - name: Antibody_Validation_Data
+        - name: Assay_Protocols
+        - name: Assay_Results
+        - name: Cell_Lines
+        - name: Chemotypes
+        - name: Crystal_Structures
+        - name: Expression_Constructs
+        - name: Expression_Data
+        - name: Fragment_Screening_Results
+        - name: Lab_Notebooks
+        - name: Protein
+        - name: Protein_Expression_Methods
+        - name: TEP
+      - name: Assay_Core
+        type: Folder
+        children:
+        - name: Assay_Results
+        - name: Compounds
+        - name: HTS_Protocols
+        - name: HTS_Results
+        - name: Isogenic_Cell_Line
+        - name: Lab_Notebooks
+        - name: Off_Target_Potency
+        - name: Secondary_Screen_Protocols
+        - name: Secondary_Screen_Result
+      - name: MedChem_Core
+        type: Folder
+        children:
+        - name: Chemical_Probe_Data
+        - name: Chemical_Provenance
+        - name: Lab_Notebooks
+        - name: Structure_Activity_Relationship
+      - name: Bioinformatics Core
+    - name: MSN
+      type: Folder
+      children:
+      - name: Structural_Biology_Core
+        type: Folder
+        children:
+        - name: Antibody_Validation_Data
+        - name: Assay_Protocols
+        - name: Assay_Results
+        - name: Cell_Lines
+        - name: Chemotypes
+        - name: Crystal_Structures
+        - name: Expression_Constructs
+        - name: Expression_Data
+        - name: Fragment_Screening_Results
+        - name: Lab_Notebooks
+        - name: Protein
+        - name: Protein_Expression_Methods
+        - name: TEP
+      - name: Assay_Core
+        type: Folder
+        children:
+        - name: Assay_Results
+        - name: Compounds
+        - name: HTS_Protocols
+        - name: HTS_Results
+        - name: Isogenic_Cell_Line
+        - name: Lab_Notebooks
+        - name: Off_Target_Potency
+        - name: Secondary_Screen_Protocols
+        - name: Secondary_Screen_Result
+      - name: MedChem_Core
+        type: Folder
+        children:
+        - name: Chemical_Probe_Data
+        - name: Chemical_Provenance
+        - name: Lab_Notebooks
+        - name: Structure_Activity_Relationship
+      - name: Bioinformatics Core
+    - name: NDUFS2
+      type: Folder
+      children:
+      - name: Structural_Biology_Core
+        type: Folder
+        children:
+        - name: Antibody_Validation_Data
+        - name: Assay_Protocols
+        - name: Assay_Results
+        - name: Cell_Lines
+        - name: Chemotypes
+        - name: Crystal_Structures
+        - name: Expression_Constructs
+        - name: Expression_Data
+        - name: Fragment_Screening_Results
+        - name: Lab_Notebooks
+        - name: Protein
+        - name: Protein_Expression_Methods
+        - name: TEP
+      - name: Assay_Core
+        type: Folder
+        children:
+        - name: Assay_Results
+        - name: Compounds
+        - name: HTS_Protocols
+        - name: HTS_Results
+        - name: Isogenic_Cell_Line
+        - name: Lab_Notebooks
+        - name: Off_Target_Potency
+        - name: Secondary_Screen_Protocols
+        - name: Secondary_Screen_Result
+      - name: MedChem_Core
+        type: Folder
+        children:
+        - name: Chemical_Probe_Data
+        - name: Chemical_Provenance
+        - name: Lab_Notebooks
+        - name: Structure_Activity_Relationship
+      - name: Bioinformatics Core
+    - name: PLEC
+      type: Folder
+      children:
+      - name: Structural_Biology_Core
+        type: Folder
+        children:
+        - name: Antibody_Validation_Data
+        - name: Assay_Protocols
+        - name: Assay_Results
+        - name: Cell_Lines
+        - name: Chemotypes
+        - name: Crystal_Structures
+        - name: Expression_Constructs
+        - name: Expression_Data
+        - name: Fragment_Screening_Results
+        - name: Lab_Notebooks
+        - name: Protein
+        - name: Protein_Expression_Methods
+        - name: TEP
+      - name: Assay_Core
+        type: Folder
+        children:
+        - name: Assay_Results
+        - name: Compounds
+        - name: HTS_Protocols
+        - name: HTS_Results
+        - name: Isogenic_Cell_Line
+        - name: Lab_Notebooks
+        - name: Off_Target_Potency
+        - name: Secondary_Screen_Protocols
+        - name: Secondary_Screen_Result
+      - name: MedChem_Core
+        type: Folder
+        children:
+        - name: Chemical_Probe_Data
+        - name: Chemical_Provenance
+        - name: Lab_Notebooks
+        - name: Structure_Activity_Relationship
+      - name: Bioinformatics Core
+    - name: PRDX1
+      type: Folder
+      children:
+      - name: Structural_Biology_Core
+        type: Folder
+        children:
+        - name: Antibody_Validation_Data
+        - name: Assay_Protocols
+        - name: Assay_Results
+        - name: Cell_Lines
+        - name: Chemotypes
+        - name: Crystal_Structures
+        - name: Expression_Constructs
+        - name: Expression_Data
+        - name: Fragment_Screening_Results
+        - name: Lab_Notebooks
+        - name: Protein
+        - name: Protein_Expression_Methods
+        - name: TEP
+      - name: Assay_Core
+        type: Folder
+        children:
+        - name: Assay_Results
+        - name: Compounds
+        - name: HTS_Protocols
+        - name: HTS_Results
+        - name: Isogenic_Cell_Line
+        - name: Lab_Notebooks
+        - name: Off_Target_Potency
+        - name: Secondary_Screen_Protocols
+        - name: Secondary_Screen_Result
+      - name: MedChem_Core
+        type: Folder
+        children:
+        - name: Chemical_Probe_Data
+        - name: Chemical_Provenance
+        - name: Lab_Notebooks
+        - name: Structure_Activity_Relationship
+      - name: Bioinformatics Core
+    - name: PRDX6
+      type: Folder
+      children:
+      - name: Structural_Biology_Core
+        type: Folder
+        children:
+        - name: Antibody_Validation_Data
+        - name: Assay_Protocols
+        - name: Assay_Results
+        - name: Cell_Lines
+        - name: Chemotypes
+        - name: Crystal_Structures
+        - name: Expression_Constructs
+        - name: Expression_Data
+        - name: Fragment_Screening_Results
+        - name: Lab_Notebooks
+        - name: Protein
+        - name: Protein_Expression_Methods
+        - name: TEP
+      - name: Assay_Core
+        type: Folder
+        children:
+        - name: Assay_Results
+        - name: Compounds
+        - name: HTS_Protocols
+        - name: HTS_Results
+        - name: Isogenic_Cell_Line
+        - name: Lab_Notebooks
+        - name: Off_Target_Potency
+        - name: Secondary_Screen_Protocols
+        - name: Secondary_Screen_Result
+      - name: MedChem_Core
+        type: Folder
+        children:
+        - name: Chemical_Probe_Data
+        - name: Chemical_Provenance
+        - name: Lab_Notebooks
+        - name: Structure_Activity_Relationship
+      - name: Bioinformatics Core
+    - name: RABEP1
+      type: Folder
+      children:
+      - name: Structural_Biology_Core
+        type: Folder
+        children:
+        - name: Antibody_Validation_Data
+        - name: Assay_Protocols
+        - name: Assay_Results
+        - name: Cell_Lines
+        - name: Chemotypes
+        - name: Crystal_Structures
+        - name: Expression_Constructs
+        - name: Expression_Data
+        - name: Fragment_Screening_Results
+        - name: Lab_Notebooks
+        - name: Protein
+        - name: Protein_Expression_Methods
+        - name: TEP
+      - name: Assay_Core
+        type: Folder
+        children:
+        - name: Assay_Results
+        - name: Compounds
+        - name: HTS_Protocols
+        - name: HTS_Results
+        - name: Isogenic_Cell_Line
+        - name: Lab_Notebooks
+        - name: Off_Target_Potency
+        - name: Secondary_Screen_Protocols
+        - name: Secondary_Screen_Result
+      - name: MedChem_Core
+        type: Folder
+        children:
+        - name: Chemical_Probe_Data
+        - name: Chemical_Provenance
+        - name: Lab_Notebooks
+        - name: Structure_Activity_Relationship
+      - name: Bioinformatics Core
+    - name: SDC4
+      type: Folder
+      children:
+      - name: Structural_Biology_Core
+        type: Folder
+        children:
+        - name: Antibody_Validation_Data
+        - name: Assay_Protocols
+        - name: Assay_Results
+        - name: Cell_Lines
+        - name: Chemotypes
+        - name: Crystal_Structures
+        - name: Expression_Constructs
+        - name: Expression_Data
+        - name: Fragment_Screening_Results
+        - name: Lab_Notebooks
+        - name: Protein
+        - name: Protein_Expression_Methods
+        - name: TEP
+      - name: Assay_Core
+        type: Folder
+        children:
+        - name: Assay_Results
+        - name: Compounds
+        - name: HTS_Protocols
+        - name: HTS_Results
+        - name: Isogenic_Cell_Line
+        - name: Lab_Notebooks
+        - name: Off_Target_Potency
+        - name: Secondary_Screen_Protocols
+        - name: Secondary_Screen_Result
+      - name: MedChem_Core
+        type: Folder
+        children:
+        - name: Chemical_Probe_Data
+        - name: Chemical_Provenance
+        - name: Lab_Notebooks
+        - name: Structure_Activity_Relationship
+      - name: Bioinformatics Core
+    - name: SFRP1
+      type: Folder
+      children:
+      - name: Structural_Biology_Core
+        type: Folder
+        children:
+        - name: Antibody_Validation_Data
+        - name: Assay_Protocols
+        - name: Assay_Results
+        - name: Cell_Lines
+        - name: Chemotypes
+        - name: Crystal_Structures
+        - name: Expression_Constructs
+        - name: Expression_Data
+        - name: Fragment_Screening_Results
+        - name: Lab_Notebooks
+        - name: Protein
+        - name: Protein_Expression_Methods
+        - name: TEP
+      - name: Assay_Core
+        type: Folder
+        children:
+        - name: Assay_Results
+        - name: Compounds
+        - name: HTS_Protocols
+        - name: HTS_Results
+        - name: Isogenic_Cell_Line
+        - name: Lab_Notebooks
+        - name: Off_Target_Potency
+        - name: Secondary_Screen_Protocols
+        - name: Secondary_Screen_Result
+      - name: MedChem_Core
+        type: Folder
+        children:
+        - name: Chemical_Probe_Data
+        - name: Chemical_Provenance
+        - name: Lab_Notebooks
+        - name: Structure_Activity_Relationship
+      - name: Bioinformatics Core
+    - name: SMOC1
+      type: Folder
+      children:
+      - name: Structural_Biology_Core
+        type: Folder
+        children:
+        - name: Antibody_Validation_Data
+        - name: Assay_Protocols
+        - name: Assay_Results
+        - name: Cell_Lines
+        - name: Chemotypes
+        - name: Crystal_Structures
+        - name: Expression_Constructs
+        - name: Expression_Data
+        - name: Fragment_Screening_Results
+        - name: Lab_Notebooks
+        - name: Protein
+        - name: Protein_Expression_Methods
+        - name: TEP
+      - name: Assay_Core
+        type: Folder
+        children:
+        - name: Assay_Results
+        - name: Compounds
+        - name: HTS_Protocols
+        - name: HTS_Results
+        - name: Isogenic_Cell_Line
+        - name: Lab_Notebooks
+        - name: Off_Target_Potency
+        - name: Secondary_Screen_Protocols
+        - name: Secondary_Screen_Result
+      - name: MedChem_Core
+        type: Folder
+        children:
+        - name: Chemical_Probe_Data
+        - name: Chemical_Provenance
+        - name: Lab_Notebooks
+        - name: Structure_Activity_Relationship
+      - name: Bioinformatics Core
+    - name: SNX32
+      type: Folder
+      children:
+      - name: Structural_Biology_Core
+        type: Folder
+        children:
+        - name: Antibody_Validation_Data
+        - name: Assay_Protocols
+        - name: Assay_Results
+        - name: Cell_Lines
+        - name: Chemotypes
+        - name: Crystal_Structures
+        - name: Expression_Constructs
+        - name: Expression_Data
+        - name: Fragment_Screening_Results
+        - name: Lab_Notebooks
+        - name: Protein
+        - name: Protein_Expression_Methods
+        - name: TEP
+      - name: Assay_Core
+        type: Folder
+        children:
+        - name: Assay_Results
+        - name: Compounds
+        - name: HTS_Protocols
+        - name: HTS_Results
+        - name: Isogenic_Cell_Line
+        - name: Lab_Notebooks
+        - name: Off_Target_Potency
+        - name: Secondary_Screen_Protocols
+        - name: Secondary_Screen_Result
+      - name: MedChem_Core
+        type: Folder
+        children:
+        - name: Chemical_Probe_Data
+        - name: Chemical_Provenance
+        - name: Lab_Notebooks
+        - name: Structure_Activity_Relationship
+      - name: Bioinformatics Core
+    - name: STX4
+      type: Folder
+      children:
+      - name: Structural_Biology_Core
+        type: Folder
+        children:
+        - name: Antibody_Validation_Data
+        - name: Assay_Protocols
+        - name: Assay_Results
+        - name: Cell_Lines
+        - name: Chemotypes
+        - name: Crystal_Structures
+        - name: Expression_Constructs
+        - name: Expression_Data
+        - name: Fragment_Screening_Results
+        - name: Lab_Notebooks
+        - name: Protein
+        - name: Protein_Expression_Methods
+        - name: TEP
+      - name: Assay_Core
+        type: Folder
+        children:
+        - name: Assay_Results
+        - name: Compounds
+        - name: HTS_Protocols
+        - name: HTS_Results
+        - name: Isogenic_Cell_Line
+        - name: Lab_Notebooks
+        - name: Off_Target_Potency
+        - name: Secondary_Screen_Protocols
+        - name: Secondary_Screen_Result
+      - name: MedChem_Core
+        type: Folder
+        children:
+        - name: Chemical_Probe_Data
+        - name: Chemical_Provenance
+        - name: Lab_Notebooks
+        - name: Structure_Activity_Relationship
+      - name: Bioinformatics Core
+    - name: SYK
+      type: Folder
+      children:
+      - name: Structural_Biology_Core
+        type: Folder
+        children:
+        - name: Antibody_Validation_Data
+        - name: Assay_Protocols
+        - name: Assay_Results
+        - name: Cell_Lines
+        - name: Chemotypes
+        - name: Crystal_Structures
+        - name: Expression_Constructs
+        - name: Expression_Data
+        - name: Fragment_Screening_Results
+        - name: Lab_Notebooks
+        - name: Protein
+        - name: Protein_Expression_Methods
+        - name: TEP
+      - name: Assay_Core
+        type: Folder
+        children:
+        - name: Assay_Results
+        - name: Compounds
+        - name: HTS_Protocols
+        - name: HTS_Results
+        - name: Isogenic_Cell_Line
+        - name: Lab_Notebooks
+        - name: Off_Target_Potency
+        - name: Secondary_Screen_Protocols
+        - name: Secondary_Screen_Result
+      - name: MedChem_Core
+        type: Folder
+        children:
+        - name: Chemical_Probe_Data
+        - name: Chemical_Provenance
+        - name: Lab_Notebooks
+        - name: Structure_Activity_Relationship
+      - name: Bioinformatics Core
+  - name: Project_Activities
+    type: Folder
+    children:
+    - name: Project_Narratives
+      type: Folder
+    - name: Project_Plans
+      type: Folder
+    - name: Teams
+      type: Folder
+      children:
+      - name: Team_1
+        type: Folder
+        children:
+        - name: Meeting Minutes
+          type: Folder
+        - name: Presentations
+          type: Folder
+          children:
+          - name: FCER1G
+            type: Folder
+          - name: SYK
+            type: Folder
+          - name: GPNMB
+            type: Folder
+          - name: RABEP1
+            type: Folder
+      - name: Team_2
+        type: Folder
+        children:
+        - name: Meeting Minutes
+          type: Folder
+        - name: Presentations
+          type: Folder
+          children:
+          - name: SFRP1
+            type: Folder
+          - name: MDK
+            type: Folder
+          - name: SDC4
+            type: Folder
+      - name: Team_3
+        type: Folder
+        children:
+        - name: Meeting Minutes
+          type: Folder
+        - name: Presentations
+          type: Folder
+          children:
+          - name: PRDX1
+            type: Folder
+          - name: PRDX6
+            type: Folder
+          - name: EPHX2
+            type: Folder
+          - name: CAPN2
+            type: Folder
