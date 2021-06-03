@@ -59,6 +59,21 @@ def _create_synapse_resources(config: dict, creation_cls: SynapseCreation,
         entity = creation_cls.get_or_create_folder(
             name=config['name'], parentId=parentid
         )
+    elif isinstance(config, dict) and config.get('type') == "Team":
+        team = creation_cls.get_or_create_team(
+            name=config['name'], description=config['description'],
+            canPublicJoin=config['can_public_join']
+        )
+        config['id'] = team.id
+        if config.get("invitations") is not None:
+            for invite in config['invitations']:
+                for member in invite['members']:
+                    user = member.get("principal_id")
+                    email = member.get("email")
+                    creation_cls.syn.invite_to_team(
+                        team=team, user=user, inviteeEmail=email,
+                        message=invite['message']
+                    )
     else:
         # Loop through folders and create them
         for folder_config in config:
