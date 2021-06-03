@@ -12,6 +12,7 @@ Client for using [Synapse Formation Templates](https://github.com/Sage-Bionetwor
 ## Usage
 
 ### Command Line
+
 `synapseformation` has a command line client that will create resources given a `yaml` or `json` template.
 
 ```bash
