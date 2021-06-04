@@ -1,13 +1,13 @@
 - name: TREAT-AD Internal Sharing Site
   type: Project
   acl:
-  - principal_id: 3425650
+  - principal_id: 3425650 # Team: TREAT-AD Internal Collaborators
     access_type:
     - READ
     - DOWNLOAD
     - UPDATE
     - CREATE
-  - principal_id: 3419125
+  - principal_id: 3419125 # Profile: Matthew Fazza
     access_type:
     - READ
     - DOWNLOAD
@@ -17,7 +17,7 @@
     - CHANGE_SETTINGS
     - MODERATE
     - CHANGE_PERMISSIONS
-  - principal_id: 3409149
+  - principal_id: 3409149 # Profile: Karina Leal
     access_type:
     - READ
     - DOWNLOAD
