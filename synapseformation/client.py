@@ -93,7 +93,7 @@ def _create_synapse_resources(config: dict, creation_cls: SynapseCreation,
 def create_synapse_resources(template_path: str):
     """Creates synapse resources from template"""
     # TODO: abstract out login function
-    syn = synapseclient.login()
+    syn = synapseclient.login(silent=True)
     # Function will attempt to read template as yaml then try to read in json
     config = utils.read_config(template_path)
     # Expands shortended configuration into full configuration.  This should
@@ -104,4 +104,5 @@ def create_synapse_resources(template_path: str):
     creation_cls = SynapseCreation(syn)
     for resource in config:
         _create_synapse_resources(resource, creation_cls)
-    print(config)
+    config_yaml = utils.write_config(config)
+    print(config_yaml, end="")

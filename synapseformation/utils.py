@@ -48,3 +48,25 @@ def read_config(template_path: str):
 #     def from_yaml(cls, loader, node):
 #         return cls(node.value)
 # # yaml.safe_load('Foo: !Ref bar')
+
+
+def represent_dictionary_order(self, dict_data):
+    """Source: https://stackoverflow.com/a/49048250"""
+    return self.represent_mapping("tag:yaml.org,2002:map", dict_data.items())
+
+
+def setup_yaml():
+    """Source: https://stackoverflow.com/a/49048250"""
+    yaml.add_representer(OrderedDict, represent_dictionary_order)
+
+
+class NoAliasDumper(yaml.Dumper):
+    def ignore_aliases(self, data):
+        return True
+
+
+def write_config(config):
+    output = yaml.dump(config, Dumper=NoAliasDumper,
+                       default_flow_style=False,
+                       sort_keys=False)
+    return output
