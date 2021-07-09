@@ -56,6 +56,7 @@ def _create_synapse_resources(config_list: List[dict],
     # Error: entity not specified
     entity = None
     # Must iterate through list to avoid recursion limit issue
+    # This works because every layer in the json is a list
     for config in config_list:
         if isinstance(config, dict) and config.get('type') == "Project":
             entity = creation_cls.get_or_create_project(name=config['name'])
