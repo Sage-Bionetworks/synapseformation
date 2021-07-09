@@ -41,13 +41,13 @@ from . import create, utils
 #     return config
 
 
-def _create_synapse_resources(config_lst: List[dict],
+def _create_synapse_resources(config_list: List[dict],
                               creation_cls: SynapseCreation,
                               parentid: str = None):
     """Recursively steps through template and creates synapse resources
 
     Args:
-        config_lst: List of Synapse resources
+        config_list: List of Synapse resources
         creation_cls: SynapseCreation class that can create resources
         parentid: Synapse folder or project id to store entities
     """
@@ -56,7 +56,7 @@ def _create_synapse_resources(config_lst: List[dict],
     # Error: entity not specified
     entity = None
     # Must iterate through list to avoid recursion limit issue
-    for config in config_lst:
+    for config in config_list:
         if isinstance(config, dict) and config.get('type') == "Project":
             entity = creation_cls.get_or_create_project(name=config['name'])
         elif isinstance(config, dict) and config.get('type') == "Folder":
@@ -88,8 +88,9 @@ def _create_synapse_resources(config_lst: List[dict],
             children = config.get('children', None)
             # implement this to not run into recursion limit
             if children is not None:
-                _create_synapse_resources(children, creation_cls,
-                                        parentid=parent_id)
+                _create_synapse_resources(config_list=children,
+                                          creation_cls=creation_cls,
+                                          parentid=parent_id)
 
 
 def create_synapse_resources(template_path: str):
@@ -104,5 +105,5 @@ def create_synapse_resources(template_path: str):
     # full_config = expand_config(config)
     # Recursive function to create resources
     creation_cls = SynapseCreation(syn)
-    _create_synapse_resources(config_lst=config, creation_cls=creation_cls)
+    _create_synapse_resources(config_list=config, creation_cls=creation_cls)
     print(config)
