@@ -38,12 +38,12 @@ def cli():
 
 
 @cli.command()
-@click.option('-c', '--config_path', help='Synapse configuration file',
-              type=click.Path(),
-              default=synapseclient.client.CONFIG_FILE)
 @click.option('--template_path', help='Template path', type=click.Path())
-def create(config_path, template_path):
-    """Creates Synapse Resources"""
+@click.option('-c', '--config_path', help='Synapse configuration file',
+              type=click.Path(), show_default=True,
+              default=synapseclient.client.CONFIG_FILE)
+def create(template_path, config_path):
+    """Creates Synapse Resources given a yaml or json"""
     syn = synapse_login(synapse_config=config_path)
     create_synapse_resources(syn=syn, template_path=template_path)
 
