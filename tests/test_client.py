@@ -67,7 +67,7 @@ class TestCreateSynapseResources():
         """Setting up for each method"""
         self.syn = mock.create_autospec(synapseclient.Synapse)
         self.create_cls = SynapseCreation(self.syn)
-        self.config = {
+        self.config = [{
             'name': 'Test Configuration',
             'type': 'Project',
             'children': [
@@ -82,25 +82,26 @@ class TestCreateSynapseResources():
                     ]
                 }
             ]
-        }
+        }]
 
     def test__create_synapse_resources_project(self):
         """Test project gets created"""
-        project_config = {
-            'name': 'Test Configuration',
+        project_name = 'Test Configuration'
+        project_config = [{
+            'name': project_name,
             'type': 'Project'
-        }
-        expected_config = {
-            'name': 'Test Configuration',
+        }]
+        expected_config = [{
+            'name': project_name,
             'type': 'Project',
             'id': 'syn12222'
-        }
+        }]
         project_ent = synapseclient.Project(id="syn12222")
         with patch.object(self.create_cls, "get_or_create_project",
                           return_value=project_ent) as patch_create:
-            client._create_synapse_resources(config=project_config,
+            client._create_synapse_resources(config_list=project_config,
                                              creation_cls=self.create_cls)
-            patch_create.assert_called_once_with(name=project_config['name'])
+            patch_create.assert_called_once_with(name=project_name)
             assert project_config == expected_config
 
     def test__create_synapse_resources_folder(self):
@@ -134,7 +135,7 @@ class TestCreateSynapseResources():
         with patch.object(self.create_cls, "get_or_create_folder",
                           side_effect=[folder_ent_1,
                                        folder_ent_2]) as patch_create:
-            client._create_synapse_resources(config=folder_config,
+            client._create_synapse_resources(config_list=folder_config,
                                              creation_cls=self.create_cls,
                                              parentid="syn5555")
             patch_create.assert_has_calls([call_1, call_2])
@@ -142,24 +143,25 @@ class TestCreateSynapseResources():
 
     def test__create_synapse_resources_acl(self):
         """Test ACL gets created"""
-        project_config = {
-            'name': 'Test Configuration',
+        project_name = 'Test Configuration'
+        project_config = [{
+            'name': project_name,
             'type': 'Project',
             'acl': ['fake']
-        }
-        expected_config = {
-            'name': 'Test Configuration',
+        }]
+        expected_config = [{
+            'name': project_name,
             'type': 'Project',
             'id': 'syn12222',
             'acl': ['fake']
-        }
+        }]
         project_ent = synapseclient.Project(id="syn12222")
         with patch.object(self.create_cls, "get_or_create_project",
                           return_value=project_ent) as patch_create,\
              patch.object(create, "_set_acl") as patch_set:
-            client._create_synapse_resources(config=project_config,
+            client._create_synapse_resources(config_list=project_config,
                                              creation_cls=self.create_cls)
-            patch_create.assert_called_once_with(name=project_config['name'])
+            patch_create.assert_called_once_with(name=project_name)
             assert project_config == expected_config
             patch_set.assert_called_once_with(
                 syn=self.create_cls.syn, entity=project_ent,
@@ -175,7 +177,7 @@ class TestCreateSynapseResources():
                           return_value=project_ent) as patch_create_proj,\
              patch.object(self.create_cls, "get_or_create_folder",
                           return_value=folder_ent) as patch_create_folder:
-            client._create_synapse_resources(config=self.config,
+            client._create_synapse_resources(config_list=self.config,
                                              creation_cls=self.create_cls)
             patch_create_proj.assert_called_once_with(
                 name="Test Configuration"
@@ -184,33 +186,34 @@ class TestCreateSynapseResources():
 
     def test__create_synapse_resources_team(self):
         """Test team gets created"""
-        team_config = {
+        team_config = [{
             'name': 'Test Configuration',
             'type': 'Team',
             'can_public_join': False,
             'description': 'Test team description'
-        }
-        expected_config = {
+        }]
+        expected_config = [{
             'name': 'Test Configuration',
             'type': 'Team',
             'can_public_join': False,
             'description': 'Test team description',
             'id': '11111'
-        }
+        }]
         team_ent = synapseclient.Team(id="11111")
         with patch.object(self.create_cls, "get_or_create_team",
                           return_value=team_ent) as patch_create:
-            client._create_synapse_resources(config=team_config,
+            client._create_synapse_resources(config_list=team_config,
                                              creation_cls=self.create_cls)
             patch_create.assert_called_once_with(
-                name=team_config['name'], description=team_config['description'],
-                canPublicJoin=team_config['can_public_join']
+                name=team_config[0]['name'],
+                description=team_config[0]['description'],
+                canPublicJoin=team_config[0]['can_public_join']
             )
             assert team_config == expected_config
 
     def test__create_synapse_resources_team_invite(self):
         """Test team members are invited"""
-        team_config = {
+        team_config = [{
             'name': 'Test Configuration',
             'type': 'Team',
             'can_public_join': False,
@@ -224,7 +227,7 @@ class TestCreateSynapseResources():
                     ]
                 }
             ]
-        }
+        }]
         team_ent = synapseclient.Team(id="11111")
         expected_calls = [
             mock.call(team=team_ent, user=3426116, inviteeEmail=None,
@@ -237,6 +240,6 @@ class TestCreateSynapseResources():
                           return_value=team_ent) as patch_create,\
              patch.object(self.create_cls.syn,
                           "invite_to_team") as patch_invite:
-            client._create_synapse_resources(config=team_config,
+            client._create_synapse_resources(config_list=team_config,
                                              creation_cls=self.create_cls)
             patch_invite.assert_has_calls(expected_calls)

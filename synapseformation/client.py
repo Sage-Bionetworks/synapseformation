@@ -1,4 +1,6 @@
 """Synapse Formation client"""
+from typing import List
+
 import synapseclient
 from synapseclient import Synapse
 
@@ -39,13 +41,13 @@ from . import create, utils
 #     return config
 
 
-def _create_synapse_resources(config: dict, creation_cls: SynapseCreation,
+def _create_synapse_resources(config_list: List[dict],
+                              creation_cls: SynapseCreation,
                               parentid: str = None):
     """Recursively steps through template and creates synapse resources
 
     Args:
-        syn: Synapse connection
-        config: Synapse Formation template dict
+        config_list: List of Synapse resources
         creation_cls: SynapseCreation class that can create resources
         parentid: Synapse folder or project id to store entities
     """
@@ -53,41 +55,43 @@ def _create_synapse_resources(config: dict, creation_cls: SynapseCreation,
     # function is called from within the for loop
     # Error: entity not specified
     entity = None
-    if isinstance(config, dict) and config.get('type') == "Project":
-        entity = creation_cls.get_or_create_project(name=config['name'])
-    elif isinstance(config, dict) and config.get('type') == "Folder":
-        entity = creation_cls.get_or_create_folder(
-            name=config['name'], parentId=parentid
-        )
-    elif isinstance(config, dict) and config.get('type') == "Team":
-        team = creation_cls.get_or_create_team(
-            name=config['name'], description=config['description'],
-            canPublicJoin=config['can_public_join']
-        )
-        config['id'] = team.id
-        if config.get("invitations") is not None:
-            for invite in config['invitations']:
-                for member in invite['members']:
-                    user = member.get("principal_id")
-                    email = member.get("email")
-                    creation_cls.syn.invite_to_team(
-                        team=team, user=user, inviteeEmail=email,
-                        message=invite['message']
-                    )
-    else:
-        # Loop through folders and create them
-        for folder_config in config:
-            _create_synapse_resources(folder_config, creation_cls,
-                                      parentid=parentid)
-    if entity is not None:
-        parent_id = entity.id
-        config['id'] = parent_id
-        # Get ACL if exists
-        create._set_acl(syn=creation_cls.syn, entity=entity,
-                        acl_config=config.get('acl', []))
-        children = config.get('children', [])
-        _create_synapse_resources(children, creation_cls,
-                                  parentid=parent_id)
+    # Must iterate through list to avoid recursion limit issue
+    # This works because every layer in the json is a list
+    for config in config_list:
+        if isinstance(config, dict) and config.get('type') == "Project":
+            entity = creation_cls.get_or_create_project(name=config['name'])
+        elif isinstance(config, dict) and config.get('type') == "Folder":
+            entity = creation_cls.get_or_create_folder(
+                name=config['name'], parentId=parentid
+            )
+        elif isinstance(config, dict) and config.get('type') == "Team":
+            team = creation_cls.get_or_create_team(
+                name=config['name'], description=config['description'],
+                canPublicJoin=config['can_public_join']
+            )
+            config['id'] = team.id
+            if config.get("invitations") is not None:
+                for invite in config['invitations']:
+                    for member in invite['members']:
+                        user = member.get("principal_id")
+                        email = member.get("email")
+                        creation_cls.syn.invite_to_team(
+                            team=team, user=user, inviteeEmail=email,
+                            message=invite['message']
+                        )
+        # only entities can have children and ACLs
+        if entity is not None:
+            parent_id = entity.id
+            config['id'] = parent_id
+            # Get ACL if exists
+            create._set_acl(syn=creation_cls.syn, entity=entity,
+                            acl_config=config.get('acl', []))
+            children = config.get('children', None)
+            # implement this to not run into recursion limit
+            if children is not None:
+                _create_synapse_resources(config_list=children,
+                                          creation_cls=creation_cls,
+                                          parentid=parent_id)
 
 
 def create_synapse_resources(syn: synapseclient.Synapse, template_path: str):
@@ -100,6 +104,5 @@ def create_synapse_resources(syn: synapseclient.Synapse, template_path: str):
     # full_config = expand_config(config)
     # Recursive function to create resources
     creation_cls = SynapseCreation(syn)
-    for resource in config:
-        _create_synapse_resources(resource, creation_cls)
+    _create_synapse_resources(config_list=config, creation_cls=creation_cls)
     print(config)
