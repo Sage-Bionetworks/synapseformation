@@ -38,38 +38,65 @@
         type: Folder
         children:
         - name: Antibody_Validation_Data
+          type: Folder
         - name: Assay_Protocols
+          type: Folder
         - name: Assay_Results
+          type: Folder
         - name: Cell_Lines
+          type: Folder
         - name: Chemotypes
+          type: Folder
         - name: Crystal_Structures
+          type: Folder
         - name: Expression_Constructs
+          type: Folder
         - name: Expression_Data
+          type: Folder
         - name: Fragment_Screening_Results
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Protein
+          type: Folder
         - name: Protein_Expression_Methods
+          type: Folder
         - name: TEP
+          type: Folder
       - name: Assay_Core
         type: Folder
         children:
         - name: Assay_Results
+          type: Folder
         - name: Compounds
+          type: Folder
         - name: HTS_Protocols
+          type: Folder
         - name: HTS_Results
+          type: Folder
         - name: Isogenic_Cell_Line
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Off_Target_Potency
+          type: Folder
         - name: Secondary_Screen_Protocols
+          type: Folder
         - name: Secondary_Screen_Result
+          type: Folder
       - name: MedChem_Core
         type: Folder
         children:
         - name: Chemical_Probe_Data
+          type: Folder
         - name: Chemical_Provenance
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Structure_Activity_Relationship
+          type: Folder
       - name: Bioinformatics Core
+        type: Folder
     - name: CAPN2
       type: Folder
       children:
@@ -77,38 +104,65 @@
         type: Folder
         children:
         - name: Antibody_Validation_Data
+          type: Folder
         - name: Assay_Protocols
+          type: Folder
         - name: Assay_Results
+          type: Folder
         - name: Cell_Lines
+          type: Folder
         - name: Chemotypes
+          type: Folder
         - name: Crystal_Structures
+          type: Folder
         - name: Expression_Constructs
+          type: Folder
         - name: Expression_Data
+          type: Folder
         - name: Fragment_Screening_Results
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Protein
+          type: Folder
         - name: Protein_Expression_Methods
+          type: Folder
         - name: TEP
+          type: Folder
       - name: Assay_Core
         type: Folder
         children:
         - name: Assay_Results
+          type: Folder
         - name: Compounds
+          type: Folder
         - name: HTS_Protocols
+          type: Folder
         - name: HTS_Results
+          type: Folder
         - name: Isogenic_Cell_Line
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Off_Target_Potency
+          type: Folder
         - name: Secondary_Screen_Protocols
+          type: Folder
         - name: Secondary_Screen_Result
+          type: Folder
       - name: MedChem_Core
         type: Folder
         children:
         - name: Chemical_Probe_Data
+          type: Folder
         - name: Chemical_Provenance
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Structure_Activity_Relationship
+          type: Folder
       - name: Bioinformatics Core
+        type: Folder
     - name: CD44
       type: Folder
       children:
@@ -116,37 +170,63 @@
         type: Folder
         children:
         - name: Antibody_Validation_Data
+          type: Folder
         - name: Assay_Protocols
+          type: Folder
         - name: Assay_Results
+          type: Folder
         - name: Cell_Lines
+          type: Folder
         - name: Chemotypes
+          type: Folder
         - name: Crystal_Structures
+          type: Folder
         - name: Expression_Constructs
+          type: Folder
         - name: Expression_Data
+          type: Folder
         - name: Fragment_Screening_Results
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Protein
+          type: Folder
         - name: Protein_Expression_Methods
+          type: Folder
         - name: TEP
+          type: Folder
       - name: Assay_Core
         type: Folder
         children:
         - name: Assay_Results
+          type: Folder
         - name: Compounds
+          type: Folder
         - name: HTS_Protocols
+          type: Folder
         - name: HTS_Results
+          type: Folder
         - name: Isogenic_Cell_Line
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Off_Target_Potency
+          type: Folder
         - name: Secondary_Screen_Protocols
+          type: Folder
         - name: Secondary_Screen_Result
+          type: Folder
       - name: MedChem_Core
         type: Folder
         children:
         - name: Chemical_Probe_Data
+          type: Folder
         - name: Chemical_Provenance
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Structure_Activity_Relationship
+          type: Folder
       - name: Bioinformatics Core
     - name: CNN3
       type: Folder
@@ -155,30 +235,52 @@
         type: Folder
         children:
         - name: Antibody_Validation_Data
+          type: Folder
         - name: Assay_Protocols
+          type: Folder
         - name: Assay_Results
+          type: Folder
         - name: Cell_Lines
+          type: Folder
         - name: Chemotypes
+          type: Folder
         - name: Crystal_Structures
+          type: Folder
         - name: Expression_Constructs
+          type: Folder
         - name: Expression_Data
+          type: Folder
         - name: Fragment_Screening_Results
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Protein
+          type: Folder
         - name: Protein_Expression_Methods
+          type: Folder
         - name: TEP
+          type: Folder
       - name: Assay_Core
         type: Folder
         children:
         - name: Assay_Results
+          type: Folder
         - name: Compounds
+          type: Folder
         - name: HTS_Protocols
+          type: Folder
         - name: HTS_Results
+          type: Folder
         - name: Isogenic_Cell_Line
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Off_Target_Potency
+          type: Folder
         - name: Secondary_Screen_Protocols
+          type: Folder
         - name: Secondary_Screen_Result
+          type: Folder
       - name: MedChem_Core
         type: Folder
         children:
@@ -194,37 +296,63 @@
         type: Folder
         children:
         - name: Antibody_Validation_Data
+          type: Folder
         - name: Assay_Protocols
+          type: Folder
         - name: Assay_Results
+          type: Folder
         - name: Cell_Lines
+          type: Folder
         - name: Chemotypes
+          type: Folder
         - name: Crystal_Structures
+          type: Folder
         - name: Expression_Constructs
+          type: Folder
         - name: Expression_Data
+          type: Folder
         - name: Fragment_Screening_Results
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Protein
+          type: Folder
         - name: Protein_Expression_Methods
+          type: Folder
         - name: TEP
+          type: Folder
       - name: Assay_Core
         type: Folder
         children:
         - name: Assay_Results
+          type: Folder
         - name: Compounds
+          type: Folder
         - name: HTS_Protocols
+          type: Folder
         - name: HTS_Results
+          type: Folder
         - name: Isogenic_Cell_Line
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Off_Target_Potency
+          type: Folder
         - name: Secondary_Screen_Protocols
+          type: Folder
         - name: Secondary_Screen_Result
+          type: Folder
       - name: MedChem_Core
         type: Folder
         children:
         - name: Chemical_Probe_Data
+          type: Folder
         - name: Chemical_Provenance
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Structure_Activity_Relationship
+          type: Folder
       - name: Bioinformatics Core
     - name: EPHX2
       type: Folder
@@ -233,37 +361,63 @@
         type: Folder
         children:
         - name: Antibody_Validation_Data
+          type: Folder
         - name: Assay_Protocols
+          type: Folder
         - name: Assay_Results
+          type: Folder
         - name: Cell_Lines
+          type: Folder
         - name: Chemotypes
+          type: Folder
         - name: Crystal_Structures
+          type: Folder
         - name: Expression_Constructs
+          type: Folder
         - name: Expression_Data
+          type: Folder
         - name: Fragment_Screening_Results
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Protein
+          type: Folder
         - name: Protein_Expression_Methods
+          type: Folder
         - name: TEP
+          type: Folder
       - name: Assay_Core
         type: Folder
         children:
         - name: Assay_Results
+          type: Folder
         - name: Compounds
+          type: Folder
         - name: HTS_Protocols
+          type: Folder
         - name: HTS_Results
+          type: Folder
         - name: Isogenic_Cell_Line
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Off_Target_Potency
+          type: Folder
         - name: Secondary_Screen_Protocols
+          type: Folder
         - name: Secondary_Screen_Result
+          type: Folder
       - name: MedChem_Core
         type: Folder
         children:
         - name: Chemical_Probe_Data
+          type: Folder
         - name: Chemical_Provenance
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Structure_Activity_Relationship
+          type: Folder
       - name: Bioinformatics Core
     - name: FCER1G
       type: Folder
@@ -272,38 +426,65 @@
         type: Folder
         children:
         - name: Antibody_Validation_Data
+          type: Folder
         - name: Assay_Protocols
+          type: Folder
         - name: Assay_Results
+          type: Folder
         - name: Cell_Lines
+          type: Folder
         - name: Chemotypes
+          type: Folder
         - name: Crystal_Structures
+          type: Folder
         - name: Expression_Constructs
+          type: Folder
         - name: Expression_Data
+          type: Folder
         - name: Fragment_Screening_Results
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Protein
+          type: Folder
         - name: Protein_Expression_Methods
+          type: Folder
         - name: TEP
+          type: Folder
       - name: Assay_Core
         type: Folder
         children:
         - name: Assay_Results
+          type: Folder
         - name: Compounds
+          type: Folder
         - name: HTS_Protocols
+          type: Folder
         - name: HTS_Results
+          type: Folder
         - name: Isogenic_Cell_Line
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Off_Target_Potency
+          type: Folder
         - name: Secondary_Screen_Protocols
+          type: Folder
         - name: Secondary_Screen_Result
+          type: Folder
       - name: MedChem_Core
         type: Folder
         children:
         - name: Chemical_Probe_Data
+          type: Folder
         - name: Chemical_Provenance
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Structure_Activity_Relationship
+          type: Folder
       - name: Bioinformatics Core
+        type: Folder
     - name: GPNMB
       type: Folder
       children:
@@ -311,37 +492,63 @@
         type: Folder
         children:
         - name: Antibody_Validation_Data
+          type: Folder
         - name: Assay_Protocols
+          type: Folder
         - name: Assay_Results
+          type: Folder
         - name: Cell_Lines
+          type: Folder
         - name: Chemotypes
+          type: Folder
         - name: Crystal_Structures
+          type: Folder
         - name: Expression_Constructs
+          type: Folder
         - name: Expression_Data
+          type: Folder
         - name: Fragment_Screening_Results
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Protein
+          type: Folder
         - name: Protein_Expression_Methods
+          type: Folder
         - name: TEP
+          type: Folder
       - name: Assay_Core
         type: Folder
         children:
         - name: Assay_Results
+          type: Folder
         - name: Compounds
+          type: Folder
         - name: HTS_Protocols
+          type: Folder
         - name: HTS_Results
+          type: Folder
         - name: Isogenic_Cell_Line
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Off_Target_Potency
+          type: Folder
         - name: Secondary_Screen_Protocols
+          type: Folder
         - name: Secondary_Screen_Result
+          type: Folder
       - name: MedChem_Core
         type: Folder
         children:
         - name: Chemical_Probe_Data
+          type: Folder
         - name: Chemical_Provenance
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Structure_Activity_Relationship
+          type: Folder
       - name: Bioinformatics Core
     - name: MDK
       type: Folder
@@ -350,37 +557,63 @@
         type: Folder
         children:
         - name: Antibody_Validation_Data
+          type: Folder
         - name: Assay_Protocols
+          type: Folder
         - name: Assay_Results
+          type: Folder
         - name: Cell_Lines
+          type: Folder
         - name: Chemotypes
+          type: Folder
         - name: Crystal_Structures
+          type: Folder
         - name: Expression_Constructs
+          type: Folder
         - name: Expression_Data
+          type: Folder
         - name: Fragment_Screening_Results
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Protein
+          type: Folder
         - name: Protein_Expression_Methods
+          type: Folder
         - name: TEP
+          type: Folder
       - name: Assay_Core
         type: Folder
         children:
         - name: Assay_Results
+          type: Folder
         - name: Compounds
+          type: Folder
         - name: HTS_Protocols
+          type: Folder
         - name: HTS_Results
+          type: Folder
         - name: Isogenic_Cell_Line
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Off_Target_Potency
+          type: Folder
         - name: Secondary_Screen_Protocols
+          type: Folder
         - name: Secondary_Screen_Result
+          type: Folder
       - name: MedChem_Core
         type: Folder
         children:
         - name: Chemical_Probe_Data
+          type: Folder
         - name: Chemical_Provenance
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Structure_Activity_Relationship
+          type: Folder
       - name: Bioinformatics Core
     - name: MSN
       type: Folder
@@ -389,37 +622,63 @@
         type: Folder
         children:
         - name: Antibody_Validation_Data
+          type: Folder
         - name: Assay_Protocols
+          type: Folder
         - name: Assay_Results
+          type: Folder
         - name: Cell_Lines
+          type: Folder
         - name: Chemotypes
+          type: Folder
         - name: Crystal_Structures
+          type: Folder
         - name: Expression_Constructs
+          type: Folder
         - name: Expression_Data
+          type: Folder
         - name: Fragment_Screening_Results
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Protein
+          type: Folder
         - name: Protein_Expression_Methods
+          type: Folder
         - name: TEP
+          type: Folder
       - name: Assay_Core
         type: Folder
         children:
         - name: Assay_Results
+          type: Folder
         - name: Compounds
+          type: Folder
         - name: HTS_Protocols
+          type: Folder
         - name: HTS_Results
+          type: Folder
         - name: Isogenic_Cell_Line
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Off_Target_Potency
+          type: Folder
         - name: Secondary_Screen_Protocols
+          type: Folder
         - name: Secondary_Screen_Result
+          type: Folder
       - name: MedChem_Core
         type: Folder
         children:
         - name: Chemical_Probe_Data
+          type: Folder
         - name: Chemical_Provenance
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Structure_Activity_Relationship
+          type: Folder
       - name: Bioinformatics Core
     - name: NDUFS2
       type: Folder
@@ -428,30 +687,52 @@
         type: Folder
         children:
         - name: Antibody_Validation_Data
+          type: Folder
         - name: Assay_Protocols
+          type: Folder
         - name: Assay_Results
+          type: Folder
         - name: Cell_Lines
+          type: Folder
         - name: Chemotypes
+          type: Folder
         - name: Crystal_Structures
+          type: Folder
         - name: Expression_Constructs
+          type: Folder
         - name: Expression_Data
+          type: Folder
         - name: Fragment_Screening_Results
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Protein
+          type: Folder
         - name: Protein_Expression_Methods
+          type: Folder
         - name: TEP
+          type: Folder
       - name: Assay_Core
         type: Folder
         children:
         - name: Assay_Results
+          type: Folder
         - name: Compounds
+          type: Folder
         - name: HTS_Protocols
+          type: Folder
         - name: HTS_Results
+          type: Folder
         - name: Isogenic_Cell_Line
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Off_Target_Potency
+          type: Folder
         - name: Secondary_Screen_Protocols
+          type: Folder
         - name: Secondary_Screen_Result
+          type: Folder
       - name: MedChem_Core
         type: Folder
         children:
@@ -467,37 +748,63 @@
         type: Folder
         children:
         - name: Antibody_Validation_Data
+          type: Folder
         - name: Assay_Protocols
+          type: Folder
         - name: Assay_Results
+          type: Folder
         - name: Cell_Lines
+          type: Folder
         - name: Chemotypes
+          type: Folder
         - name: Crystal_Structures
+          type: Folder
         - name: Expression_Constructs
+          type: Folder
         - name: Expression_Data
+          type: Folder
         - name: Fragment_Screening_Results
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Protein
+          type: Folder
         - name: Protein_Expression_Methods
+          type: Folder
         - name: TEP
+          type: Folder
       - name: Assay_Core
         type: Folder
         children:
         - name: Assay_Results
+          type: Folder
         - name: Compounds
+          type: Folder
         - name: HTS_Protocols
+          type: Folder
         - name: HTS_Results
+          type: Folder
         - name: Isogenic_Cell_Line
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Off_Target_Potency
+          type: Folder
         - name: Secondary_Screen_Protocols
+          type: Folder
         - name: Secondary_Screen_Result
+          type: Folder
       - name: MedChem_Core
         type: Folder
         children:
         - name: Chemical_Probe_Data
+          type: Folder
         - name: Chemical_Provenance
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Structure_Activity_Relationship
+          type: Folder
       - name: Bioinformatics Core
     - name: PRDX1
       type: Folder
@@ -506,37 +813,63 @@
         type: Folder
         children:
         - name: Antibody_Validation_Data
+          type: Folder
         - name: Assay_Protocols
+          type: Folder
         - name: Assay_Results
+          type: Folder
         - name: Cell_Lines
+          type: Folder
         - name: Chemotypes
+          type: Folder
         - name: Crystal_Structures
+          type: Folder
         - name: Expression_Constructs
+          type: Folder
         - name: Expression_Data
+          type: Folder
         - name: Fragment_Screening_Results
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Protein
+          type: Folder
         - name: Protein_Expression_Methods
+          type: Folder
         - name: TEP
+          type: Folder
       - name: Assay_Core
         type: Folder
         children:
         - name: Assay_Results
+          type: Folder
         - name: Compounds
+          type: Folder
         - name: HTS_Protocols
+          type: Folder
         - name: HTS_Results
+          type: Folder
         - name: Isogenic_Cell_Line
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Off_Target_Potency
+          type: Folder
         - name: Secondary_Screen_Protocols
+          type: Folder
         - name: Secondary_Screen_Result
+          type: Folder
       - name: MedChem_Core
         type: Folder
         children:
         - name: Chemical_Probe_Data
+          type: Folder
         - name: Chemical_Provenance
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Structure_Activity_Relationship
+          type: Folder
       - name: Bioinformatics Core
     - name: PRDX6
       type: Folder
@@ -545,37 +878,63 @@
         type: Folder
         children:
         - name: Antibody_Validation_Data
+          type: Folder
         - name: Assay_Protocols
+          type: Folder
         - name: Assay_Results
+          type: Folder
         - name: Cell_Lines
+          type: Folder
         - name: Chemotypes
+          type: Folder
         - name: Crystal_Structures
+          type: Folder
         - name: Expression_Constructs
+          type: Folder
         - name: Expression_Data
+          type: Folder
         - name: Fragment_Screening_Results
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Protein
+          type: Folder
         - name: Protein_Expression_Methods
+          type: Folder
         - name: TEP
+          type: Folder
       - name: Assay_Core
         type: Folder
         children:
         - name: Assay_Results
+          type: Folder
         - name: Compounds
+          type: Folder
         - name: HTS_Protocols
+          type: Folder
         - name: HTS_Results
+          type: Folder
         - name: Isogenic_Cell_Line
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Off_Target_Potency
+          type: Folder
         - name: Secondary_Screen_Protocols
+          type: Folder
         - name: Secondary_Screen_Result
+          type: Folder
       - name: MedChem_Core
         type: Folder
         children:
         - name: Chemical_Probe_Data
+          type: Folder
         - name: Chemical_Provenance
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Structure_Activity_Relationship
+          type: Folder
       - name: Bioinformatics Core
     - name: RABEP1
       type: Folder
@@ -584,38 +943,65 @@
         type: Folder
         children:
         - name: Antibody_Validation_Data
+          type: Folder
         - name: Assay_Protocols
+          type: Folder
         - name: Assay_Results
+          type: Folder
         - name: Cell_Lines
+          type: Folder
         - name: Chemotypes
+          type: Folder
         - name: Crystal_Structures
+          type: Folder
         - name: Expression_Constructs
+          type: Folder
         - name: Expression_Data
+          type: Folder
         - name: Fragment_Screening_Results
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Protein
+          type: Folder
         - name: Protein_Expression_Methods
+          type: Folder
         - name: TEP
+          type: Folder
       - name: Assay_Core
         type: Folder
         children:
         - name: Assay_Results
+          type: Folder
         - name: Compounds
+          type: Folder
         - name: HTS_Protocols
+          type: Folder
         - name: HTS_Results
+          type: Folder
         - name: Isogenic_Cell_Line
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Off_Target_Potency
+          type: Folder
         - name: Secondary_Screen_Protocols
+          type: Folder
         - name: Secondary_Screen_Result
+          type: Folder
       - name: MedChem_Core
         type: Folder
         children:
         - name: Chemical_Probe_Data
+          type: Folder
         - name: Chemical_Provenance
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Structure_Activity_Relationship
+          type: Folder
       - name: Bioinformatics Core
+        type: Folder
     - name: SDC4
       type: Folder
       children:
@@ -623,38 +1009,65 @@
         type: Folder
         children:
         - name: Antibody_Validation_Data
+          type: Folder
         - name: Assay_Protocols
+          type: Folder
         - name: Assay_Results
+          type: Folder
         - name: Cell_Lines
+          type: Folder
         - name: Chemotypes
+          type: Folder
         - name: Crystal_Structures
+          type: Folder
         - name: Expression_Constructs
+          type: Folder
         - name: Expression_Data
+          type: Folder
         - name: Fragment_Screening_Results
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Protein
+          type: Folder
         - name: Protein_Expression_Methods
+          type: Folder
         - name: TEP
+          type: Folder
       - name: Assay_Core
         type: Folder
         children:
         - name: Assay_Results
+          type: Folder
         - name: Compounds
+          type: Folder
         - name: HTS_Protocols
+          type: Folder
         - name: HTS_Results
+          type: Folder
         - name: Isogenic_Cell_Line
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Off_Target_Potency
+          type: Folder
         - name: Secondary_Screen_Protocols
+          type: Folder
         - name: Secondary_Screen_Result
+          type: Folder
       - name: MedChem_Core
         type: Folder
         children:
         - name: Chemical_Probe_Data
+          type: Folder
         - name: Chemical_Provenance
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Structure_Activity_Relationship
+          type: Folder
       - name: Bioinformatics Core
+        type: Folder
     - name: SFRP1
       type: Folder
       children:
@@ -662,38 +1075,65 @@
         type: Folder
         children:
         - name: Antibody_Validation_Data
+          type: Folder
         - name: Assay_Protocols
+          type: Folder
         - name: Assay_Results
+          type: Folder
         - name: Cell_Lines
+          type: Folder
         - name: Chemotypes
+          type: Folder
         - name: Crystal_Structures
+          type: Folder
         - name: Expression_Constructs
+          type: Folder
         - name: Expression_Data
+          type: Folder
         - name: Fragment_Screening_Results
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Protein
+          type: Folder
         - name: Protein_Expression_Methods
+          type: Folder
         - name: TEP
+          type: Folder
       - name: Assay_Core
         type: Folder
         children:
         - name: Assay_Results
+          type: Folder
         - name: Compounds
+          type: Folder
         - name: HTS_Protocols
+          type: Folder
         - name: HTS_Results
+          type: Folder
         - name: Isogenic_Cell_Line
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Off_Target_Potency
+          type: Folder
         - name: Secondary_Screen_Protocols
+          type: Folder
         - name: Secondary_Screen_Result
+          type: Folder
       - name: MedChem_Core
         type: Folder
         children:
         - name: Chemical_Probe_Data
+          type: Folder
         - name: Chemical_Provenance
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Structure_Activity_Relationship
+          type: Folder
       - name: Bioinformatics Core
+        type: Folder
     - name: SMOC1
       type: Folder
       children:
@@ -701,38 +1141,65 @@
         type: Folder
         children:
         - name: Antibody_Validation_Data
+          type: Folder
         - name: Assay_Protocols
+          type: Folder
         - name: Assay_Results
+          type: Folder
         - name: Cell_Lines
+          type: Folder
         - name: Chemotypes
+          type: Folder
         - name: Crystal_Structures
+          type: Folder
         - name: Expression_Constructs
+          type: Folder
         - name: Expression_Data
+          type: Folder
         - name: Fragment_Screening_Results
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Protein
+          type: Folder
         - name: Protein_Expression_Methods
+          type: Folder
         - name: TEP
+          type: Folder
       - name: Assay_Core
         type: Folder
         children:
         - name: Assay_Results
+          type: Folder
         - name: Compounds
+          type: Folder
         - name: HTS_Protocols
+          type: Folder
         - name: HTS_Results
+          type: Folder
         - name: Isogenic_Cell_Line
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Off_Target_Potency
+          type: Folder
         - name: Secondary_Screen_Protocols
+          type: Folder
         - name: Secondary_Screen_Result
+          type: Folder
       - name: MedChem_Core
         type: Folder
         children:
         - name: Chemical_Probe_Data
+          type: Folder
         - name: Chemical_Provenance
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Structure_Activity_Relationship
+          type: Folder
       - name: Bioinformatics Core
+        type: Folder
     - name: SNX32
       type: Folder
       children:
@@ -740,38 +1207,65 @@
         type: Folder
         children:
         - name: Antibody_Validation_Data
+          type: Folder
         - name: Assay_Protocols
+          type: Folder
         - name: Assay_Results
+          type: Folder
         - name: Cell_Lines
+          type: Folder
         - name: Chemotypes
+          type: Folder
         - name: Crystal_Structures
+          type: Folder
         - name: Expression_Constructs
+          type: Folder
         - name: Expression_Data
+          type: Folder
         - name: Fragment_Screening_Results
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Protein
+          type: Folder
         - name: Protein_Expression_Methods
+          type: Folder
         - name: TEP
+          type: Folder
       - name: Assay_Core
         type: Folder
         children:
         - name: Assay_Results
+          type: Folder
         - name: Compounds
+          type: Folder
         - name: HTS_Protocols
+          type: Folder
         - name: HTS_Results
+          type: Folder
         - name: Isogenic_Cell_Line
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Off_Target_Potency
+          type: Folder
         - name: Secondary_Screen_Protocols
+          type: Folder
         - name: Secondary_Screen_Result
+          type: Folder
       - name: MedChem_Core
         type: Folder
         children:
         - name: Chemical_Probe_Data
+          type: Folder
         - name: Chemical_Provenance
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Structure_Activity_Relationship
+          type: Folder
       - name: Bioinformatics Core
+        type: Folder
     - name: STX4
       type: Folder
       children:
@@ -779,38 +1273,65 @@
         type: Folder
         children:
         - name: Antibody_Validation_Data
+          type: Folder
         - name: Assay_Protocols
+          type: Folder
         - name: Assay_Results
+          type: Folder
         - name: Cell_Lines
+          type: Folder
         - name: Chemotypes
+          type: Folder
         - name: Crystal_Structures
+          type: Folder
         - name: Expression_Constructs
+          type: Folder
         - name: Expression_Data
+          type: Folder
         - name: Fragment_Screening_Results
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Protein
+          type: Folder
         - name: Protein_Expression_Methods
+          type: Folder
         - name: TEP
+          type: Folder
       - name: Assay_Core
         type: Folder
         children:
         - name: Assay_Results
+          type: Folder
         - name: Compounds
+          type: Folder
         - name: HTS_Protocols
+          type: Folder
         - name: HTS_Results
+          type: Folder
         - name: Isogenic_Cell_Line
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Off_Target_Potency
+          type: Folder
         - name: Secondary_Screen_Protocols
+          type: Folder
         - name: Secondary_Screen_Result
+          type: Folder
       - name: MedChem_Core
         type: Folder
         children:
         - name: Chemical_Probe_Data
+          type: Folder
         - name: Chemical_Provenance
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Structure_Activity_Relationship
+          type: Folder
       - name: Bioinformatics Core
+        type: Folder
     - name: SYK
       type: Folder
       children:
@@ -818,38 +1339,65 @@
         type: Folder
         children:
         - name: Antibody_Validation_Data
+          type: Folder
         - name: Assay_Protocols
+          type: Folder
         - name: Assay_Results
+          type: Folder
         - name: Cell_Lines
+          type: Folder
         - name: Chemotypes
+          type: Folder
         - name: Crystal_Structures
+          type: Folder
         - name: Expression_Constructs
+          type: Folder
         - name: Expression_Data
+          type: Folder
         - name: Fragment_Screening_Results
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Protein
+          type: Folder
         - name: Protein_Expression_Methods
+          type: Folder
         - name: TEP
+          type: Folder
       - name: Assay_Core
         type: Folder
         children:
         - name: Assay_Results
+          type: Folder
         - name: Compounds
+          type: Folder
         - name: HTS_Protocols
+          type: Folder
         - name: HTS_Results
+          type: Folder
         - name: Isogenic_Cell_Line
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Off_Target_Potency
+          type: Folder
         - name: Secondary_Screen_Protocols
+          type: Folder
         - name: Secondary_Screen_Result
+          type: Folder
       - name: MedChem_Core
         type: Folder
         children:
         - name: Chemical_Probe_Data
+          type: Folder
         - name: Chemical_Provenance
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Structure_Activity_Relationship
+          type: Folder
       - name: Bioinformatics Core
+        type: Folder
   - name: Project_Activities
     type: Folder
     children:
