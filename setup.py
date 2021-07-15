@@ -26,7 +26,8 @@ setup(
     entry_points={'console_scripts': ['synapseformation = synapseformation.__main__:cli']},
     install_requires=['click',
                       'synapseclient>=2.0.0',
-                      'pyyaml'],
+                      'pyyaml',
+                      'schema_salad'],
     project_urls={
         "Documentation": "https://github.com/Sage-Bionetworks/synapseformation",
         "Source Code": "https://github.com/Sage-Bionetworks/synapseformation",

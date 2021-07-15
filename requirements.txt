@@ -1,3 +1,4 @@
 click
 synapseclient==2.3.0
 pyyaml
+schema_salad
