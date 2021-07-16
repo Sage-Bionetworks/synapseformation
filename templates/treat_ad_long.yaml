@@ -228,6 +228,7 @@
         - name: Structure_Activity_Relationship
           type: Folder
       - name: Bioinformatics Core
+        type: Folder
     - name: CNN3
       type: Folder
       children:
@@ -285,10 +286,15 @@
         type: Folder
         children:
         - name: Chemical_Probe_Data
+          type: Folder
         - name: Chemical_Provenance
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Structure_Activity_Relationship
+          type: Folder
       - name: Bioinformatics Core
+        type: Folder
     - name: CTSH
       type: Folder
       children:
@@ -354,6 +360,7 @@
         - name: Structure_Activity_Relationship
           type: Folder
       - name: Bioinformatics Core
+        type: Folder
     - name: EPHX2
       type: Folder
       children:
@@ -419,6 +426,7 @@
         - name: Structure_Activity_Relationship
           type: Folder
       - name: Bioinformatics Core
+        type: Folder
     - name: FCER1G
       type: Folder
       children:
@@ -550,6 +558,7 @@
         - name: Structure_Activity_Relationship
           type: Folder
       - name: Bioinformatics Core
+        type: Folder
     - name: MDK
       type: Folder
       children:
@@ -615,6 +624,7 @@
         - name: Structure_Activity_Relationship
           type: Folder
       - name: Bioinformatics Core
+        type: Folder
     - name: MSN
       type: Folder
       children:
@@ -680,6 +690,7 @@
         - name: Structure_Activity_Relationship
           type: Folder
       - name: Bioinformatics Core
+        type: Folder
     - name: NDUFS2
       type: Folder
       children:
@@ -737,10 +748,15 @@
         type: Folder
         children:
         - name: Chemical_Probe_Data
+          type: Folder
         - name: Chemical_Provenance
+          type: Folder
         - name: Lab_Notebooks
+          type: Folder
         - name: Structure_Activity_Relationship
+          type: Folder
       - name: Bioinformatics Core
+        type: Folder
     - name: PLEC
       type: Folder
       children:
@@ -806,6 +822,7 @@
         - name: Structure_Activity_Relationship
           type: Folder
       - name: Bioinformatics Core
+        type: Folder
     - name: PRDX1
       type: Folder
       children:
@@ -871,6 +888,7 @@
         - name: Structure_Activity_Relationship
           type: Folder
       - name: Bioinformatics Core
+        type: Folder
     - name: PRDX6
       type: Folder
       children:
@@ -936,6 +954,7 @@
         - name: Structure_Activity_Relationship
           type: Folder
       - name: Bioinformatics Core
+        type: Folder
     - name: RABEP1
       type: Folder
       children:
