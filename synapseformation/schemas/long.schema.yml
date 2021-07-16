@@ -1,0 +1,155 @@
+$base: "https://synapse.org#"
+
+$namespaces:
+  syn: "https://synapse.org#"
+
+$graph:
+
+- name: RootDoc
+  type: documentation
+  doc:
+    - |
+      # SynapseFormation Long Template
+
+      Foobar
+      
+
+- name: ResourceRecord
+  doc: |
+    The abstract base type for a Synapse resource.
+  type: record
+  abstract: true
+  fields:
+  - name: name
+    doc: "Foo"
+    type: string?
+  - name: id
+    doc: "Synapse ID"
+    type: string?
+
+- name: EntityRecord
+  doc: |
+    The abstract base type for a Synapse entity.
+  type: record
+  extends: ResourceRecord
+  abstract: true
+  fields:
+  - name: children
+    doc: "Foo"
+    type: FolderRecord[]?
+  - name: acl
+    doc: "Foo"
+    type: AccessControlListRecord[]?
+
+- name: ProjectRecord
+  doc: |
+    The type for a Synapse project.
+  type: record
+  extends: EntityRecord
+  documentRoot: true
+  docParent: "#RootDoc"
+  fields:
+  - name: type
+    doc: "Foo"
+    jsonldPredicate: syn:type
+    type:
+      type: enum
+      symbols:
+      - Project
+
+- name: FolderRecord
+  doc: |
+    The type for a Synapse folder.
+  type: record
+  extends: EntityRecord
+  docParent: "#RootDoc"
+  fields:
+  - name: type
+    doc: "Foo"
+    jsonldPredicate: syn:type
+    type:
+      type: enum
+      symbols:
+      - Folder
+
+- name: AccessType
+  type: enum
+  symbols:
+  - CREATE
+  - READ
+  - UPDATE
+  - DELETE
+  - CHANGE_PERMISSIONS
+  - DOWNLOAD
+  - UPLOAD
+  - PARTICIPATE
+  - SUBMIT
+  - READ_PRIVATE_SUBMISSION
+  - UPDATE_SUBMISSION
+  - DELETE_SUBMISSION
+  - TEAM_MEMBERSHIP_UPDATE
+  - SEND_MESSAGE
+  - CHANGE_SETTINGS
+  - MODERATE
+
+- name: AccessControlListRecord
+  doc: |
+    The type for a Synapse folder.
+  type: record
+  fields:
+  - name: principal_id
+    doc: "Foo"
+    type: int
+    jsonldPredicate: syn:principal_id
+  - name: access_type
+    doc: "Foo"
+    type: AccessType[]
+
+- name: InvitedMemberRecord
+  doc: |
+    The type for a member being invited to join a Synapse team.
+  type: record
+  fields:
+  - name: principal_id
+    doc: "Foo"
+    type: int?
+    jsonldPredicate: syn:principal_id
+  - name: email
+    doc: "Foo"
+    type: string?
+
+- name: InvitationsRecord
+  doc: |
+    The type for an invitation to join a Synapse team.
+  type: record
+  fields:
+  - name: message
+    doc: "Foo"
+    type: string
+  - name: members
+    doc: "Foo"
+    type: InvitedMemberRecord[]
+
+- name: TeamRecord
+  doc: |
+    The type for a Synapse team.
+  type: record
+  extends: ResourceRecord
+  documentRoot: true
+  fields:
+  - name: type
+    doc: "Foo"
+    type:
+      type: enum
+      symbols:
+      - Team
+    jsonldPredicate: syn:type
+  - name: can_public_join
+    doc: "Foo"
+    type: boolean
+  - name: description
+    doc: "Foo"
+    type: string
+  - name: invitations
+    doc: "Foo"
+    type: InvitationsRecord[]?
