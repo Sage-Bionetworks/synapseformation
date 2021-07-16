@@ -11,7 +11,7 @@ $graph:
     - |
       # SynapseFormation Long Template
 
-      Foobar
+      TBD
       
 
 - name: ResourceRecord
@@ -21,7 +21,7 @@ $graph:
   abstract: true
   fields:
   - name: name
-    doc: "Foo"
+    doc: ""
     type: string?
   - name: id
     doc: "Synapse ID"
@@ -35,10 +35,10 @@ $graph:
   abstract: true
   fields:
   - name: children
-    doc: "Foo"
+    doc: ""
     type: FolderRecord[]?
   - name: acl
-    doc: "Foo"
+    doc: ""
     type: AccessControlListRecord[]?
 
 - name: ProjectRecord
@@ -50,7 +50,7 @@ $graph:
   docParent: "#RootDoc"
   fields:
   - name: type
-    doc: "Foo"
+    doc: ""
     jsonldPredicate: syn:type
     type:
       type: enum
@@ -65,7 +65,7 @@ $graph:
   docParent: "#RootDoc"
   fields:
   - name: type
-    doc: "Foo"
+    doc: ""
     jsonldPredicate: syn:type
     type:
       type: enum
@@ -98,11 +98,11 @@ $graph:
   type: record
   fields:
   - name: principal_id
-    doc: "Foo"
+    doc: ""
     type: int
     jsonldPredicate: syn:principal_id
   - name: access_type
-    doc: "Foo"
+    doc: ""
     type: AccessType[]
 
 - name: InvitedMemberRecord
@@ -111,11 +111,11 @@ $graph:
   type: record
   fields:
   - name: principal_id
-    doc: "Foo"
+    doc: ""
     type: int?
     jsonldPredicate: syn:principal_id
   - name: email
-    doc: "Foo"
+    doc: ""
     type: string?
 
 - name: InvitationsRecord
@@ -124,10 +124,10 @@ $graph:
   type: record
   fields:
   - name: message
-    doc: "Foo"
+    doc: ""
     type: string
   - name: members
-    doc: "Foo"
+    doc: ""
     type: InvitedMemberRecord[]
 
 - name: TeamRecord
@@ -138,18 +138,18 @@ $graph:
   documentRoot: true
   fields:
   - name: type
-    doc: "Foo"
+    doc: ""
     type:
       type: enum
       symbols:
       - Team
     jsonldPredicate: syn:type
   - name: can_public_join
-    doc: "Foo"
+    doc: ""
     type: boolean
   - name: description
-    doc: "Foo"
+    doc: ""
     type: string
   - name: invitations
-    doc: "Foo"
+    doc: ""
     type: InvitationsRecord[]?
