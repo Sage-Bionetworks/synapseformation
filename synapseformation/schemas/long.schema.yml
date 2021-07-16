@@ -12,7 +12,6 @@ $graph:
       # SynapseFormation Long Template
 
       TBD
-      
 
 - name: ResourceRecord
   doc: |
@@ -72,25 +71,30 @@ $graph:
       symbols:
       - Folder
 
-- name: AccessType
+- name: EntityAccessType
   type: enum
   symbols:
-  - CREATE
-  - READ
-  - UPDATE
-  - DELETE
-  - CHANGE_PERMISSIONS
-  - DOWNLOAD
-  - UPLOAD
-  - PARTICIPATE
-  - SUBMIT
-  - READ_PRIVATE_SUBMISSION
-  - UPDATE_SUBMISSION
-  - DELETE_SUBMISSION
-  - TEAM_MEMBERSHIP_UPDATE
-  - SEND_MESSAGE
-  - CHANGE_SETTINGS
-  - MODERATE
+  - syn:READ
+  - syn:DOWNLOAD
+  - syn:UPDATE
+  - syn:CREATE
+  - syn:DELETE
+  - syn:CHANGE_SETTINGS
+  - syn:MODERATE
+  - syn:CHANGE_PERMISSIONS
+
+- name: QueueAccessType
+  type: enum
+  symbols:
+  - syn:READ
+  - syn:SUBMIT
+  - syn:UPDATE_SUBMISSION
+  - syn:READ_PRIVATE_SUBMISSION
+  - syn:DELETE_SUBMISSION
+  - syn:DELETE
+  - syn:UPDATE
+  - syn:CREATE
+  - syn:CHANGE_PERMISSIONS
 
 - name: AccessControlListRecord
   doc: |
@@ -103,7 +107,7 @@ $graph:
     jsonldPredicate: syn:principal_id
   - name: access_type
     doc: ""
-    type: AccessType[]
+    type: EntityAccessType[]
 
 - name: InvitedMemberRecord
   doc: |
