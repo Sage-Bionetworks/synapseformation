@@ -94,10 +94,8 @@ def _create_synapse_resources(config_list: List[dict],
                                           parentid=parent_id)
 
 
-def create_synapse_resources(template_path: str):
+def create_synapse_resources(syn: synapseclient.Synapse, template_path: str):
     """Creates synapse resources from template"""
-    # TODO: abstract out login function
-    syn = synapseclient.login()
     # Function will attempt to read template as yaml then try to read in json
     config = utils.read_config(template_path)
     # Expands shortended configuration into full configuration.  This should
