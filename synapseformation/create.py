@@ -47,7 +47,7 @@ class SynapseCreation:
         # trying to find
         entity_obj = self.syn.findEntityId(entity_name, parent=parentid)
         # TODO: when entity doesn't exist, don't do this get
-        new_obj = self.syn.get(entity_obj['id'], downloadFile=False)
+        new_obj = self.syn.get(entity_obj, downloadFile=False)
         assert concrete_type == new_obj.properties.concreteType, (
             f"Retrieved '{entity_name}' had type "
             f"'{new_obj.properties.concreteType}' "

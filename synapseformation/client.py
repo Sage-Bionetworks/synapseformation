@@ -43,6 +43,7 @@ from . import create, utils
 
 def _create_synapse_resources(config_list: List[dict],
                               creation_cls: SynapseCreation,
+                              get_cls: SynapseCreation,
                               parentid: str = None):
     """Recursively steps through template and creates synapse resources
 
@@ -58,14 +59,19 @@ def _create_synapse_resources(config_list: List[dict],
     # Must iterate through list to avoid recursion limit issue
     # This works because every layer in the json is a list
     for config in config_list:
+        get_or_create_cls = (
+            creation_cls if config.get("id") is None else get_cls
+        )
         if isinstance(config, dict) and config.get('type') == "Project":
-            entity = creation_cls.get_or_create_project(name=config['name'])
+            entity = get_or_create_cls.get_or_create_project(
+                name=config['name']
+            )
         elif isinstance(config, dict) and config.get('type') == "Folder":
-            entity = creation_cls.get_or_create_folder(
+            entity = get_or_create_cls.get_or_create_folder(
                 name=config['name'], parentId=parentid
             )
         elif isinstance(config, dict) and config.get('type') == "Team":
-            team = creation_cls.get_or_create_team(
+            team = get_or_create_cls.get_or_create_team(
                 name=config['name'], description=config['description'],
                 canPublicJoin=config['can_public_join']
             )
@@ -75,7 +81,7 @@ def _create_synapse_resources(config_list: List[dict],
                     for member in invite['members']:
                         user = member.get("principal_id")
                         email = member.get("email")
-                        creation_cls.syn.invite_to_team(
+                        get_or_create_cls.syn.invite_to_team(
                             team=team, user=user, inviteeEmail=email,
                             message=invite['message']
                         )
@@ -91,6 +97,7 @@ def _create_synapse_resources(config_list: List[dict],
             if children is not None:
                 _create_synapse_resources(config_list=children,
                                           creation_cls=creation_cls,
+                                          get_cls=get_cls,
                                           parentid=parent_id)
 
 
@@ -104,5 +111,7 @@ def create_synapse_resources(syn: synapseclient.Synapse, template_path: str):
     # full_config = expand_config(config)
     # Recursive function to create resources
     creation_cls = SynapseCreation(syn)
-    _create_synapse_resources(config_list=config, creation_cls=creation_cls)
+    get_cls = SynapseCreation(syn, only_get=True)
+    _create_synapse_resources(config_list=config, creation_cls=creation_cls,
+                              get_cls=get_cls)
     print(config)
