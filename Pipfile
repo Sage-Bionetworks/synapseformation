@@ -1,0 +1,12 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+click = "*"
+synapseclient = ">=2.4.0"
+PyYAML = "*"
+
+[dev-packages]
+pytest = "*"
