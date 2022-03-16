@@ -43,8 +43,7 @@ from . import create, utils
 
 def _create_synapse_resources(config_list: List[dict],
                               creation_cls: SynapseCreation,
-                              parentid: str = None,
-                              parent_name: str = None):
+                              parentid: str = None):
     """Recursively steps through template and creates synapse resources
 
     Args:
