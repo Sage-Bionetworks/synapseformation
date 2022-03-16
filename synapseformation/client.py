@@ -43,8 +43,7 @@ from . import create, utils
 
 def _create_synapse_resources(config_list: List[dict],
                               creation_cls: SynapseCreation,
-                              parentid: str = None,
-                              parent_name: str = None):
+                              parentid: str = None):
     """Recursively steps through template and creates synapse resources
 
     Args:
@@ -66,6 +65,24 @@ def _create_synapse_resources(config_list: List[dict],
             entity = creation_cls.get_or_create_folder(
                 name=config['name'], parentId=parentid
             )
+        elif isinstance(config, dict) and config.get('type') == "EntityViewSchema":
+            kwargs = {k: v for k, v in config.items() if k != "type"}
+            entity_type_classes = []
+            for entity_type in kwargs["includeEntityTypes"]:
+                if entity_type == "file":
+                    entity_type_classes.append(synapseclient.EntityViewType.FILE)
+                elif entity_type == "project":
+                    entity_type_classes.append(synapseclient.EntityViewType.PROJECT)
+                elif entity_type == "table":
+                    entity_type_classes.append(synapseclient.EntityViewType.TABLE)
+                elif entity_type == "folder":
+                    entity_type_classes.append(synapseclient.EntityViewType.FOLDER)
+                elif entity_type == "view":
+                    entity_type_classes.append(synapseclient.EntityViewType.VIEW)
+                elif entity_type == "docker":
+                    entity_type_classes.append(synapseclient.EntityViewType.DOCKER)
+            kwargs["includeEntityTypes"] = entity_type_classes
+            entity = creation_cls.get_or_create_view(parent=parentid, **kwargs)
         elif isinstance(config, dict) and config.get('type') == "Team":
             team = creation_cls.get_or_create_team(
                 name=config['name'], description=config['description'],
