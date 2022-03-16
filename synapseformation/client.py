@@ -57,6 +57,7 @@ def _create_synapse_resources(config_list: List[dict],
     entity = None
     # Must iterate through list to avoid recursion limit issue
     # This works because every layer in the json is a list
+    created_entities = []
     for config in config_list:
         if isinstance(config, dict) and config.get('type') == "Project":
             entity = creation_cls.get_or_create_project(name=config['name'])
@@ -79,8 +80,16 @@ def _create_synapse_resources(config_list: List[dict],
                             team=team, user=user, inviteeEmail=email,
                             message=invite['message']
                         )
+            this_entity_obj = {
+                    "name": config["name"],
+                    "entity": team,
+                    "children": []}
         # only entities can have children and ACLs
         if entity is not None:
+            this_entity_obj = {
+                    "name": config["name"],
+                    "entity": entity,
+                    "children": []}
             parent_id = entity.id
             config['id'] = parent_id
             # Get ACL if exists
@@ -89,12 +98,15 @@ def _create_synapse_resources(config_list: List[dict],
             children = config.get('children', None)
             # implement this to not run into recursion limit
             if children is not None:
-                _create_synapse_resources(config_list=children,
-                                          creation_cls=creation_cls,
-                                          parentid=parent_id)
+                this_entity_obj["children"] = \
+                    _create_synapse_resources(config_list=children,
+                                              creation_cls=creation_cls,
+                                              parentid=parent_id)
+        created_entities.append(this_entity_obj)
+    return created_entities
 
 
-def create_synapse_resources(syn: synapseclient.Synapse, template_path: str):
+def create_synapse_resources(syn: synapseclient.Synapse, template_path: str, parent_id: str = None):
     """Creates synapse resources from template"""
     # Function will attempt to read template as yaml then try to read in json
     config = utils.read_config(template_path)
@@ -104,5 +116,8 @@ def create_synapse_resources(syn: synapseclient.Synapse, template_path: str):
     # full_config = expand_config(config)
     # Recursive function to create resources
     creation_cls = SynapseCreation(syn)
-    _create_synapse_resources(config_list=config, creation_cls=creation_cls)
-    print(config)
+    created_entities = _create_synapse_resources(
+            config_list=config,
+            creation_cls=creation_cls,
+            parentid=parent_id)
+    return created_entities
