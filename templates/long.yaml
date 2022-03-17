@@ -29,6 +29,12 @@
       type: Folder
   - name: Test Folder - Empty and One of Many
     type: Folder
+  - name: Test Entity View
+    type: EntityViewSchema
+    scopes: "syn21413328"
+    includeEntityTypes: ['file']
+    addDefaultViewColumns: true
+    addAnnotationColumns: true
 
 - name: Test Project - Empty
   type: Project
@@ -38,7 +44,8 @@
   can_public_join: false
   description: Test team description
   invitations:
-  - message: Welcome to the Test Team! 
+  - message: Welcome to the Test Team!
     members:
     - principal_id: 3426116
     - email: synapseformation-test-user@sagebase.org
+
