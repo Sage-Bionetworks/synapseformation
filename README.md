@@ -1,46 +1,44 @@
 # synapseformation
-Client for using Synapse Formation templates.
+
+[![Get synapseformation from PyPI](https://img.shields.io/pypi/v/synapseformation.svg?style=for-the-badge&logo=pypi)](https://pypi.python.org/pypi/synapseformation) [![GitHub CI](https://img.shields.io/github/workflow/status/Sage-Bionetworks/synapseformation/build.svg?color=94398d&labelColor=555555&logoColor=ffffff&style=for-the-badge&logo=github)](https://github.com/Sage-Bionetworks/synapseformation)
+[![Coverage Status](https://img.shields.io/coveralls/github/Sage-Bionetworks/synapseformation.svg?&style=for-the-badge&label=coverage&logo=Coveralls)](https://coveralls.io/github/Sage-Bionetworks/synapseformation)
 
 
+Client for using [Synapse Formation Templates](templates). Given one of these templates, `synapseformation` will be able to create all the components required in a Synapse Project.  Currently the implementation does one of these two scenarios.
+
+* Only creates new entities, will fail if entity already exists.
+* Create entities that don't exist and gets the entity if it already exists, but does not update an entity.
+
+## Usage
+
+### Command Line
+
+`synapseformation` has a command line client that will create resources given a `yaml` or `json` template.
+
+```bash
+synapseformation create --help
+Usage: synapseformation create [OPTIONS]
+
+  Creates Synapse Resources
+
+Options:
+  --template_path PATH  Template path
+  --help                Show this message and exit.
+```
+
+### Python
+
+These are some of the lower level functions that exist in the package.
+```
+import synapseclient
+from synapseformation import create
+
+syn = synapseclient.login()
+# Only create entities
+CreateCls = create.SynapseCreation(syn)
+# Only retrieve entities (don't update)
+RetrieveCls = create.SynapseCreation(syn, only_get=True)
+```
 
 ## Contributing
-
-### Fork and clone this repository
-
-See the [Github docs](https://help.github.com/articles/fork-a-repo/) for how to make a copy (a fork) of a repository to your own Github account.
-
-Then, [clone the repository](https://help.github.com/articles/cloning-a-repository/) to your local machine so you can begin making changes.
-
-Add this repository as an [upstream remote](https://help.github.com/en/articles/configuring-a-remote-for-a-fork) on your local git repository so that you are able to fetch the latest commits.
-
-On your local machine make sure you have the latest version of the `develop` branch:
-
-```
-git checkout develop
-git pull upstream develop
-```
-
-### The development life cycle
-
-1. Pull the latest content from the `develop` branch of this central repository (not your fork).
-1. Create a feature branch which off the `develop` branch. If there is a GitHub issue that you are addressing, name the branch after the issue with some more detail (like `issue-123-add-some-new-feature`).
-1. After completing work and testing locally (see below), push to your fork.
-1. In Github, create a pull request from the feature branch of your fork to the `develop` branch of the central repository.
-
-> *A code maintainer must review and accept your pull request.* A code review (which happens with both the contributor and the reviewer present) is required for contributing. This can be performed remotely (e.g., Skype, Hangout, or other video or phone conference).
-
-This package uses [semantic versioning](https://semver.org/) for releasing new versions. The version should be updated on the `develop` branch as changes are reviewed and merged in by a code maintainer. The version for the package is maintained in the [synapseformation/__version__.py](synapseformation/__version__.py) file.  A github release should also occur every time `develop` is pushed into `master` and it should match the version for the package.
-
-### Testing
-
-Please add tests for new code. These might include unit tests (to test specific functionality of code that was added to support fixing the bug or feature), integration tests (to test that the feature is usable - e.g., it should have complete the expected behavior as reported in the feature request or bug report), or both.
-
-This package uses [`pytest`](https://pytest.org/en/latest/) to run tests. The test code is located in the [tests](./tests) subdirectory.
-
-Here's how to run the test suite:
-
-```
-pytest -vs tests/
-```
-
-Tests are also run automatically by Travis on any pull request and are required to pass before merging.
+Please view our [contributing guide](CONTRIBUTING.md)
