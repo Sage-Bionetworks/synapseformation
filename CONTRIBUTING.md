@@ -28,14 +28,14 @@ pip install pytest
 
 ### The development life cycle
 
-1. Pull the latest content from the `develop` branch of this central repository (not your fork).
-1. Create a feature branch which off the `develop` branch. If there is a GitHub issue that you are addressing, name the branch after the issue with some more detail (like `issue-123-add-some-new-feature`).
+1. Pull the latest content from the `main` branch of this central repository (not your fork).
+1. Create a feature branch which off the `main` branch. If there is a GitHub issue that you are addressing, name the branch after the issue with some more detail (like `issue-123-add-some-new-feature`).
 1. After completing work and testing locally (see below), push to your fork.
-1. In Github, create a pull request from the feature branch of your fork to the `develop` branch of the central repository.
+1. In Github, create a pull request from the feature branch of your fork to the `main` branch of the central repository.
 
 > *A code maintainer must review and accept your pull request.* A code review (which happens with both the contributor and the reviewer present) is required for contributing. This can be performed remotely (e.g., Skype, Hangout, or other video or phone conference).
 
-This package uses [semantic versioning](https://semver.org/) for releasing new versions. The version should be updated on the `develop` branch as changes are reviewed and merged in by a code maintainer. The version for the package is maintained in the [synapseformation/__version__.py](challengeutils/__version__.py) file.  A github release should also occur every time `develop` is pushed into `master` and it should match the version for the package.
+This package uses [semantic versioning](https://semver.org/) for releasing new versions. The version should be updated on the `main` branch as changes are reviewed and merged in by a code maintainer. The version for the package is maintained in the [synapseformation/__version__.py](challengeutils/__version__.py) file.  A github release should occur when there are enough features to be released.
 
 ### Testing
 
@@ -53,7 +53,5 @@ Tests are also run automatically by Travis on any pull request and are required 
 
 ### Release Procedure (For Package Maintainers)
 
-* Always merge all new features into `develop` branch first (unless it is a minor patch into `main`)
-* update `synapseformation/__version__.py` to not have `-dev`
-* Merge develop into master branch
-
+* create new release and tag when ready
+* update `synapseformation/__version__.py`
