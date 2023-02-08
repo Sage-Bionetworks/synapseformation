@@ -4,9 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-click = "*"
-synapseclient = ">=2.4.0"
-PyYAML = "*"
+synapseformation = {editable = true, path = "."}
 
 [dev-packages]
 pytest = "*"
