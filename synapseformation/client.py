@@ -4,9 +4,8 @@ from typing import List
 import synapseclient
 from synapseclient import Synapse
 
-from .create import SynapseCreation
 from . import create, utils
-
+from .create import SynapseCreation
 
 # def expand_config(config: dict) -> dict:
 #     """Expands shortened configuration to the official json format"""
@@ -41,9 +40,9 @@ from . import create, utils
 #     return config
 
 
-def _create_synapse_resources(config_list: List[dict],
-                              creation_cls: SynapseCreation,
-                              parentid: str = None):
+def _create_synapse_resources(
+    config_list: List[dict], creation_cls: SynapseCreation, parentid: str = None
+):
     """Recursively steps through template and creates synapse resources
 
     Args:
@@ -59,13 +58,13 @@ def _create_synapse_resources(config_list: List[dict],
     # This works because every layer in the json is a list
     created_entities = []
     for config in config_list:
-        if isinstance(config, dict) and config.get('type') == "Project":
-            entity = creation_cls.get_or_create_project(name=config['name'])
-        elif isinstance(config, dict) and config.get('type') == "Folder":
+        if isinstance(config, dict) and config.get("type") == "Project":
+            entity = creation_cls.get_or_create_project(name=config["name"])
+        elif isinstance(config, dict) and config.get("type") == "Folder":
             entity = creation_cls.get_or_create_folder(
-                name=config['name'], parentId=parentid
+                name=config["name"], parentId=parentid
             )
-        elif isinstance(config, dict) and config.get('type') == "EntityViewSchema":
+        elif isinstance(config, dict) and config.get("type") == "EntityViewSchema":
             kwargs = {k: v for k, v in config.items() if k != "type"}
             entity_type_classes = []
             for entity_type in kwargs["includeEntityTypes"]:
@@ -83,48 +82,47 @@ def _create_synapse_resources(config_list: List[dict],
                     entity_type_classes.append(synapseclient.EntityViewType.DOCKER)
             kwargs["includeEntityTypes"] = entity_type_classes
             entity = creation_cls.get_or_create_view(parent=parentid, **kwargs)
-        elif isinstance(config, dict) and config.get('type') == "Team":
+        elif isinstance(config, dict) and config.get("type") == "Team":
             team = creation_cls.get_or_create_team(
-                name=config['name'], description=config['description'],
-                canPublicJoin=config['can_public_join']
+                name=config["name"],
+                description=config["description"],
+                canPublicJoin=config["can_public_join"],
             )
-            config['id'] = team.id
+            config["id"] = team.id
             if config.get("invitations") is not None:
-                for invite in config['invitations']:
-                    for member in invite['members']:
+                for invite in config["invitations"]:
+                    for member in invite["members"]:
                         user = member.get("principal_id")
                         email = member.get("email")
                         creation_cls.syn.invite_to_team(
-                            team=team, user=user, inviteeEmail=email,
-                            message=invite['message']
+                            team=team,
+                            user=user,
+                            inviteeEmail=email,
+                            message=invite["message"],
                         )
-            this_entity_obj = {
-                    "name": config["name"],
-                    "entity": team,
-                    "children": []}
+            this_entity_obj = {"name": config["name"], "entity": team, "children": []}
         # only entities can have children and ACLs
         if entity is not None:
-            this_entity_obj = {
-                    "name": config["name"],
-                    "entity": entity,
-                    "children": []}
+            this_entity_obj = {"name": config["name"], "entity": entity, "children": []}
             parent_id = entity.id
-            config['id'] = parent_id
+            config["id"] = parent_id
             # Get ACL if exists
-            create._set_acl(syn=creation_cls.syn, entity=entity,
-                            acl_config=config.get('acl', []))
-            children = config.get('children', None)
+            create._set_acl(
+                syn=creation_cls.syn, entity=entity, acl_config=config.get("acl", [])
+            )
+            children = config.get("children", None)
             # implement this to not run into recursion limit
             if children is not None:
-                this_entity_obj["children"] = \
-                    _create_synapse_resources(config_list=children,
-                                              creation_cls=creation_cls,
-                                              parentid=parent_id)
+                this_entity_obj["children"] = _create_synapse_resources(
+                    config_list=children, creation_cls=creation_cls, parentid=parent_id
+                )
         created_entities.append(this_entity_obj)
     return created_entities
 
 
-def create_synapse_resources(syn: synapseclient.Synapse, template_path: str, parent_id: str = None):
+def create_synapse_resources(
+    syn: synapseclient.Synapse, template_path: str, parent_id: str = None
+):
     """Creates synapse resources from template"""
     # Function will attempt to read template as yaml then try to read in json
     config = utils.read_config(template_path)
@@ -135,7 +133,6 @@ def create_synapse_resources(syn: synapseclient.Synapse, template_path: str, par
     # Recursive function to create resources
     creation_cls = SynapseCreation(syn)
     created_entities = _create_synapse_resources(
-            config_list=config,
-            creation_cls=creation_cls,
-            parentid=parent_id)
+        config_list=config, creation_cls=creation_cls, parentid=parent_id
+    )
     return created_entities

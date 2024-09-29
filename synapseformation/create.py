@@ -5,18 +5,28 @@ from logging import Logger
 from typing import Union
 from urllib.parse import quote
 
-from synapseclient import (Project, Team, Evaluation, File, Folder, Wiki,
-                           EntityViewSchema, Schema, Synapse)
+from synapseclient import (
+    EntityViewSchema,
+    Evaluation,
+    File,
+    Folder,
+    Project,
+    Schema,
+    Synapse,
+    Team,
+    Wiki,
+)
 from synapseclient.core.exceptions import SynapseHTTPError
 
-SynapseCls = Union[Project, Team, Evaluation, File, Folder, Wiki,
-                   EntityViewSchema, Schema]
+SynapseCls = Union[
+    Project, Team, Evaluation, File, Folder, Wiki, EntityViewSchema, Schema
+]
 
 
 class SynapseCreation:
     """Creates Synapse Features"""
-    def __init__(self, syn: Synapse, only_get: bool = False,
-                 logger: Logger = None):
+
+    def __init__(self, syn: Synapse, only_get: bool = False, logger: Logger = None):
         """
         Args:
             syn: Synapse connection
@@ -30,8 +40,9 @@ class SynapseCreation:
         self.logger = logger or logging.getLogger(__name__)
         self._update_str = "Created" if only_get else "Fetched existing"
 
-    def _find_entity_by_name(self, entity_name: str, parentid: str,
-                             concrete_type: str) -> SynapseCls:
+    def _find_entity_by_name(
+        self, entity_name: str, parentid: str, concrete_type: str
+    ) -> SynapseCls:
         """Find an Entity by its name
 
         Args:
@@ -47,7 +58,7 @@ class SynapseCreation:
         # trying to find
         entity_obj = self.syn.findEntityId(entity_name, parent=parentid)
         # TODO: when entity doesn't exist, don't do this get
-        new_obj = self.syn.get(entity_obj['id'], downloadFile=False)
+        new_obj = self.syn.get(entity_obj["id"], downloadFile=False)
         assert concrete_type == new_obj.properties.concreteType, (
             f"Retrieved '{entity_name}' had type "
             f"'{new_obj.properties.concreteType}' "
@@ -71,7 +82,7 @@ class SynapseCreation:
             obj = self._find_entity_by_name(
                 entity_name=obj.name,
                 parentid=obj.properties.get("parentId", None),
-                concrete_type=obj.properties.concreteType
+                concrete_type=obj.properties.concreteType,
             )
         elif isinstance(obj, Team):
             obj = self.syn.getTeam(obj.name)
@@ -101,8 +112,9 @@ class SynapseCreation:
             if err.response.status_code != 409:
                 raise err
             if not self.only_get:
-                raise ValueError(f"{str(err)}. To use existing entities, "
-                                 "set only_get to True.")
+                raise ValueError(
+                    f"{str(err)}. To use existing entities, " "set only_get to True."
+                )
             obj = self._get_obj(obj)
         return obj
 
@@ -118,9 +130,9 @@ class SynapseCreation:
         """
         project = Project(**kwargs)
         project = self._find_by_obj_or_create(project)
-        self.logger.info('{} Project {}({})'.format(self._update_str,
-                                                    project.name,
-                                                    project.id))
+        self.logger.info(
+            "{} Project {}({})".format(self._update_str, project.name, project.id)
+        )
         return project
 
     def get_or_create_file(self, **kwargs) -> File:
@@ -136,9 +148,9 @@ class SynapseCreation:
         """
         file_ent = File(**kwargs)
         file_ent = self._find_by_obj_or_create(file_ent)
-        self.logger.info('{} File {} ({})'.format(self._update_str,
-                                                  file_ent.name,
-                                                  file_ent.id))
+        self.logger.info(
+            "{} File {} ({})".format(self._update_str, file_ent.name, file_ent.id)
+        )
         return file_ent
 
     def get_or_create_folder(self, **kwargs) -> Folder:
@@ -154,9 +166,9 @@ class SynapseCreation:
         """
         folder_ent = Folder(**kwargs)
         folder_ent = self._find_by_obj_or_create(folder_ent)
-        self.logger.info('{} Folder {} ({})'.format(self._update_str,
-                                                    folder_ent.name,
-                                                    folder_ent.id))
+        self.logger.info(
+            "{} Folder {} ({})".format(self._update_str, folder_ent.name, folder_ent.id)
+        )
         return folder_ent
 
     def get_or_create_view(self, **kwargs) -> EntityViewSchema:
@@ -172,9 +184,7 @@ class SynapseCreation:
         """
         view = EntityViewSchema(**kwargs)
         view = self._find_by_obj_or_create(view)
-        self.logger.info('{} View {} ({})'.format(self._update_str,
-                                                  view.name,
-                                                  view.id))
+        self.logger.info("{} View {} ({})".format(self._update_str, view.name, view.id))
         return view
 
     def get_or_create_schema(self, **kwargs) -> Schema:
@@ -191,9 +201,9 @@ class SynapseCreation:
 
         schema = Schema(**kwargs)
         schema = self._find_by_obj_or_create(schema)
-        self.logger.info('{} Schema {} ({})'.format(self._update_str,
-                                                    schema.name,
-                                                    schema.id))
+        self.logger.info(
+            "{} Schema {} ({})".format(self._update_str, schema.name, schema.id)
+        )
         return schema
 
     def get_or_create_team(self, **kwargs) -> Team:
@@ -209,9 +219,7 @@ class SynapseCreation:
 
         team = Team(**kwargs)
         team = self._find_by_obj_or_create(team)
-        self.logger.info('{} Team {} ({})'.format(self._update_str,
-                                                  team.name,
-                                                  team.id))
+        self.logger.info("{} Team {} ({})".format(self._update_str, team.name, team.id))
         return team
 
     def get_or_create_wiki(self, **kwargs) -> Wiki:
@@ -230,8 +238,7 @@ class SynapseCreation:
 
         wiki = Wiki(**kwargs)
         wiki = self._find_by_obj_or_create(wiki)
-        self.logger.info('{} Wiki {}'.format(self._update_str,
-                                             wiki.title))
+        self.logger.info("{} Wiki {}".format(self._update_str, wiki.title))
         return wiki
 
     def get_or_create_queue(self, **kwargs) -> Evaluation:
@@ -246,8 +253,9 @@ class SynapseCreation:
         """
         queue = Evaluation(**kwargs)
         queue = self._find_by_obj_or_create(queue)
-        self.logger.info('{} Queue {}({})'.format(self._update_str,
-                                                  queue.name, queue.id))
+        self.logger.info(
+            "{} Queue {}({})".format(self._update_str, queue.name, queue.id)
+        )
         return queue
 
     def _get_challenge(self, projectId: str) -> dict:
@@ -267,8 +275,7 @@ class SynapseCreation:
         challenge = self.syn.restGET(f"/entity/{projectId}/challenge")
         return challenge
 
-    def _create_challenge(self, projectId: str,
-                          participantTeamId: str) -> dict:
+    def _create_challenge(self, projectId: str, participantTeamId: str) -> dict:
         """Creates Challenge associated with a Project
 
         See the definition of a Challenge object here:
@@ -283,10 +290,11 @@ class SynapseCreation:
             https://docs.synapse.org/rest/org/sagebionetworks/repo/model/Challenge.html
 
         """
-        challenge_object = {'participantTeamId': participantTeamId,
-                            'projectId': projectId}
-        challenge = self.syn.restPOST('/challenge',
-                                      json.dumps(challenge_object))
+        challenge_object = {
+            "participantTeamId": participantTeamId,
+            "projectId": projectId,
+        }
+        challenge = self.syn.restPOST("/challenge", json.dumps(challenge_object))
         return challenge
 
     def get_or_create_challenge(self, **kwargs) -> dict:
@@ -308,16 +316,15 @@ class SynapseCreation:
             if err.response.status_code != 400:
                 raise err
             if not self.only_get:
-                raise ValueError(f"{err}. To use existing entities, "
-                                 "set only_get to True.")
-            challenge = self._get_challenge(kwargs['projectId'])
-        self.logger.info("{} Challenge ({})".format(self._update_str,
-                                                    challenge['id']))
+                raise ValueError(
+                    f"{err}. To use existing entities, " "set only_get to True."
+                )
+            challenge = self._get_challenge(kwargs["projectId"])
+        self.logger.info("{} Challenge ({})".format(self._update_str, challenge["id"]))
         return challenge
 
 
-def _set_acl(syn: Synapse, entity: Union[File, Folder, Project],
-             acl_config: dict):
+def _set_acl(syn: Synapse, entity: Union[File, Folder, Project], acl_config: dict):
     """Sets ACLs to Synapse entity
 
     Args:
@@ -327,5 +334,8 @@ def _set_acl(syn: Synapse, entity: Union[File, Folder, Project],
 
     """
     for acl in acl_config:
-        syn.setPermissions(entity=entity, principalId=acl['principal_id'],
-                           accessType=acl['access_type'])
+        syn.setPermissions(
+            entity=entity,
+            principalId=acl["principal_id"],
+            accessType=acl["access_type"],
+        )

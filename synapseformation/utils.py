@@ -1,10 +1,9 @@
 """Utility functions"""
-import yaml
-
 import synapseclient
+import yaml
 from synapseclient.core.exceptions import (
-    SynapseNoCredentialsError,
     SynapseAuthenticationError,
+    SynapseNoCredentialsError,
 )
 
 
@@ -46,4 +45,4 @@ def synapse_login(synapse_config=synapseclient.client.CONFIG_FILE):
             "as an environmental variable: "
             "SYNAPSE_AUTH_TOKEN='<my_personal_access_token>'"
         )
-    return(syn)
+    return syn

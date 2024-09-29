@@ -15,7 +15,7 @@ Structural_Biology_Core_Folder: &struct_bio_folder
     - name: Protein
     - name: Protein_Expression_Methods
     - name: TEP
-    
+
 Assay_Core_Folder: &assay_folder
   name: Assay_Core
   type: Folder
@@ -29,7 +29,7 @@ Assay_Core_Folder: &assay_folder
     - name: Off_Target_Potency
     - name: Secondary_Screen_Protocols
     - name: Secondary_Screen_Result
-    
+
 MedChem_Core_Folder: &medchem_folder
   name: MedChem_Core
   type: Folder

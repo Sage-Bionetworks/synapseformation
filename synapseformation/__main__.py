@@ -1,11 +1,10 @@
 """synapseformation command line client"""
 import click
-
 import synapseclient
 
+from .__version__ import __version__
 from .client import create_synapse_resources
 from .utils import synapse_login
-from .__version__ import __version__
 
 
 def add_version(f):
@@ -38,10 +37,15 @@ def cli():
 
 
 @cli.command()
-@click.option('--template_path', help='Template path', type=click.Path())
-@click.option('-c', '--config_path', help='Synapse configuration file',
-              type=click.Path(), show_default=True,
-              default=synapseclient.client.CONFIG_FILE)
+@click.option("--template_path", help="Template path", type=click.Path())
+@click.option(
+    "-c",
+    "--config_path",
+    help="Synapse configuration file",
+    type=click.Path(),
+    show_default=True,
+    default=synapseclient.client.CONFIG_FILE,
+)
 def create(template_path, config_path):
     """Creates Synapse Resources given a yaml or json"""
     syn = synapse_login(synapse_config=config_path)
