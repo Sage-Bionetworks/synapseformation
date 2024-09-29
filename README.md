@@ -4,6 +4,8 @@
 [![Coverage Status](https://img.shields.io/coveralls/github/Sage-Bionetworks/synapseformation.svg?&label=coverage&logo=Coveralls)](https://coveralls.io/github/Sage-Bionetworks/synapseformation)
 [![build](https://github.com/Sage-Bionetworks/synapseformation/actions/workflows/ci.yml/badge.svg)](https://github.com/Sage-Bionetworks/synapseformation/actions/workflows/ci.yml)
 
+> [!WARNING]
+> This package is not actively maintained and is an MVP. The functionality and dependencies may change at any time. Use at your own risk, but will follow semantic versioning guidelines.
 
 
 Client for using [Synapse Formation Templates](templates). Given one of these templates, `synapseformation` will be able to create all the components required in a Synapse Project.  Currently the implementation does one of these two scenarios.
