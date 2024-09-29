@@ -1,7 +1,9 @@
 # synapseformation
 
-[![Get synapseformation from PyPI](https://img.shields.io/pypi/v/synapseformation.svg?style=for-the-badge&logo=pypi)](https://pypi.python.org/pypi/synapseformation) [![GitHub CI](https://img.shields.io/github/workflow/status/Sage-Bionetworks/synapseformation/build.svg?color=94398d&labelColor=555555&logoColor=ffffff&style=for-the-badge&logo=github)](https://github.com/Sage-Bionetworks/synapseformation)
-[![Coverage Status](https://img.shields.io/coveralls/github/Sage-Bionetworks/synapseformation.svg?&style=for-the-badge&label=coverage&logo=Coveralls)](https://coveralls.io/github/Sage-Bionetworks/synapseformation)
+[![Get synapseformation from PyPI](https://img.shields.io/pypi/v/synapseformation.svg?&logo=pypi)](https://pypi.python.org/pypi/synapseformation)
+[![Coverage Status](https://img.shields.io/coveralls/github/Sage-Bionetworks/synapseformation.svg?&label=coverage&logo=Coveralls)](https://coveralls.io/github/Sage-Bionetworks/synapseformation)
+[![build](https://github.com/Sage-Bionetworks/synapseformation/actions/workflows/ci.yml/badge.svg)](https://github.com/Sage-Bionetworks/synapseformation/actions/workflows/ci.yml)
+
 
 
 Client for using [Synapse Formation Templates](templates). Given one of these templates, `synapseformation` will be able to create all the components required in a Synapse Project.  Currently the implementation does one of these two scenarios.
