@@ -90,7 +90,7 @@ def apply_acl(acl: dict, state: State) -> str:
         elif res_type == "folder":
             res = Folder(id=res_id).get()
         res.set_permissions(principal_id=principal_id, access_type=access_type)
-    state.add("acl", acl["name"], res_id, properties["grants"])
+    state.add("acl", acl["name"], res_id, properties)
     return res_id
 
 
@@ -201,7 +201,7 @@ def initialize():
     pass
 
 
-def plan(config_path):
+def plan_config(config_path):
     """Reads the configuration file and compares it to the state file to determine what changes need to be made to reconcile any drift.
 
     Returns:
@@ -222,71 +222,52 @@ def plan(config_path):
     state_resources = state.resources
 
     # Create a dictionary to store the changes that need to be made to reconcile any drift
-    changes = defaultdict(list)
+    changes = []
 
     # Loop through the configuration file and compare it to the state file to determine what changes need to be made
     for logical_name, config_resource in config["resources"].items():
         # changes[config_resource['type']] = []
         # for resource in resources:
         #     logical_name = resource["logical_name"]
-        print(logical_name)
         resource_id = state.get_id(logical_name, config_resource["type"])
-        print(resource_id)
-        # if resource_type == "project":
-        #     # Get the project from the state file
-        #     project = Project(id=state.get_id(logical_name, resource_type)).get()
-        #     # Compare the properties of the project in the configuration file to the properties in the state file
-        #     if project.properties != resource["properties"]:
-        #         # Add the project to the list of changes for the project resource type
-        #         changes[resource_type].append({
-        #             "logical_name": logical_name,
-        #             "action": "update",
-        #             "properties": resource["properties"],
-        #         })
-        # elif resource_type == "team":
-        #     # Get the team from the state file
-        #     team = Team(id=state.get_id(logical_name, resource_type)).get()
-        #     # Compare the properties of the team in the configuration file to the properties in the state file
-        #     if team.properties != resource["properties"]:
-        #         # Add the team to the list of changes for the team resource type
-        #         changes[resource_type].append({
-        #             "logical_name": logical_name,
-        #             "action": "update",
-        #             "properties": resource["properties"],
-        #         })
-        # elif resource_type == "folder":
-        #     # Get the folder from the state file
-        #     folder = Folder(id=state.get_id(logical_name, resource_type)).get()
-        #     # Compare the properties of the folder in the configuration file to the properties in the state file
-        #     if folder.properties != resource["properties"]:
-        #         # Add the folder to the list of changes for the folder resource type
-        #         changes[resource_type].append({
-        #             "logical_name": logical_name,
-        #             "action": "update",
-        #             "properties": resource["properties"],
-        #         })
-        # elif resource_type == "acl":
-        #     # Get the ACL from the state file
-        #     acl = ACL(id=state.get_id(logical_name, resource_type)).get()
-        #     # Compare the grants in the ACL in the configuration file to the grants in the state file
-        #     if acl.grants != resource["grants"]:
-        #         # Add the ACL to the list of changes for the ACL resource type
-        #         changes[resource_type].append({
-        #             "logical_name": logical_name,
-        #             "action": "update",
-        #             "grants": resource["grants"],
-        #         })
+        if resource_id:
+            # Resource exists, check for updates
+            state_resource = next(
+                (r for r in state_resources if r["name"] == logical_name), None
+            )
+            if (
+                state_resource
+                and state_resource["properties"] != config_resource["properties"]
+            ):
+                changes.append(
+                    {
+                        "type": config_resource["type"],
+                        "name": logical_name,
+                        "action": "update",
+                        "properties": config_resource["properties"],
+                    }
+                )
+        else:
+            # Resource does not exist, mark for creation
+            changes.append(
+                {
+                    "type": config_resource["type"],
+                    "name": logical_name,
+                    "action": "create",
+                    "properties": config_resource["properties"],
+                }
+            )
 
     # Loop through the resources in the state file and compare them to the configuration file to determine if any need to be deleted
-    # for resource in resources:
-    #     resource_type = resource["resource_type"]
-    #     logical_name = resource["logical_name"]
-    #     if resource_type not in config:
-    #         # Add the resource to the list of changes for the resource type
-    #         changes[resource_type].append({
-    #             "logical_name": logical_name,
-    #             "action": "delete",
-    #         })
+    for state_resource in state_resources:
+        if state_resource["name"] not in config["resources"]:
+            changes.append(
+                {
+                    "type": state_resource["type"],
+                    "name": state_resource["name"],
+                    "action": "delete",
+                }
+            )
 
     return changes
 
@@ -343,7 +324,7 @@ def apply_config(config_path):
         ensure_folder(logical_name=folder_logical_name, props=props, state=state)
 
     # 4. Access Controls have to come last since they depend on other resources
-    for acl in resources.get("access_control", []):
+    for acl in resources.get("acl", []):
         apply_acl(acl=acl, state=state)
 
 

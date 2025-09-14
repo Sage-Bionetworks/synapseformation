@@ -4,7 +4,7 @@ import synapseclient
 
 from .__version__ import __version__
 
-from .client import apply_config
+from .client import apply_config, plan_config
 
 # from .utils import synapse_login
 
@@ -43,6 +43,13 @@ def cli():
 def apply(template_path):
     """Creates Synapse Resources given a yaml or json"""
     apply_config(config_path=template_path)
+
+
+@cli.command()
+@click.option("--template_path", help="Template path", type=click.Path())
+def plan(template_path):
+    """Creates Synapse Resources given a yaml or json"""
+    plan_config(config_path=template_path)
 
 
 if __name__ == "__main__":
