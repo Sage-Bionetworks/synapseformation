@@ -72,14 +72,16 @@ def apply_acl(acl: dict, state: State) -> str:
     Returns:
         _type_: _description_
     """
-    acl_applied = state.get_id(acl["resource"], "acl")
+    acl_applied = state.get_id(acl["name"], "acl")
     if acl_applied:
         return acl_applied
+    properties = acl["properties"]
+
     # Resolve resource
-    res_ref = acl["resource"].split(".")  # e.g. "folder.raw_data"
+    res_ref = properties["resource"].split(".")  # e.g. "folder.raw_data"
     res_type, logical_name = res_ref[0], res_ref[1]
     res_id = state.get_id(logical_name, res_type)
-    for grant in acl["grants"]:
+    for grant in properties["grants"]:
         principal_ref = grant["principal"].split(".")  # e.g. "team.data_scientists"
         principal_id = state.get_id(principal_ref[1], principal_ref[0])
         access_type = grant["access_type"]
@@ -88,7 +90,7 @@ def apply_acl(acl: dict, state: State) -> str:
         elif res_type == "folder":
             res = Folder(id=res_id).get()
         res.set_permissions(principal_id=principal_id, access_type=access_type)
-    state.add("acl", acl["resource"], res_id, acl["grants"])
+    state.add("acl", acl["name"], res_id, properties["grants"])
     return res_id
 
 
@@ -158,17 +160,19 @@ def ensure_team(logical_name: str, props: dict, state: State) -> Team:
         return team
 
 
-def sort_folders(folders: dict) -> list:
+def sort_folders(folders: list[dict]) -> list:
     """
     Perform a topological sort of folders based on parent references.
     Returns a list of folder logical names in the correct creation order.
     """
     # Build adjacency + in-degree
     graph = defaultdict(list)
-    in_degree = {name: 0 for name in folders.keys()}
+    in_degree = {folder["name"]: 0 for folder in folders}
 
-    for name, props in folders.items():
-        parent_ref = props["parent"]
+    for folder in folders:
+        name = folder["name"]
+        properties = folder["properties"]
+        parent_ref = properties["parent"]
         parent_type, parent_name = parent_ref.split(".")
         if parent_type == "folder":
             graph[parent_name].append(name)
@@ -197,14 +201,117 @@ def initialize():
     pass
 
 
-def plan():
-    """reads yaml template and diffs the desired vs actual state"""
-    pass
+def plan(config_path):
+    """Reads the configuration file and compares it to the state file to determine what changes need to be made to reconcile any drift.
+
+    Returns:
+        dict: A dictionary containing the changes that need to be made to reconcile any drift.
+            The keys are the resource types and the values are lists of dictionaries containing the changes for each resource.
+            Each dictionary in the list has the following keys:
+                - logical_name: The logical name of the resource.
+                - action: The action to take for the resource (create, update, delete).
+                - properties: The properties for the resource.
+    """
+    # Read the configuration file
+    config = load_config(config_path)
+
+    # Read the state file
+    state = State()
+
+    # Get the resources from the state file
+    state_resources = state.resources
+
+    # Create a dictionary to store the changes that need to be made to reconcile any drift
+    changes = defaultdict(list)
+
+    # Loop through the configuration file and compare it to the state file to determine what changes need to be made
+    for logical_name, config_resource in config["resources"].items():
+        # changes[config_resource['type']] = []
+        # for resource in resources:
+        #     logical_name = resource["logical_name"]
+        print(logical_name)
+        resource_id = state.get_id(logical_name, config_resource["type"])
+        print(resource_id)
+        # if resource_type == "project":
+        #     # Get the project from the state file
+        #     project = Project(id=state.get_id(logical_name, resource_type)).get()
+        #     # Compare the properties of the project in the configuration file to the properties in the state file
+        #     if project.properties != resource["properties"]:
+        #         # Add the project to the list of changes for the project resource type
+        #         changes[resource_type].append({
+        #             "logical_name": logical_name,
+        #             "action": "update",
+        #             "properties": resource["properties"],
+        #         })
+        # elif resource_type == "team":
+        #     # Get the team from the state file
+        #     team = Team(id=state.get_id(logical_name, resource_type)).get()
+        #     # Compare the properties of the team in the configuration file to the properties in the state file
+        #     if team.properties != resource["properties"]:
+        #         # Add the team to the list of changes for the team resource type
+        #         changes[resource_type].append({
+        #             "logical_name": logical_name,
+        #             "action": "update",
+        #             "properties": resource["properties"],
+        #         })
+        # elif resource_type == "folder":
+        #     # Get the folder from the state file
+        #     folder = Folder(id=state.get_id(logical_name, resource_type)).get()
+        #     # Compare the properties of the folder in the configuration file to the properties in the state file
+        #     if folder.properties != resource["properties"]:
+        #         # Add the folder to the list of changes for the folder resource type
+        #         changes[resource_type].append({
+        #             "logical_name": logical_name,
+        #             "action": "update",
+        #             "properties": resource["properties"],
+        #         })
+        # elif resource_type == "acl":
+        #     # Get the ACL from the state file
+        #     acl = ACL(id=state.get_id(logical_name, resource_type)).get()
+        #     # Compare the grants in the ACL in the configuration file to the grants in the state file
+        #     if acl.grants != resource["grants"]:
+        #         # Add the ACL to the list of changes for the ACL resource type
+        #         changes[resource_type].append({
+        #             "logical_name": logical_name,
+        #             "action": "update",
+        #             "grants": resource["grants"],
+        #         })
+
+    # Loop through the resources in the state file and compare them to the configuration file to determine if any need to be deleted
+    # for resource in resources:
+    #     resource_type = resource["resource_type"]
+    #     logical_name = resource["logical_name"]
+    #     if resource_type not in config:
+    #         # Add the resource to the list of changes for the resource type
+    #         changes[resource_type].append({
+    #             "logical_name": logical_name,
+    #             "action": "delete",
+    #         })
+
+    return changes
 
 
 def load_config(path: str) -> dict:
     with open(path, "r") as f:
         return yaml.safe_load(f)
+
+
+def get_resources(resource_config: dict) -> dict:
+    """
+    Given a configuration dictionary, returns a dictionary of resources organized by resource type and logical name.
+
+    Args:
+        config (dict): A configuration dictionary
+
+    Returns:
+        dict: A dictionary of resources organized by resource type and logical name
+    """
+    resources = defaultdict(list)
+    for name, res_dict in resource_config.items():
+        resources[res_dict["type"]].append(
+            {"name": name, "properties": res_dict["properties"]}
+        )
+    return resources
 
 
 def apply_config(config_path):
@@ -216,23 +323,28 @@ def apply_config(config_path):
     syn = Synapse(user_agent=my_agent)
     syn.login()
     state = State()
+    resources = get_resources(resource_config=config["resources"])
 
     # 1. Teams
-    for logical_name, props in config.get("teams", {}).items():
-        team = ensure_team(logical_name, props, state)
+    for team in resources.get("team", []):
+        ensure_team(logical_name=team["name"], props=team["properties"], state=state)
 
-    # 2. Projects (and nested folders)
-    for logical_name, props in config.get("projects", {}).items():
-        project = ensure_project(logical_name, props, state)
+    # 2. Projects
+    for project in resources.get("project", []):
+        ensure_project(
+            logical_name=project["name"], props=project["properties"], state=state
+        )
 
-    folder_order = sort_folders(config.get("folders", {}))
-    for logical_name in folder_order:
-        props = config["folders"][logical_name]
-        ensure_folder(logical_name, props, state)
+    # 3. Folders (topologically sorted). Projects must be created first, then the ordering of
+    # folders being stored matters, so get the correct ordering of folders.
+    folder_order = sort_folders(resources.get("folder", []))
+    for folder_logical_name in folder_order:
+        props = config["resources"][folder_logical_name]["properties"]
+        ensure_folder(logical_name=folder_logical_name, props=props, state=state)
 
-    # 3. Access Controls
-    for acl in config.get("access_controls", []):
-        apply_acl(acl, state)
+    # 4. Access Controls have to come last since they depend on other resources
+    for acl in resources.get("access_control", []):
+        apply_acl(acl=acl, state=state)
 
 
 def export():
