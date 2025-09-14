@@ -10,9 +10,6 @@
 
 Client for using [Synapse Formation Templates](templates). Given one of these templates, `synapseformation` will be able to create all the components required in a Synapse Project.  Currently the implementation does one of these two scenarios.
 
-* Only creates new entities, will fail if entity already exists.
-* Create entities that don't exist and gets the entity if it already exists, but does not update an entity.
-
 ## Usage
 
 ### Command Line
