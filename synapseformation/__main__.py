@@ -49,7 +49,19 @@ def apply(template_path):
 @click.option("--template_path", help="Template path", type=click.Path())
 def plan(template_path):
     """Creates Synapse Resources given a yaml or json"""
-    plan_config(config_path=template_path)
+    changes = plan_config(config_path=template_path)
+    update = 0
+    create = 0
+    delete = 0
+    for change in changes:
+        print(change)
+        if change["action"] == "update":
+            update += 1
+        elif change["action"] == "create":
+            create += 1
+        else:
+            delete += 1
+    print(f"There are {create} creations, {update} updates, and {delete} deletions")
 
 
 if __name__ == "__main__":
