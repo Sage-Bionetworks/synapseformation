@@ -207,7 +207,7 @@ def load_config(path: str) -> dict:
         return yaml.safe_load(f)
 
 
-def apply(config_path):
+def apply_config(config_path):
     """Executes API calls to reconcile drift.
     Updates the state.json file with the new resource IDs and metadata.
     """

@@ -4,7 +4,8 @@ import synapseclient
 
 from .__version__ import __version__
 
-# from .client import create_synapse_resources
+from .client import apply_config
+
 # from .utils import synapse_login
 
 
@@ -37,20 +38,11 @@ def cli():
     pass
 
 
-# @cli.command()
-# @click.option("--template_path", help="Template path", type=click.Path())
-# @click.option(
-#     "-c",
-#     "--config_path",
-#     help="Synapse configuration file",
-#     type=click.Path(),
-#     show_default=True,
-#     default=synapseclient.client.CONFIG_FILE,
-# )
-# def create(template_path, config_path):
-#     """Creates Synapse Resources given a yaml or json"""
-#     syn = synapse_login(synapse_config=config_path)
-#     create_synapse_resources(syn=syn, template_path=template_path)
+@cli.command()
+@click.option("--template_path", help="Template path", type=click.Path())
+def apply(template_path):
+    """Creates Synapse Resources given a yaml or json"""
+    apply_config(config_path=template_path)
 
 
 if __name__ == "__main__":
