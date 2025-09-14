@@ -29,21 +29,36 @@ class State:
             json.dump(data, f, indent=2)
 
     def get_id(self, logical_name: str, resource_type: str) -> str:
-        """Get the Synapse resource ID for a given logical name and resource type.
+        """Retrieve the Synapse resource ID for a given logical name and resource type.
 
         Args:
-            logical_name (str): _description_
-            resource_type (str): _description_
+            logical_name (str): The logical name of the resource as defined in the configuration.
+            resource_type (str): The type of the resource (e.g., 'project', 'folder', 'team', 'acl').
 
         Returns:
-            str: _description_
+            str: The Synapse ID of the resource if found, otherwise None.
         """
         for r in self.resources:
             if r["name"] == logical_name and r["type"] == resource_type:
                 return r["id"]
         return None
 
-    def add(self, resource_type, logical_name, resource_id, properties=None):
+    def add(
+        self,
+        resource_type: str,
+        logical_name: str,
+        resource_id: str,
+        properties: dict = None,
+    ):
+        """
+        Adds a new resource to the internal resources list and saves the updated list.
+
+        Args:
+            resource_type (str): The type of the resource (e.g., 'database', 'storage').
+            logical_name (str): A unique logical name to identify the resource.
+            resource_id (str): The unique identifier of the resource.
+            properties (dict, optional): Additional properties for the resource. Defaults to an empty dictionary if not provided.
+        """
         self.resources.append(
             {
                 "type": resource_type,
@@ -54,7 +69,17 @@ class State:
         )
         self.save()
 
-    def update_properties(self, logical_name, resource_type, properties):
+    def update_properties(
+        self, logical_name: str, resource_type: str, properties: dict = None
+    ):
+        """
+        Updates the properties of a resource identified by logical name and resource type.
+
+        Args:
+            logical_name (str): The logical name of the resource as defined in the configuration.
+            resource_type (str): The type of the resource (e.g., 'project', 'folder', 'team', 'acl').
+            properties (dict, optional): The new properties to set for the resource. Defaults to None.
+        """
         for r in self.resources:
             if r["name"] == logical_name and r["type"] == resource_type:
                 r["properties"] = properties
@@ -63,14 +88,19 @@ class State:
 
 
 def apply_acl(acl: dict, state: State) -> str:
-    """_summary_
+    """
+    Applies an access control list (ACL) to a specified resource and updates the state accordingly.
 
     Args:
-        acl (dict): _description_
-        state (State): _description_
+        acl (dict): A dictionary representing the ACL to apply. Must contain a "name" and "properties" with "resource" and "grants".
+        state (State): The current state object used to resolve resource and principal IDs, and to track applied ACLs.
+
+    Raises:
+        KeyError: If required keys are missing in the ACL or state.
+        AttributeError: If the resource type is unsupported or missing required methods.
 
     Returns:
-        _type_: _description_
+        str: The ID of the resource to which the ACL was applied.
     """
     acl_applied = state.get_id(acl["name"], "acl")
     if acl_applied:
@@ -95,16 +125,19 @@ def apply_acl(acl: dict, state: State) -> str:
     return res_id
 
 
-def ensure_project(logical_name: str, props: dict, state: State) -> Project:
-    """Create or get project from state file
+def apply_project(logical_name: str, props: dict, state: State) -> Project:
+    """
+    Ensures that a project with the given logical name and properties exists in Synapse.
+
+    If the project does not exist, it is created with the given properties. If it does exist, the existing project is returned.
 
     Args:
-        logical_name (str): _description_
-        props (dict): _description_
-        state (State): _description_
+        logical_name (str): The logical name of the project.
+        props (dict): The properties of the project.
+        state (State): The state object to store the created project.
 
     Returns:
-        _type_: _description_
+        Project: The created or existing Synapse project.
     """
     project_id = state.get_id(logical_name, "project")
     if project_id:
@@ -115,7 +148,7 @@ def ensure_project(logical_name: str, props: dict, state: State) -> Project:
         return project
 
 
-def ensure_folder(logical_name: str, props: dict, state: State) -> Folder:
+def apply_folder(logical_name: str, props: dict, state: State) -> Folder:
     """
     Ensures that a folder with the given logical name and properties exists in Synapse under the given project.
 
@@ -141,7 +174,7 @@ def ensure_folder(logical_name: str, props: dict, state: State) -> Folder:
         return folder
 
 
-def ensure_team(logical_name: str, props: dict, state: State) -> Team:
+def apply_team(logical_name: str, props: dict, state: State) -> Team:
     """_summary_
 
     Args:
@@ -351,11 +384,11 @@ def apply_config(config_path):
 
     # 1. Teams
     for team in resources.get("team", []):
-        ensure_team(logical_name=team["name"], props=team["properties"], state=state)
+        apply_team(logical_name=team["name"], props=team["properties"], state=state)
 
     # 2. Projects
     for project in resources.get("project", []):
-        ensure_project(
+        apply_project(
             logical_name=project["name"], props=project["properties"], state=state
         )
 
@@ -364,7 +397,7 @@ def apply_config(config_path):
     folder_order = sort_folders(resources.get("folder", []))
     for folder_logical_name in folder_order:
         props = config["resources"][folder_logical_name]["properties"]
-        ensure_folder(logical_name=folder_logical_name, props=props, state=state)
+        apply_folder(logical_name=folder_logical_name, props=props, state=state)
 
     # 4. Access Controls have to come last since they depend on other resources
     for acl in resources.get("acl", []):
@@ -373,6 +406,11 @@ def apply_config(config_path):
 
 def export():
     """Reads Synapse resources and dumps them into YAML."""
+    pass
+
+
+def sync_drift():
+    """Sync the drift detected and align the state file with what is on Synapse"""
     pass
 
 
