@@ -32,8 +32,7 @@ def add_version(f):
 # @add_version
 def cli():
     """
-    Welcome to the synapseformation help page
-    $ synapseformation --help
+    synapseformation is a tool to manage Synapse resources via configuration files.
     """
     pass
 
