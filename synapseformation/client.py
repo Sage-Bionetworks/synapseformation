@@ -257,9 +257,10 @@ def plan_config(config_path):
                     "properties": config_resource["properties"],
                 }
             )
-
+    drift_detection = []
     # Loop through the resources in the state file and compare them to the configuration file to determine if any need to be deleted
     for state_resource in state_resources:
+        # Check for resources deleted from the config file
         if state_resource["name"] not in config["resources"]:
             changes.append(
                 {
@@ -268,8 +269,33 @@ def plan_config(config_path):
                     "action": "delete",
                 }
             )
+        # Check for synapse drift
+        if state_resource["type"] == "team":
+            state_synapse_resource = Team(id=state_resource["id"]).get()
+        # TODO add ACL drift detection
+        # elif state_resource['type'] == 'acl':
+        #     from synapseclient.models.mixins.access_control import get_entity_acl
+        #     get_entity_acl(state_resource["id"])
+        elif state_resource["type"] == "project":
+            state_synapse_resource = Project(id=state_resource["id"]).get()
+        elif state_resource["type"] == "folder":
+            state_synapse_resource = Folder(id=state_resource["id"]).get()
+        else:
+            state_synapse_resource = None
+        if (
+            state_synapse_resource is not None
+            and state_synapse_resource.name != state_resource["properties"]["name"]
+        ):
+            drift_detection.append(
+                {
+                    "type": state_resource["type"],
+                    "name": state_resource["name"],
+                    "synapse_properties": {"name": state_synapse_resource.name},
+                    "properties": state_resource["properties"],
+                }
+            )
 
-    return changes
+    return {"changes": changes, "drift": drift_detection}
 
 
 def load_config(path: str) -> dict:
@@ -300,9 +326,6 @@ def apply_config(config_path):
     Updates the state.json file with the new resource IDs and metadata.
     """
     config = load_config(config_path)
-    my_agent = "synapseformation/0.0.0"
-    syn = Synapse(user_agent=my_agent)
-    syn.login()
     state = State()
     resources = get_resources(resource_config=config["resources"])
 

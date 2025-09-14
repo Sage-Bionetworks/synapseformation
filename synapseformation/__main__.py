@@ -41,6 +41,9 @@ def cli():
 @click.option("--template_path", help="Template path", type=click.Path())
 def apply(template_path):
     """Creates Synapse Resources given a yaml or json"""
+    my_agent = "synapseformation/0.0.0"
+    syn = synapseclient.Synapse(user_agent=my_agent)
+    syn.login()
     apply_config(config_path=template_path)
 
 
@@ -48,11 +51,14 @@ def apply(template_path):
 @click.option("--template_path", help="Template path", type=click.Path())
 def plan(template_path):
     """Creates Synapse Resources given a yaml or json"""
+    my_agent = "synapseformation/0.0.0"
+    syn = synapseclient.Synapse(user_agent=my_agent)
+    syn.login()
     changes = plan_config(config_path=template_path)
     update = 0
     create = 0
     delete = 0
-    for change in changes:
+    for change in changes["changes"]:
         print(change)
         if change["action"] == "update":
             update += 1
@@ -61,6 +67,7 @@ def plan(template_path):
         else:
             delete += 1
     print(f"There are {create} creations, {update} updates, and {delete} deletions")
+    print(changes["drift"])
 
 
 if __name__ == "__main__":
