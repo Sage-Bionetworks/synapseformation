@@ -8,18 +8,26 @@ import synapseclient
 from synapseclient import Synapse
 from synapseclient.models import Project, Folder, Team
 
-# def apply_acl(acl, state, syn):
-#     # Resolve resource
-#     res_ref = acl["resource"].split(".")  # e.g. "folder.treat_ad_project.raw_data"
-#     res_type, logical_name = res_ref[0], res_ref[-1]
-#     res_id = state.get_id(logical_name, f"synapse_{res_type}")
 
-#     for grant in acl["grants"]:
-#         principal_ref = grant["principal"].split(".")  # e.g. "team.data_scientists"
-#         principal_id = state.get_id(principal_ref[-1], "synapse_team")
-#         permissions = grant["access"]
-#         # TODO: use Synapse API to set permissions
-#         print(f"Grant {permissions} on {res_id} to {principal_id}")
+def apply_acl(acl, state):
+    res_ref = acl["resource"].split(".")  # e.g. "folder.raw_data"
+    acl_applied = state.get_id(res_ref, "acl")
+    if acl_applied:
+        return acl_applied
+    # Resolve resource
+    res_type, logical_name = res_ref[0], res_ref[1]
+    res_id = state.get_id(logical_name, res_type)
+    for grant in acl["grants"]:
+        principal_ref = grant["principal"].split(".")  # e.g. "team.data_scientists"
+        principal_id = state.get_id(principal_ref[1], principal_ref[0])
+        access_type = grant["access_type"]
+        if res_type == "project":
+            res = Project(id=res_id).get()
+        elif res_type == "folder":
+            res = Folder(id=res_id).get()
+        res.set_permissions(principal_id=principal_id, access_type=access_type)
+        state.add("acl", res_ref, res_id, grant)
+        return res_id
 
 
 def ensure_project(logical_name, props, state):
@@ -199,8 +207,9 @@ def apply():
         ensure_folder(logical_name, props, state)
 
     # 3. Access Controls
-    # for acl in config.get("access_controls", []):
-    #     apply_acl(acl, state, syn)
+    for acl in config.get("access_controls", []):
+        print(acl)
+        apply_acl(acl, state)
 
 
 def export():
