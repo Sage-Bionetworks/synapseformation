@@ -54,7 +54,7 @@ def plan(template_path):
     my_agent = "synapseformation/0.0.0"
     syn = synapseclient.Synapse(user_agent=my_agent)
     syn.login()
-    changes = plan_config(config_path=template_path)
+    changes = plan_config(config_path=template_path, syn=syn)
     update = 0
     create = 0
     delete = 0
@@ -67,7 +67,9 @@ def plan(template_path):
         else:
             delete += 1
     print(f"There are {create} creations, {update} updates, and {delete} deletions")
-    print(changes["drift"])
+    for drifts in changes["drift"]:
+        print(drifts)
+    print(f"There are {len(changes['drift'])} drifts detected")
 
 
 if __name__ == "__main__":

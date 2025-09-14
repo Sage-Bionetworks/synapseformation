@@ -90,6 +90,7 @@ def apply_acl(acl: dict, state: State) -> str:
         elif res_type == "folder":
             res = Folder(id=res_id).get()
         res.set_permissions(principal_id=principal_id, access_type=access_type)
+        grant["principal"] = principal_id
     state.add("acl", acl["name"], res_id, properties)
     return res_id
 
@@ -201,7 +202,7 @@ def initialize():
     pass
 
 
-def plan_config(config_path):
+def plan_config(config_path, syn):
     """Reads the configuration file and compares it to the state file to determine what changes need to be made to reconcile any drift.
 
     Returns:
@@ -272,10 +273,29 @@ def plan_config(config_path):
         # Check for synapse drift
         if state_resource["type"] == "team":
             state_synapse_resource = Team(id=state_resource["id"]).get()
-        # TODO add ACL drift detection
-        # elif state_resource['type'] == 'acl':
-        #     from synapseclient.models.mixins.access_control import get_entity_acl
-        #     get_entity_acl(state_resource["id"])
+        elif state_resource["type"] == "acl":
+            acls_drifted = []
+            for grants in state_resource["properties"]["grants"]:
+                acl = syn.get_acl(
+                    entity=state_resource["id"], principal_id=grants["principal"]
+                )
+                if set(acl) != set(grants["access_type"]):
+                    acls_drifted.append(
+                        {
+                            "principal": grants["principal"],
+                            "access_type": acl,
+                        }
+                    )
+            if acls_drifted:
+                drift_detection.append(
+                    {
+                        "type": state_resource["type"],
+                        "name": state_resource["name"],
+                        "synapse_properties": acls_drifted,
+                        "properties": state_resource["properties"],
+                    }
+                )
+            state_synapse_resource = None
         elif state_resource["type"] == "project":
             state_synapse_resource = Project(id=state_resource["id"]).get()
         elif state_resource["type"] == "folder":
@@ -357,5 +377,5 @@ def export():
 
 
 def destroy():
-    """Deletes Synapse resources created by synapseformation."""
+    """Deletes Synapse resources created by synapseformation through the state file."""
     pass
