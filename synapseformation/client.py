@@ -1,138 +1,213 @@
 """Synapse Formation client"""
-from typing import List
+import json
+from pathlib import Path
+import yaml
+from collections import defaultdict, deque
 
 import synapseclient
 from synapseclient import Synapse
+from synapseclient.models import Project, Folder, Team
 
-from . import create, utils
-from .create import SynapseCreation
+# def apply_acl(acl, state, syn):
+#     # Resolve resource
+#     res_ref = acl["resource"].split(".")  # e.g. "folder.treat_ad_project.raw_data"
+#     res_type, logical_name = res_ref[0], res_ref[-1]
+#     res_id = state.get_id(logical_name, f"synapse_{res_type}")
 
-# def expand_config(config: dict) -> dict:
-#     """Expands shortened configuration to the official json format"""
-#     # TODO: Once all resources are either under a key mapping or lists
-#     # this will have to chance
-#     if isinstance(config, dict) and config.get('type') == "Project":
-#         # TODO: figure out how to clean this up.
-#         # Remove yaml anchor objects as they are expanded
-#         to_remove = [key for key in config
-#                      if key not in ["type", "name", "children"]]
-#         for key in to_remove:
-#             config.pop(key)
-#         # Get children if exists
-#         children = config.get('children')
-#         if children is not None:
-#             expand_config(children)
-#     else:
-#         # Loop through folders and create them
-#         for index, folder in enumerate(config):
-#             # The folder configuration can be lists or dicts
-#             # Must pull out children if it exists
-#             if isinstance(folder, dict):
-#                 children = folder.get('children')
-#             else:
-#                 config[index] = {"name": folder,
-#                                  "type": "Folder"}
-#                 children = None
-
-#             # Create nested folders
-#             if children is not None:
-#                 expand_config(children)
-#     return config
+#     for grant in acl["grants"]:
+#         principal_ref = grant["principal"].split(".")  # e.g. "team.data_scientists"
+#         principal_id = state.get_id(principal_ref[-1], "synapse_team")
+#         permissions = grant["access"]
+#         # TODO: use Synapse API to set permissions
+#         print(f"Grant {permissions} on {res_id} to {principal_id}")
 
 
-def _create_synapse_resources(
-    config_list: List[dict], creation_cls: SynapseCreation, parentid: str = None
-):
-    """Recursively steps through template and creates synapse resources
+def ensure_project(logical_name, props, state):
+    project_id = state.get_id(logical_name, "project")
+    if project_id:
+        return Project(id=project_id).get()
+    else:
+        project = Project(name=props["name"]).store()
+        state.add("project", logical_name, project.id, props)
+        return project
+
+
+def ensure_folder(logical_name, props, state):
+    """
+    Ensures that a folder with the given logical name and properties exists in Synapse under the given project.
+
+    If the folder does not exist, it is created with the given properties.  If it does exist, the existing folder is returned.
 
     Args:
-        config_list: List of Synapse resources
-        creation_cls: SynapseCreation class that can create resources
-        parentid: Synapse folder or project id to store entities
+        logical_name: The logical name of the folder
+        props: The properties of the folder
+        state: The state object to store the created folder
+        syn: The Synapse connection
+
+    Returns:
+        The created or existing Synapse folder
     """
-    # Specify entity or there will be an issue when the recursive
-    # function is called from within the for loop
-    # Error: entity not specified
-    entity = None
-    # Must iterate through list to avoid recursion limit issue
-    # This works because every layer in the json is a list
-    created_entities = []
-    for config in config_list:
-        if isinstance(config, dict) and config.get("type") == "Project":
-            entity = creation_cls.get_or_create_project(name=config["name"])
-        elif isinstance(config, dict) and config.get("type") == "Folder":
-            entity = creation_cls.get_or_create_folder(
-                name=config["name"], parentId=parentid
-            )
-        elif isinstance(config, dict) and config.get("type") == "EntityViewSchema":
-            kwargs = {k: v for k, v in config.items() if k != "type"}
-            entity_type_classes = []
-            for entity_type in kwargs["includeEntityTypes"]:
-                if entity_type == "file":
-                    entity_type_classes.append(synapseclient.EntityViewType.FILE)
-                elif entity_type == "project":
-                    entity_type_classes.append(synapseclient.EntityViewType.PROJECT)
-                elif entity_type == "table":
-                    entity_type_classes.append(synapseclient.EntityViewType.TABLE)
-                elif entity_type == "folder":
-                    entity_type_classes.append(synapseclient.EntityViewType.FOLDER)
-                elif entity_type == "view":
-                    entity_type_classes.append(synapseclient.EntityViewType.VIEW)
-                elif entity_type == "docker":
-                    entity_type_classes.append(synapseclient.EntityViewType.DOCKER)
-            kwargs["includeEntityTypes"] = entity_type_classes
-            entity = creation_cls.get_or_create_view(parent=parentid, **kwargs)
-        elif isinstance(config, dict) and config.get("type") == "Team":
-            team = creation_cls.get_or_create_team(
-                name=config["name"],
-                description=config["description"],
-                canPublicJoin=config["can_public_join"],
-            )
-            config["id"] = team.id
-            if config.get("invitations") is not None:
-                for invite in config["invitations"]:
-                    for member in invite["members"]:
-                        user = member.get("principal_id")
-                        email = member.get("email")
-                        creation_cls.syn.invite_to_team(
-                            team=team,
-                            user=user,
-                            inviteeEmail=email,
-                            message=invite["message"],
-                        )
-            this_entity_obj = {"name": config["name"], "entity": team, "children": []}
-        # only entities can have children and ACLs
-        if entity is not None:
-            this_entity_obj = {"name": config["name"], "entity": entity, "children": []}
-            parent_id = entity.id
-            config["id"] = parent_id
-            # Get ACL if exists
-            create._set_acl(
-                syn=creation_cls.syn, entity=entity, acl_config=config.get("acl", [])
-            )
-            children = config.get("children", None)
-            # implement this to not run into recursion limit
-            if children is not None:
-                this_entity_obj["children"] = _create_synapse_resources(
-                    config_list=children, creation_cls=creation_cls, parentid=parent_id
-                )
-        created_entities.append(this_entity_obj)
-    return created_entities
+    folder_id = state.get_id(logical_name, "folder")
+    if folder_id:
+        return Folder(id=folder_id).get()
+    else:
+        parent_id = state.get_id(
+            props["parent"].split(".")[1], props["parent"].split(".")[0]
+        )
+        folder = Folder(name=props["name"], parent_id=parent_id).store()
+        state.add("folder", logical_name, folder.id, props)
+        return folder
 
 
-def create_synapse_resources(
-    syn: synapseclient.Synapse, template_path: str, parent_id: str = None
-):
-    """Creates synapse resources from template"""
-    # Function will attempt to read template as yaml then try to read in json
-    config = utils.read_config(template_path)
-    # Expands shortended configuration into full configuration.  This should
-    # work if full configuration is passed in
-    # TODO: Ignore expansion of configuration for now
-    # full_config = expand_config(config)
-    # Recursive function to create resources
-    creation_cls = SynapseCreation(syn)
-    created_entities = _create_synapse_resources(
-        config_list=config, creation_cls=creation_cls, parentid=parent_id
-    )
-    return created_entities
+def ensure_team(logical_name, props, state):
+    team_id = state.get_id(logical_name, "team")
+    if team_id:
+        return Team(id=team_id).get()
+    else:
+        team = Team(name=props["name"]).create()
+        state.add("team", logical_name, team.id, props)
+        return team
+
+
+def sort_folders(folders: dict) -> list:
+    """
+    Perform a topological sort of folders based on parent references.
+    Returns a list of folder logical names in the correct creation order.
+    """
+    # Build adjacency + in-degree
+    graph = defaultdict(list)
+    in_degree = {name: 0 for name in folders.keys()}
+
+    for name, props in folders.items():
+        parent_ref = props["parent"]
+        parent_type, parent_name = parent_ref.split(".")
+        if parent_type == "folder":
+            graph[parent_name].append(name)
+            in_degree[name] += 1
+
+    # Topological sort (Kahn's algorithm)
+    queue = deque([name for name, deg in in_degree.items() if deg == 0])
+    order = []
+
+    while queue:
+        node = queue.popleft()
+        order.append(node)
+        for child in graph[node]:
+            in_degree[child] -= 1
+            if in_degree[child] == 0:
+                queue.append(child)
+
+    if len(order) != len(folders):
+        raise ValueError("Cycle detected in folder hierarchy!")
+
+    return order
+
+
+class State:
+    def __init__(self, path=".synapseformation/state.json"):
+        self.path = Path(path)
+        self.resources = []
+        if self.path.exists():
+            with open(self.path, "r") as f:
+                data = json.load(f)
+                self.resources = data.get("resources", [])
+        else:
+            self.resources = []
+
+    def save(self):
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        data = {"version": 1, "resources": self.resources}
+        with open(self.path, "w") as f:
+            json.dump(data, f, indent=2)
+
+    def get_id(self, logical_name: str, resource_type: str) -> str:
+        """Get the Synapse resource ID for a given logical name and resource type.
+
+        Args:
+            logical_name (str): _description_
+            resource_type (str): _description_
+
+        Returns:
+            str: _description_
+        """
+        for r in self.resources:
+            if r["name"] == logical_name and r["type"] == resource_type:
+                return r["id"]
+        return None
+
+    def add(self, resource_type, logical_name, resource_id, properties=None):
+        self.resources.append(
+            {
+                "type": resource_type,
+                "name": logical_name,
+                "id": resource_id,
+                "properties": properties or {},
+            }
+        )
+        self.save()
+
+    def update_properties(self, logical_name, resource_type, properties):
+        for r in self.resources:
+            if r["name"] == logical_name and r["type"] == resource_type:
+                r["properties"] = properties
+                break
+        self.save()
+
+
+def initialize():
+    """initialize .synapseformation directory with state.json for one project"""
+    pass
+
+
+def plan():
+    """reads yaml template and diffs the desired vs actual state"""
+    pass
+
+
+def load_config(path: str) -> dict:
+    with open(path, "r") as f:
+        return yaml.safe_load(f)
+
+
+def apply():
+    """Executes API calls to reconcile drift.
+    Updates the state.json file with the new resource IDs and metadata.
+    """
+    config = load_config("new_template.yaml")
+    my_agent = "synapseformation/0.0.0"
+    syn = Synapse(user_agent=my_agent)
+    syn.login()
+    state = State()
+
+    # 1. Teams
+    for logical_name, props in config.get("teams", {}).items():
+        team = ensure_team(logical_name, props, state)
+        print(team)
+
+    # 2. Projects (and nested folders)
+    for logical_name, props in config.get("projects", {}).items():
+        print(logical_name)
+        print(props)
+        project = ensure_project(logical_name, props, state)
+        print(project)
+
+    folder_order = sort_folders(config.get("folders", {}))
+    for logical_name in folder_order:
+        props = config["folders"][logical_name]
+        print(logical_name)
+        print(props)
+        ensure_folder(logical_name, props, state)
+
+    # 3. Access Controls
+    # for acl in config.get("access_controls", []):
+    #     apply_acl(acl, state, syn)
+
+
+def export():
+    """Reads Synapse resources and dumps them into YAML."""
+    pass
+
+
+def destroy():
+    """Deletes Synapse resources created by synapseformation."""
+    pass
