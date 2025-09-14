@@ -2,8 +2,7 @@
 import click
 import synapseclient
 
-from .__version__ import __version__
-
+from . import __version__
 from .client import apply_config, plan_config
 
 # from .utils import synapse_login
