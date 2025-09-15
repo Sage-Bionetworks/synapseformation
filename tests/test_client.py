@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import patch
 
-from synapseformation.client import ensure_project, State, Project
+from synapseformation.client import apply_project, State, Project
 
 
 @pytest.fixture
