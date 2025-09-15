@@ -7,27 +7,10 @@ from .client import apply_config, plan_config, destroy_resources
 from .utils import read_config
 
 
-def add_version(f):
-    """Adds the version of the tool to the help heading.
-
-    Args:
-        f: function to decorate
-
-    Returns:
-        decorated function
-    """
-    doc = f.__doc__
-    f.__doc__ = "Version: " + __version__ + "\n\n" + doc
-
-    return f
-
-
 @click.group()
 @click.version_option(
     __version__, "-V", "--version", message="%(prog)s, version %(version)s"
 )
-# @click.pass_context
-# @add_version
 def cli():
     """
     synapseformation is a tool to manage Synapse resources via yaml. Similar to cloudformation is for AWS.
