@@ -3,7 +3,7 @@ import click
 import synapseclient
 
 from . import __version__
-from .client import apply_config, plan_config
+from .client import apply_config, plan_config, destroy_resources
 
 # from .utils import synapse_login
 
@@ -69,6 +69,16 @@ def plan(template_path):
     for drifts in changes["drift"]:
         print(drifts)
     print(f"There are {len(changes['drift'])} drifts detected")
+
+
+@cli.command()
+@click.option("--template_path", help="Template path", type=click.Path())
+def destroy(template_path):
+    """Shows the potential changes to Synapse resources by comparing the template with the state file"""
+    my_agent = "synapseformation/0.0.0"
+    syn = synapseclient.Synapse(user_agent=my_agent)
+    syn.login()
+    destroy_resources(syn=syn)
 
 
 if __name__ == "__main__":

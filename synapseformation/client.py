@@ -86,6 +86,11 @@ class State:
                 break
         self.save()
 
+    def clear(self) -> str:
+        """Clear the state"""
+        self.resources = []
+        self.save()
+
 
 def apply_acl(acl: dict, state: State) -> str:
     """
@@ -404,6 +409,30 @@ def apply_config(config_path):
         apply_acl(acl=acl, state=state)
 
 
+def destroy_resources(syn: Synapse):
+    """Deletes Synapse resources created by synapseformation through the state file."""
+    state = State()
+    resources = defaultdict(list)
+    for resource in state.resources:
+        resources[resource["type"]].append(resource)
+    # Must delete ACLs first to be able to delete teams (in case there are ACLs provided to teams)
+    resources_acl = resources.get("acl", [])
+    for resource in resources_acl:
+        id = resource["id"]
+        for grants in resource["properties"]["grants"]:
+            principal_id = grants["principal"]
+            syn.setPermissions(entity=id, principalId=principal_id, accessType=[])
+
+    projects = resources.get("project", [])
+    for resource in projects:
+        Project(id=resource["id"]).delete()
+
+    teams = resources.get("team", [])
+    for resource in teams:
+        Team(id=resource["id"]).delete()
+    state.clear()
+
+
 def export():
     """Reads Synapse resources and dumps them into YAML."""
     pass
@@ -411,9 +440,4 @@ def export():
 
 def sync_drift():
     """Sync the drift detected and align the state file with what is on Synapse"""
-    pass
-
-
-def destroy():
-    """Deletes Synapse resources created by synapseformation through the state file."""
     pass
