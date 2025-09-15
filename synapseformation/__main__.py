@@ -30,7 +30,7 @@ def add_version(f):
 # @add_version
 def cli():
     """
-    synapseformation is a tool to manage Synapse resources via configuration files.
+    synapseformation is a tool to manage Synapse resources via yaml. Similar to cloudformation is for AWS.
     """
     pass
 
