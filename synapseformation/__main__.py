@@ -74,7 +74,7 @@ def plan(template_path):
 
 @cli.command()
 def destroy():
-    """Shows the potential changes to Synapse resources by comparing the template with the state file"""
+    """Deletes all the Synapse resources tracked in the state file"""
     my_agent = "synapseformation/0.0.0"
     syn = synapseclient.Synapse(user_agent=my_agent)
     syn.login()
