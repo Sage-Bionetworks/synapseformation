@@ -179,15 +179,19 @@ def apply_folder(logical_name: str, props: dict, state: State) -> Folder:
 
 
 def apply_team(logical_name: str, props: dict, state: State) -> Team:
-    """_summary_
+    """
+    Creates or retrieves a Team object based on the provided logical name.
+
+    If a team with the given logical name exists in the state, retrieves and returns the corresponding Team object.
+    Otherwise, creates a new Team using the provided properties, adds it to the state, and returns the new Team object.
 
     Args:
-        logical_name (str): _description_
-        props (dict): _description_
-        state (State): _description_
+        logical_name (str): The logical identifier for the team.
+        props (dict): Properties used to create the team (must include 'name').
+        state (State): The state object used to track created teams and their IDs.
 
     Returns:
-        _type_: _description_
+        Team: The retrieved or newly created Team object.
     """
     team_id = state.get_id(logical_name, "team")
     if team_id:
@@ -234,12 +238,30 @@ def sort_folders(folders: list[dict]) -> list:
     return order
 
 
+def get_resources(resource_config: dict) -> dict:
+    """
+    Given a configuration dictionary, returns a dictionary of resources organized by resource type and logical name.
+
+    Args:
+        config (dict): A configuration dictionary
+
+    Returns:
+        dict: A dictionary of resources organized by resource type and logical name
+    """
+    resources = defaultdict(list)
+    for name, res_dict in resource_config.items():
+        resources[res_dict["type"]].append(
+            {"name": name, "properties": res_dict["properties"]}
+        )
+    return resources
+
+
 def initialize():
     """initialize .synapseformation directory with state.json for one project"""
     pass
 
 
-def plan_config(config_path, syn):
+def plan_config(config: dict, syn: Synapse):
     """Reads the configuration file and compares it to the state file to determine what changes need to be made to reconcile any drift.
 
     Returns:
@@ -250,9 +272,6 @@ def plan_config(config_path, syn):
                 - action: The action to take for the resource (create, update, delete).
                 - properties: The properties for the resource.
     """
-    # Read the configuration file
-    config = load_config(config_path)
-
     # Read the state file
     state = State()
 
@@ -355,34 +374,10 @@ def plan_config(config_path, syn):
     return {"changes": changes, "drift": drift_detection}
 
 
-def load_config(path: str) -> dict:
-    with open(path, "r") as f:
-        return yaml.safe_load(f)
-
-
-def get_resources(resource_config: dict) -> dict:
-    """
-    Given a configuration dictionary, returns a dictionary of resources organized by resource type and logical name.
-
-    Args:
-        config (dict): A configuration dictionary
-
-    Returns:
-        dict: A dictionary of resources organized by resource type and logical name
-    """
-    resources = defaultdict(list)
-    for name, res_dict in resource_config.items():
-        resources[res_dict["type"]].append(
-            {"name": name, "properties": res_dict["properties"]}
-        )
-    return resources
-
-
-def apply_config(config_path):
+def apply_config(config: dict):
     """Executes API calls to reconcile drift.
     Updates the state.json file with the new resource IDs and metadata.
     """
-    config = load_config(config_path)
     state = State()
     resources = get_resources(resource_config=config["resources"])
 

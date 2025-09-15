@@ -4,8 +4,7 @@ import synapseclient
 
 from . import __version__
 from .client import apply_config, plan_config, destroy_resources
-
-# from .utils import synapse_login
+from .utils import read_config
 
 
 def add_version(f):
@@ -37,23 +36,25 @@ def cli():
 
 
 @cli.command()
-@click.option("--template_path", help="Template path", type=click.Path())
+@click.argument("template_path", type=click.Path(exists=True))
 def apply(template_path):
     """Creates Synapse Resources given a yaml or json"""
     my_agent = "synapseformation/0.0.0"
     syn = synapseclient.Synapse(user_agent=my_agent)
     syn.login()
-    apply_config(config_path=template_path)
+    config = read_config(template_path=template_path)
+    apply_config(config=config)
 
 
 @cli.command()
-@click.option("--template_path", help="Template path", type=click.Path())
+@click.argument("template_path", type=click.Path(exists=True))
 def plan(template_path):
-    """Shows the potential changes to Synapse resources by comparing the template with the state file"""
+    """Show the changes to Synapse resources by comparing the TEMPLATE_FILE.yaml with any existing state file"""
     my_agent = "synapseformation/0.0.0"
     syn = synapseclient.Synapse(user_agent=my_agent)
     syn.login()
-    changes = plan_config(config_path=template_path, syn=syn)
+    config = read_config(template_path=template_path)
+    changes = plan_config(config=config, syn=syn)
     update = 0
     create = 0
     delete = 0
