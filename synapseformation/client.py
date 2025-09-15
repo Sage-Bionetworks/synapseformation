@@ -4,7 +4,6 @@ from pathlib import Path
 import yaml
 from collections import defaultdict, deque
 
-import synapseclient
 from synapseclient import Synapse
 from synapseclient.models import Project, Folder, Team
 
