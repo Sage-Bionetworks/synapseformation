@@ -218,7 +218,10 @@ class TestApplyFunctions:
             assert result == mock_folder_instance
             mock_folder_class.assert_called_with(name="Test Folder", parent_id="syn123")
             mock_folder_instance.store.assert_called_once()
-            mock_folder_instance.bind_schema.assert_called_once()
+            mock_folder_instance.bind_schema.assert_called_once_with(
+                json_schema_uri="sage.schemas.v2571-el.AssayBsSeqTemplate.schema-0.0.2",
+                enable_derived_annotations=True,
+            )
 
     @patch("synapseformation.client.Folder")
     def test_apply_folder_existing(self, mock_folder_class):
@@ -244,7 +247,30 @@ class TestApplyFunctions:
             assert result == mock_folder_instance
             mock_folder_class.assert_called_with(id="syn456")
             mock_folder_instance.get.assert_called_once()
-            mock_folder_instance.bind_schema.assert_called_once()
+            # bind_schema should not be called for existing folders
+
+    @patch("synapseformation.client.Folder")
+    def test_apply_folder_new_no_schema(self, mock_folder_class):
+        """Test applying a new folder without jsonschema_uri"""
+        mock_folder_instance = Mock()
+        mock_folder_instance.id = "syn456"
+        mock_folder_instance.store.return_value = mock_folder_instance
+        mock_folder_class.return_value = mock_folder_instance
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            state_path = Path(tmpdir) / "state.json"
+            state = State(path=str(state_path))
+            state.resources = [
+                {"type": "project", "name": "parent_project", "id": "syn123"}
+            ]
+            props = {"name": "Test Folder", "parent": "project.parent_project"}
+
+            result = apply_folder("test_folder", props, state)
+
+            assert result == mock_folder_instance
+            mock_folder_class.assert_called_with(name="Test Folder", parent_id="syn123")
+            mock_folder_instance.store.assert_called_once()
+            mock_folder_instance.bind_schema.assert_not_called()
 
     @patch("synapseformation.client.Team")
     def test_apply_team_new(self, mock_team_class):

@@ -174,6 +174,11 @@ def apply_folder(logical_name: str, props: dict, state: State) -> Folder:
             props["parent"].split(".")[1], props["parent"].split(".")[0]
         )
         folder = Folder(name=props["name"], parent_id=parent_id).store()
+        if props.get("jsonschema_uri") is not None:
+            folder.bind_schema(
+                json_schema_uri=props.get("jsonschema_uri"),
+                enable_derived_annotations=True,
+            )
         state.add("folder", logical_name, folder.id, props)
         return folder
 
