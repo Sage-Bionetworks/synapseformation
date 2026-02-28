@@ -1,4 +1,5 @@
 """Test utility functions"""
+
 import json
 from unittest import mock
 
