@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-synapseformation = {editable = true, path = "."}
+synapseformation = {file = ".", path = "."}
 
 [dev-packages]
-pytest = "*"
+synapseformation = {file = ".", editable = true, path = ".", extras = ["pytest"]}

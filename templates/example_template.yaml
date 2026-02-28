@@ -1,0 +1,77 @@
+version: 1
+name: "Tyu Treat AD structure"
+resources:
+
+  data_scientists:
+    type: team
+    properties:
+      name: "Tyu Treat AD Data Scientists"
+      description: "Group of scientists analyzing Treat-AD data"
+
+  treat_ad_project:
+    type: project
+    properties:
+      name: "Tyu Treat AD Longitudinal Stu"
+      description: "Synapse project for Treat-AD longitudinal cohort"
+
+  # treat_ad_project4:
+  #   type: project
+  #   properties:
+  #     name: "Tyu Treat AD Longitudinal Study 4"
+  #     description: "Synapse project for Treat-AD longitudinal cohort"
+
+  mri:
+    type: folder
+    properties:
+      name: "MRI"
+      parent: folder.imaging
+
+  imaging:
+    type: folder
+    properties:
+      name: "Imaging"
+      parent: folder.raw_data
+
+  raw_data:
+    type: folder
+    properties:
+      name: "Raw Data"
+      parent: project.treat_ad_project
+
+  pet:
+    type: folder
+    properties:
+      name: "PET"
+      parent: folder.imaging
+
+  # raw_data_view:
+  #   type: entityview
+  #   properties:
+  #     name: "Raw Data View"
+  #     type: entity_view
+  #     parent: project.treat_ad_project
+  #     scopes:
+  #       - folder.raw_data
+  #       - folder.imaging
+  #     view_type_mask: FILE
+  #     columns:
+  #       - name: "assay"
+  #         columnType: STRING
+  #       - name: "fileFormat"
+  #         columnType: STRING
+
+  project_acl:
+    type: acl
+    properties:
+      resource: project.treat_ad_project
+      grants:
+        - principal: team.data_scientists
+          access_type: [READ, DOWNLOAD, CREATE]
+
+  mri_folder_acl:
+    type: acl
+    properties:
+      resource: folder.mri
+      grants:
+        - principal: team.data_scientists
+          access_type: [READ, DOWNLOAD]
