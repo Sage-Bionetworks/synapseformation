@@ -1,7 +1,6 @@
 """Synapse Formation client"""
 import json
 from pathlib import Path
-import yaml
 from collections import defaultdict, deque
 
 from synapseclient import Synapse
@@ -124,7 +123,7 @@ def apply_acl(acl: dict, state: State) -> str:
         elif res_type == "folder":
             res = Folder(id=res_id).get()
         res.set_permissions(principal_id=principal_id, access_type=access_type)
-        grant["principal"] = principal_id
+        # grant["principal"] = principal_id
     state.add("acl", acl["name"], res_id, properties)
     return res_id
 
@@ -266,6 +265,73 @@ def initialize():
     pass
 
 
+def detect_synapse_drift(state_resources: list, config: dict, syn: Synapse) -> list:
+    """Detect drift between state file and actual Synapse resources.
+
+    Args:
+        state_resources (list): List of resources from the state file
+        config (dict): Configuration dictionary with resources
+        syn (Synapse): Synapse client for API calls
+
+    Returns:
+        list: List of drift detection results
+    """
+    drift_detection = []
+
+    # Loop through the resources in the state file and check for synapse drift
+    for state_resource in state_resources:
+        # Skip resources that are deleted from config (handled in plan_config)
+        if state_resource["name"] not in config["resources"]:
+            continue
+
+        # Check for synapse drift
+        if state_resource["type"] == "team":
+            state_synapse_resource = Team(id=state_resource["id"]).get()
+        elif state_resource["type"] == "acl":
+            acls_drifted = []
+            for grants in state_resource["properties"]["grants"]:
+                acl = syn.get_acl(
+                    entity=state_resource["id"], principal_id=grants["principal"]
+                )
+                if set(acl) != set(grants["access_type"]):
+                    acls_drifted.append(
+                        {
+                            "principal": grants["principal"],
+                            "access_type": acl,
+                        }
+                    )
+            if acls_drifted:
+                drift_detection.append(
+                    {
+                        "type": state_resource["type"],
+                        "name": state_resource["name"],
+                        "synapse_properties": acls_drifted,
+                        "properties": state_resource["properties"],
+                    }
+                )
+            state_synapse_resource = None
+        elif state_resource["type"] == "project":
+            state_synapse_resource = Project(id=state_resource["id"]).get()
+        elif state_resource["type"] == "folder":
+            state_synapse_resource = Folder(id=state_resource["id"]).get()
+        else:
+            state_synapse_resource = None
+        if (
+            state_synapse_resource is not None
+            and state_synapse_resource.name != state_resource["properties"]["name"]
+        ):
+            drift_detection.append(
+                {
+                    "type": state_resource["type"],
+                    "name": state_resource["name"],
+                    "synapse_properties": {"name": state_synapse_resource.name},
+                    "properties": state_resource["properties"],
+                }
+            )
+
+    return drift_detection
+
+
 def plan_config(config: dict, syn: Synapse):
     """Reads the configuration file and compares it to the state file to determine what changes need to be made to reconcile any drift.
 
@@ -319,10 +385,9 @@ def plan_config(config: dict, syn: Synapse):
                     "properties": config_resource["properties"],
                 }
             )
-    drift_detection = []
-    # Loop through the resources in the state file and compare them to the configuration file to determine if any need to be deleted
+
+    # Check for resources deleted from the config file
     for state_resource in state_resources:
-        # Check for resources deleted from the config file
         if state_resource["name"] not in config["resources"]:
             changes.append(
                 {
@@ -331,50 +396,9 @@ def plan_config(config: dict, syn: Synapse):
                     "action": "delete",
                 }
             )
-        # Check for synapse drift
-        if state_resource["type"] == "team":
-            state_synapse_resource = Team(id=state_resource["id"]).get()
-        elif state_resource["type"] == "acl":
-            acls_drifted = []
-            for grants in state_resource["properties"]["grants"]:
-                acl = syn.get_acl(
-                    entity=state_resource["id"], principal_id=grants["principal"]
-                )
-                if set(acl) != set(grants["access_type"]):
-                    acls_drifted.append(
-                        {
-                            "principal": grants["principal"],
-                            "access_type": acl,
-                        }
-                    )
-            if acls_drifted:
-                drift_detection.append(
-                    {
-                        "type": state_resource["type"],
-                        "name": state_resource["name"],
-                        "synapse_properties": acls_drifted,
-                        "properties": state_resource["properties"],
-                    }
-                )
-            state_synapse_resource = None
-        elif state_resource["type"] == "project":
-            state_synapse_resource = Project(id=state_resource["id"]).get()
-        elif state_resource["type"] == "folder":
-            state_synapse_resource = Folder(id=state_resource["id"]).get()
-        else:
-            state_synapse_resource = None
-        if (
-            state_synapse_resource is not None
-            and state_synapse_resource.name != state_resource["properties"]["name"]
-        ):
-            drift_detection.append(
-                {
-                    "type": state_resource["type"],
-                    "name": state_resource["name"],
-                    "synapse_properties": {"name": state_synapse_resource.name},
-                    "properties": state_resource["properties"],
-                }
-            )
+
+    # Detect drift
+    drift_detection = detect_synapse_drift(state_resources, config, syn)
 
     return {"changes": changes, "drift": drift_detection}
 

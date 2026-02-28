@@ -495,7 +495,12 @@ class TestPlanConfig:
         mock_state_class.return_value = mock_state
 
         syn = Mock()
-        config = {"resources": {}}
+        # The config must have the `test_team` or else it'll be detected as a deletion`
+        config = {
+            "resources": {
+                "test_team": {"type": "team", "properties": {"name": "Original Name"}}
+            }
+        }
 
         result = plan_config(config, syn)
 
