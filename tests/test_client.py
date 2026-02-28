@@ -562,11 +562,11 @@ class TestDestroyResources:
         mock_state = Mock()
         mock_state.resources = [
             {"type": "project", "id": "syn123", "properties": {}},
-            {"type": "team", "id": "789", "properties": {}},
+            {"type": "team", "id": "789", "name": "data_scientists", "properties": {}},
             {
                 "type": "acl",
                 "id": "syn456",
-                "properties": {"grants": [{"principal": "789"}]},
+                "properties": {"grants": [{"principal": "team.data_scientists"}]},
             },
         ]
         mock_state_class.return_value = mock_state

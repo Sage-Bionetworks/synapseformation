@@ -5,6 +5,7 @@ from collections import defaultdict, deque
 
 from synapseclient import Synapse
 from synapseclient.models import Project, Folder, Team
+from synapseclient.operations import get
 
 
 class State:
@@ -265,69 +266,150 @@ def initialize():
     pass
 
 
-def detect_synapse_drift(state_resources: list, config: dict, syn: Synapse) -> list:
+def _detect_team_drift(state_resource: dict, syn: Synapse, state: State) -> list:
+    """Detect drift for team resources."""
+    drift_results = []
+    synapse_team = Team(id=state_resource["id"]).get()
+
+    if synapse_team.name != state_resource["properties"]["name"]:
+        drift_results.append(
+            {
+                "type": state_resource["type"],
+                "name": state_resource["name"],
+                "synapse_properties": {"name": synapse_team.name},
+                "properties": state_resource["properties"],
+            }
+        )
+
+    return drift_results
+
+
+def _detect_project_drift(state_resource: dict, syn: Synapse, state: State) -> list:
+    """Detect drift for project resources."""
+    drift_results = []
+    synapse_project = Project(id=state_resource["id"]).get()
+
+    if synapse_project.name != state_resource["properties"]["name"]:
+        drift_results.append(
+            {
+                "type": state_resource["type"],
+                "name": state_resource["name"],
+                "synapse_properties": {"name": synapse_project.name},
+                "properties": state_resource["properties"],
+            }
+        )
+
+    return drift_results
+
+
+def _detect_folder_drift(state_resource: dict, syn: Synapse, state: State) -> list:
+    """Detect drift for folder resources."""
+    drift_results = []
+    synapse_folder = Folder(id=state_resource["id"]).get()
+
+    if synapse_folder.name != state_resource["properties"]["name"]:
+        drift_results.append(
+            {
+                "type": state_resource["type"],
+                "name": state_resource["name"],
+                "synapse_properties": {"name": synapse_folder.name},
+                "properties": state_resource["properties"],
+            }
+        )
+
+    return drift_results
+
+
+def _detect_acl_drift(state_resource: dict, syn: Synapse, state: State) -> list:
+    """Detect drift for ACL resources."""
+    drift_results = []
+    acls_drifted = []
+
+    for grants in state_resource["properties"]["grants"]:
+        # Resolve logical principal name to actual ID
+        principal_ref = grants["principal"].split(".")  # e.g. "team.data_scientists"
+        principal_type, principal_logical_name = principal_ref[0], principal_ref[1]
+        principal_id = state.get_id(principal_logical_name, principal_type)
+
+        if principal_id is None:
+            print(
+                f"Warning: Could not resolve principal {grants['principal']} to actual ID"
+            )
+            continue
+
+        try:
+            actual_acl = syn.get_acl(
+                entity=state_resource["id"], principal_id=principal_id
+            )
+            if set(actual_acl) != set(grants["access_type"]):
+                acls_drifted.append(
+                    {
+                        "principal": grants[
+                            "principal"
+                        ],  # Keep logical name for readability
+                        "principal_id": principal_id,  # Include resolved ID for reference
+                        "expected_access_type": grants["access_type"],
+                        "actual_access_type": actual_acl,
+                    }
+                )
+        except Exception as e:
+            print(f"Error checking ACL for principal {grants['principal']}: {e}")
+            continue
+
+    if acls_drifted:
+        drift_results.append(
+            {
+                "type": state_resource["type"],
+                "name": state_resource["name"],
+                "synapse_properties": acls_drifted,
+                "properties": state_resource["properties"],
+            }
+        )
+
+    return drift_results
+
+
+# Registry of drift detection functions for each resource type
+DRIFT_DETECTORS = {
+    "team": _detect_team_drift,
+    "project": _detect_project_drift,
+    "folder": _detect_folder_drift,
+    "acl": _detect_acl_drift,
+}
+
+
+def detect_synapse_drift(config: dict, syn: Synapse, state: State) -> list:
     """Detect drift between state file and actual Synapse resources.
 
     Args:
-        state_resources (list): List of resources from the state file
         config (dict): Configuration dictionary with resources
         syn (Synapse): Synapse client for API calls
+        state (State): State object for resolving resource references and accessing resources
 
     Returns:
         list: List of drift detection results
     """
     drift_detection = []
 
-    # Loop through the resources in the state file and check for synapse drift
-    for state_resource in state_resources:
+    for state_resource in state.resources:
         # Skip resources that are deleted from config (handled in plan_config)
         if state_resource["name"] not in config["resources"]:
             continue
 
-        # Check for synapse drift
-        if state_resource["type"] == "team":
-            state_synapse_resource = Team(id=state_resource["id"]).get()
-        elif state_resource["type"] == "acl":
-            acls_drifted = []
-            for grants in state_resource["properties"]["grants"]:
-                acl = syn.get_acl(
-                    entity=state_resource["id"], principal_id=grants["principal"]
+        resource_type = state_resource["type"]
+        drift_detector = DRIFT_DETECTORS.get(resource_type)
+
+        if drift_detector:
+            try:
+                drift_results = drift_detector(state_resource, syn, state)
+                drift_detection.extend(drift_results)
+            except Exception as e:
+                # Log error and continue with other resources
+                print(
+                    f"Error detecting drift for {resource_type} '{state_resource['name']}': {e}"
                 )
-                if set(acl) != set(grants["access_type"]):
-                    acls_drifted.append(
-                        {
-                            "principal": grants["principal"],
-                            "access_type": acl,
-                        }
-                    )
-            if acls_drifted:
-                drift_detection.append(
-                    {
-                        "type": state_resource["type"],
-                        "name": state_resource["name"],
-                        "synapse_properties": acls_drifted,
-                        "properties": state_resource["properties"],
-                    }
-                )
-            state_synapse_resource = None
-        elif state_resource["type"] == "project":
-            state_synapse_resource = Project(id=state_resource["id"]).get()
-        elif state_resource["type"] == "folder":
-            state_synapse_resource = Folder(id=state_resource["id"]).get()
         else:
-            state_synapse_resource = None
-        if (
-            state_synapse_resource is not None
-            and state_synapse_resource.name != state_resource["properties"]["name"]
-        ):
-            drift_detection.append(
-                {
-                    "type": state_resource["type"],
-                    "name": state_resource["name"],
-                    "synapse_properties": {"name": state_synapse_resource.name},
-                    "properties": state_resource["properties"],
-                }
-            )
+            print(f"No drift detector available for resource type: {resource_type}")
 
     return drift_detection
 
@@ -346,9 +428,6 @@ def plan_config(config: dict, syn: Synapse):
     # Read the state file
     state = State()
 
-    # Get the resources from the state file
-    state_resources = state.resources
-
     # Create a dictionary to store the changes that need to be made to reconcile any drift
     changes = []
 
@@ -361,7 +440,7 @@ def plan_config(config: dict, syn: Synapse):
         if resource_id:
             # Resource exists, check for updates
             state_resource = next(
-                (r for r in state_resources if r["name"] == logical_name), None
+                (r for r in state.resources if r["name"] == logical_name), None
             )
             if (
                 state_resource
@@ -387,7 +466,7 @@ def plan_config(config: dict, syn: Synapse):
             )
 
     # Check for resources deleted from the config file
-    for state_resource in state_resources:
+    for state_resource in state.resources:
         if state_resource["name"] not in config["resources"]:
             changes.append(
                 {
@@ -398,7 +477,7 @@ def plan_config(config: dict, syn: Synapse):
             )
 
     # Detect drift
-    drift_detection = detect_synapse_drift(state_resources, config, syn)
+    drift_detection = detect_synapse_drift(config, syn, state)
 
     return {"changes": changes, "drift": drift_detection}
 
@@ -443,8 +522,19 @@ def destroy_resources(syn: Synapse):
     for resource in resources_acl:
         id = resource["id"]
         for grants in resource["properties"]["grants"]:
-            principal_id = grants["principal"]
-            syn.setPermissions(entity=id, principalId=principal_id, accessType=[])
+            # Resolve logical principal name to actual ID (same pattern as apply_acl)
+            principal_ref = grants["principal"].split(
+                "."
+            )  # e.g. "team.data_scientists"
+            principal_type, principal_logical_name = principal_ref[0], principal_ref[1]
+            principal_id = state.get_id(principal_logical_name, principal_type)
+
+            if principal_id:
+                syn.setPermissions(entity=id, principalId=principal_id, accessType=[])
+            else:
+                print(
+                    f"Warning: Could not resolve principal {grants['principal']} for cleanup"
+                )
 
     projects = resources.get("project", [])
     for resource in projects:
