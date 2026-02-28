@@ -35,7 +35,7 @@ pip install pytest
 
 > *A code maintainer must review and accept your pull request.* A code review (which happens with both the contributor and the reviewer present) is required for contributing. This can be performed remotely (e.g., Skype, Hangout, or other video or phone conference).
 
-This package uses [semantic versioning](https://semver.org/) for releasing new versions. The version should be updated on the `main` branch as changes are reviewed and merged in by a code maintainer. The version for the package is maintained in the [synapseformation/__version__.py](challengeutils/__version__.py) file.  A github release should occur when there are enough features to be released.
+This package uses [semantic versioning](https://semver.org/) for releasing new versions. The version should be updated on the `main` branch as changes are reviewed and merged in by a code maintainer. The version for the package is maintained in the [synapseformation/__version__.py](synapseformation/__version__.py) file.  A github release should occur when there are enough features to be released.
 
 ### Testing
 

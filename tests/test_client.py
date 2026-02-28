@@ -207,13 +207,18 @@ class TestApplyFunctions:
             state.resources = [
                 {"type": "project", "name": "parent_project", "id": "syn123"}
             ]
-            props = {"name": "Test Folder", "parent": "project.parent_project"}
+            props = {
+                "name": "Test Folder",
+                "parent": "project.parent_project",
+                "jsonschema_uri": "sage.schemas.v2571-el.AssayBsSeqTemplate.schema-0.0.2",
+            }
 
             result = apply_folder("test_folder", props, state)
 
             assert result == mock_folder_instance
             mock_folder_class.assert_called_with(name="Test Folder", parent_id="syn123")
             mock_folder_instance.store.assert_called_once()
+            mock_folder_instance.bind_schema.assert_called_once()
 
     @patch("synapseformation.client.Folder")
     def test_apply_folder_existing(self, mock_folder_class):
@@ -228,13 +233,18 @@ class TestApplyFunctions:
             state.resources = [
                 {"type": "folder", "name": "test_folder", "id": "syn456"}
             ]
-            props = {"name": "Test Folder", "parent": "project.parent_project"}
+            props = {
+                "name": "Test Folder",
+                "parent": "project.parent_project",
+                "jsonschema_uri": "sage.schemas.v2571-el.AssayBsSeqTemplate.schema-0.0.2",
+            }
 
             result = apply_folder("test_folder", props, state)
 
             assert result == mock_folder_instance
             mock_folder_class.assert_called_with(id="syn456")
             mock_folder_instance.get.assert_called_once()
+            mock_folder_instance.bind_schema.assert_called_once()
 
     @patch("synapseformation.client.Team")
     def test_apply_team_new(self, mock_team_class):

@@ -37,6 +37,7 @@ resources:
     properties:
       name: "Raw Data"
       parent: project.treat_ad_project
+      jsonschema_uri: "sage.schemas.v2571-el.AssayBsSeqTemplate.schema-0.0.2"
 
   pet:
     type: folder
