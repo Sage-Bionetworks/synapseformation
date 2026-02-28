@@ -327,6 +327,7 @@ def _detect_acl_drift(state_resource: dict, syn: Synapse, state: State) -> list:
 
     for grants in state_resource["properties"]["grants"]:
         # Resolve logical principal name to actual ID
+        # TODO: support when the principal is not specified in the config
         principal_ref = grants["principal"].split(".")  # e.g. "team.data_scientists"
         principal_type, principal_logical_name = principal_ref[0], principal_ref[1]
         principal_id = state.get_id(principal_logical_name, principal_type)
@@ -338,9 +339,8 @@ def _detect_acl_drift(state_resource: dict, syn: Synapse, state: State) -> list:
             continue
 
         try:
-            actual_acl = syn.get_acl(
-                entity=state_resource["id"], principal_id=principal_id
-            )
+            entity = get(state_resource["id"])
+            actual_acl = entity.get_acl(principal_id=principal_id)
             if set(actual_acl) != set(grants["access_type"]):
                 acls_drifted.append(
                     {
