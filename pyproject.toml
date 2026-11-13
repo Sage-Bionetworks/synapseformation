@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "synapseformation"
 dynamic = ["version"]
 readme = "README.md"
-description = "Synapse Formation will create Synapse resources as code (similar to terraform plan, apply, destroy)"
+description = "Synapse resources as code, using the Pulumi engine for state, planning and drift detection"
 authors = [
     {name = "Thomas Yu", email = "thomas.yu@sagebionetworks.org"}
 ]
@@ -29,6 +29,7 @@ classifiers = [
 ]
 dependencies = [
   "click",
+  "pulumi>=3.150.0,<4",
   "synapseclient>=4.9.0",
   "pyyaml"
 ]
