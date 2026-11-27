@@ -10,6 +10,8 @@ resources:
 
   treat_ad_project:
     type: project
+    # import: syn12345   # adopt an existing project instead of creating one
+    # protect: true      # refuse to delete this resource
     properties:
       name: "Tyu Treat AD Longitudinal Stu"
       description: "Synapse project for Treat-AD longitudinal cohort"

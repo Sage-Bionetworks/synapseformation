@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Biospecimen",
+  "type": "object",
+  "properties": {
+    "specimenID": {"type": "string", "description": "Identifier of the specimen"},
+    "individualID": {"type": "string", "description": "Identifier of the donor"},
+    "tissue": {"type": "string", "enum": ["brain", "blood", "csf"]},
+    "assay": {"type": "string"}
+  },
+  "required": ["specimenID", "individualID"]
+}

@@ -6,17 +6,20 @@ build-backend = "setuptools.build_meta"
 name = "synapseformation"
 dynamic = ["version"]
 readme = "README.md"
-description = "Synapse Formation will create Synapse resources as code (similar to terraform plan, apply, destroy)"
+description = "Synapse resources and metadata curation as code, using the Pulumi engine for state, planning and drift detection"
 authors = [
     {name = "Thomas Yu", email = "thomas.yu@sagebionetworks.org"}
 ]
-requires-python = ">=3.10, <3.13"
+requires-python = ">=3.11, <3.16"
 license = "Apache-2.0"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Operating System :: MacOS",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: Unix",
@@ -29,7 +32,8 @@ classifiers = [
 ]
 dependencies = [
   "click",
-  "synapseclient>=4.9.0",
+  "pulumi>=3.150.0,<4",
+  "synapseclient>=4.15.0,<5",
   "pyyaml"
 ]
 

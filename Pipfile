@@ -7,4 +7,4 @@ name = "pypi"
 synapseformation = {file = ".", path = "."}
 
 [dev-packages]
-synapseformation = {file = ".", editable = true, path = ".", extras = ["pytest"]}
+synapseformation = {file = ".", editable = true, path = ".", extras = ["test"]}
