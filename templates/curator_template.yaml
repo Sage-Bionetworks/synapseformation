@@ -1,0 +1,73 @@
+version: 1
+name: "Example metadata curation"
+resources:
+
+  curators:
+    type: team
+    properties:
+      name: "Example Study Curators"
+
+  study_project:
+    type: project
+    properties:
+      name: "Example Curation Study"
+
+  raw_data:
+    type: folder
+    properties:
+      name: "Raw Data"
+      parent: project.study_project
+
+  biospecimen_records:
+    type: folder
+    properties:
+      name: "Biospecimen Metadata"
+      parent: project.study_project
+
+  # The organization schemas are registered in. Names are global in Synapse.
+  # To use one that already exists, add `import: example.org` (and
+  # `protect: true` if it should outlive this template), or give its name
+  # directly as the json_schema `organization`.
+  example_org:
+    type: schema_organization
+    properties:
+      name: "example.org"
+      grants:
+        - principal: team.curators
+          access_type: [CREATE, READ]
+
+  # Register a JSON schema version (curator: register_jsonschema).
+  biospecimen_schema:
+    type: json_schema
+    properties:
+      organization: schema_organization.example_org
+      name: "Biospecimen"
+      version: "1.0.0"          # bump to publish a changed body
+      path: schemas/biospecimen.json
+
+  # Annotate files in a folder (curator: create_file_based_metadata_task).
+  # Binds the schema to the folder, then creates a file view and a task.
+  raw_data_annotation:
+    type: file_based_metadata_task
+    properties:
+      folder: folder.raw_data
+      curation_task_name: "RawDataFiles"
+      instructions: "Annotate each uploaded file with its biospecimen details."
+      schema: json_schema.biospecimen_schema
+      entity_view_name: "Raw Data metadata"
+      column_order: [specimenID, individualID]
+      assignee: team.curators
+      authorization_mode: SOURCE_BENEFACTOR
+
+  # Collect one record per specimen (curator: create_record_based_metadata_task).
+  biospecimen_metadata:
+    type: record_based_metadata_task
+    properties:
+      folder: folder.biospecimen_records
+      record_set_name: "Biospecimen records"
+      record_set_description: "One row per biospecimen"
+      curation_task_name: "BiospecimenRecords"
+      upsert_keys: [specimenID]
+      instructions: "Fill in one row for every specimen collected."
+      schema: json_schema.biospecimen_schema
+      assignee: team.curators

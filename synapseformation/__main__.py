@@ -12,16 +12,23 @@ from pathlib import Path
 import click
 
 from . import __version__
-from .engine import TemplateError, build_program
+from .engine import ENVIRONMENT_OUTPUT, TemplateError, build_program
+from .providers import STAGING_ENV_VAR, use_staging
 from .utils import read_config
 
 PROJECT_NAME = "synapseformation"
 
 
-def default_stack_name(template_path: str) -> str:
-    """One stack per template file, e.g. ``treat_ad.yaml`` -> ``treat_ad``."""
+def default_stack_name(template_path: str, staging: bool = False) -> str:
+    """One stack per template file, e.g. ``treat_ad.yaml`` -> ``treat_ad``.
+
+    Staging gets its own stack (``treat_ad-staging``): staging is a copy of
+    production, so the same Synapse IDs exist in both and their state must
+    never be mixed.
+    """
     stem = Path(template_path).stem
-    return re.sub(r"[^A-Za-z0-9_.-]", "-", stem) or "default"
+    name = re.sub(r"[^A-Za-z0-9_.-]", "-", stem) or "default"
+    return f"{name}-staging" if staging else name
 
 
 def default_backend_url() -> str:
@@ -40,8 +47,13 @@ def get_stack(template_path: str, stack_name: str | None, backend_url: str | Non
         raise click.ClickException(
             "The Pulumi CLI is required: https://www.pulumi.com/docs/install/"
         )
+    environment = "staging" if use_staging() else "production"
     try:
-        program = build_program(read_config(template_path))
+        program = build_program(
+            read_config(template_path),
+            base_dir=Path(template_path).parent,
+            environment=environment,
+        )
     except TemplateError as error:
         raise click.ClickException(f"Invalid template: {error}") from error
 
@@ -49,7 +61,7 @@ def get_stack(template_path: str, stack_name: str | None, backend_url: str | Non
     env_vars = {"PULUMI_SKIP_UPDATE_CHECK": "true"}
     secrets_provider = None
     if backend_url.startswith("file://"):
-        Path(backend_url[len("file://"):]).mkdir(parents=True, exist_ok=True)
+        Path(backend_url[len("file://") :]).mkdir(parents=True, exist_ok=True)
         secrets_provider = "passphrase"
         # The template holds no secrets; an empty passphrase avoids a prompt.
         if not (
@@ -63,8 +75,8 @@ def get_stack(template_path: str, stack_name: str | None, backend_url: str | Non
         runtime="python",
         backend=auto.ProjectBackend(url=backend_url),
     )
-    return auto.create_or_select_stack(
-        stack_name=stack_name or default_stack_name(template_path),
+    stack = auto.create_or_select_stack(
+        stack_name=stack_name or default_stack_name(template_path, use_staging()),
         project_name=PROJECT_NAME,
         program=program,
         opts=auto.LocalWorkspaceOptions(
@@ -73,6 +85,14 @@ def get_stack(template_path: str, stack_name: str | None, backend_url: str | Non
             env_vars=env_vars,
         ),
     )
+    recorded = stack.outputs().get(ENVIRONMENT_OUTPUT)
+    if recorded is not None and recorded.value != environment:
+        flag = "with" if recorded.value == "staging" else "without"
+        raise click.ClickException(
+            f"Stack '{stack.name}' manages Synapse {recorded.value}, not "
+            f"{environment}. Run {flag} --staging, or pick another --stack."
+        )
+    return stack
 
 
 def stack_options(func):
@@ -89,8 +109,17 @@ def stack_options(func):
         help="Pulumi state backend, e.g. s3://bucket/prefix. Defaults to "
         "$PULUMI_BACKEND_URL or file://./.synapseformation",
     )
+    @click.option(
+        "--staging",
+        is_flag=True,
+        help=f"Use Synapse staging instead of production (or set {STAGING_ENV_VAR}=1). "
+        "Staging stacks are named <template>-staging.",
+    )
     @functools.wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, staging=False, **kwargs):
+        if staging:
+            # Inherited by the Pulumi CLI and the provider processes it starts.
+            os.environ[STAGING_ENV_VAR] = "1"
         return func(*args, **kwargs)
 
     return wrapper
@@ -193,7 +222,8 @@ def output(template_path, stack_name, backend_url):
     """Print the Synapse ID of each managed resource."""
     stack = get_stack(template_path, stack_name, backend_url)
     for name, value in sorted(stack.outputs().items()):
-        click.echo(f"{name}: {value.value}")
+        if name != ENVIRONMENT_OUTPUT:
+            click.echo(f"{name}: {value.value}")
 
 
 if __name__ == "__main__":
