@@ -5,6 +5,9 @@
 > [!WARNING]
 > This package is not actively maintained and is an MVP. The functionality and dependencies may change at any time, but will follow semantic versioning guidelines. Use at your own risk.
 
+> [!CAUTION]
+> This project is completely AI vibe coded. Read what `plan` says it will change before you `apply`, and try new templates against Synapse staging (`--staging`) first.
+
 Manage Synapse teams, projects, folders, access controls, JSON schemas and metadata curation tasks as code, from a YAML or JSON [template](templates). `synapseformation` runs on the [Pulumi](https://www.pulumi.com/) engine, which handles state, dependency ordering, plans, drift detection and deletes. Each Synapse resource type is a Pulumi dynamic provider written in Python on top of the `synapseclient` object models.
 
 ## Installation
@@ -12,6 +15,8 @@ Manage Synapse teams, projects, folders, access controls, JSON schemas and metad
 ```
 pip install synapseformation
 ```
+
+`synapseformation` supports Python 3.11 to 3.15.
 
 You also need the [Pulumi CLI](https://www.pulumi.com/docs/install/). No Pulumi Cloud account is needed: state is kept locally by default.
 

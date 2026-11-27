@@ -1,5 +1,7 @@
 """Test the generated Pulumi program with Pulumi's runtime mocks"""
 
+import asyncio
+
 import pulumi
 import pytest
 
@@ -37,9 +39,15 @@ class Mocks(pulumi.runtime.Mocks):
 
 @pytest.fixture
 def mocks():
+    # Pulumi's mocks need a current event loop, which Python 3.14 no longer
+    # creates on demand.
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     mocks = Mocks()
     pulumi.runtime.set_mocks(mocks, preview=False)
-    return mocks
+    yield mocks
+    asyncio.set_event_loop(None)
+    loop.close()
 
 
 CONFIG = {

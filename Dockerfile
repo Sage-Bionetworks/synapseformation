@@ -1,6 +1,6 @@
 FROM python:3.11
 
-ARG PULUMI_VERSION=3.276.0
+ARG PULUMI_VERSION=3.278.0
 RUN curl -fsSL https://get.pulumi.com | sh -s -- --version ${PULUMI_VERSION}
 ENV PATH="/root/.pulumi/bin:${PATH}"
 
